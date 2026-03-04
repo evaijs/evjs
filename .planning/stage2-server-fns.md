@@ -120,7 +120,7 @@ The request handler that:
 - Webpack config with two entry points: client + server
 - A server function file demonstrating data fetch
 - Client page calling the server function
-- Express/Node server using `createHandler()` from `@evai/runtime/server`
+- Express/Node server using `createHandler()` from `evai-runtime/server`
 
 ## Build Pipeline
 

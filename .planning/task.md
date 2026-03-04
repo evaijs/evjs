@@ -1,7 +1,7 @@
 # evai Task List
 
 ## Stage 1: Core Framework Skeleton
-- [x] Plan the `@evai/runtime` client framework skeleton
+- [x] Plan the `evai-runtime` client framework skeleton
 - [x] Implement framework core in `packages/runtime/src/client/`
 - [x] Verify with `tsc --noEmit`
 

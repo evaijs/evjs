@@ -93,7 +93,7 @@ export default async function serverFnLoader(this: LoaderContext, source: string
       })
       .join("\n");
 
-    return `import { registerServerFn } from "@evai/runtime/server";\n${source}\n${registrations}\n`;
+    return `import { registerServerFn } from "evai-runtime/server";\n${source}\n${registrations}\n`;
   }
 
   // Client build: replace with RPC stubs
@@ -104,5 +104,5 @@ export default async function serverFnLoader(this: LoaderContext, source: string
     })
     .join("\n\n");
 
-  return `import { __evai_rpc } from "@evai/runtime/client";\n\n${stubCode}\n`;
+  return `import { __evai_rpc } from "evai-runtime/client";\n\n${stubCode}\n`;
 }

@@ -5,7 +5,7 @@
  * Usage (with any HTTP server, e.g. Express / Node http):
  *
  * ```ts
- * import { createHandler } from "@evai/runtime/server";
+ * import { createHandler } from "evai-runtime/server";
  *
  * const handler = createHandler();
  *

@@ -26,7 +26,7 @@ packages/shell/
   src/
     index.ts                 # root barrel export
     client/
-      index.tsx              # client barrel export
+      index.ts               # client barrel export
       create-app.tsx         # createApp() factory
       route.ts               # re-exports from @tanstack/react-router
 ```

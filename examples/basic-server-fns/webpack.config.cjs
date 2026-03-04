@@ -29,7 +29,7 @@ const clientConfig = {
             options: { transpileOnly: true },
           },
           {
-            loader: "@evai/runtime/webpack/server-fn-loader",
+            loader: "@evai/webpack-plugin/server-fn-loader",
             options: { isServer: false },
           },
         ],
@@ -89,7 +89,7 @@ const serverConfig = {
             options: { transpileOnly: true },
           },
           {
-            loader: "@evai/runtime/webpack/server-fn-loader",
+            loader: "@evai/webpack-plugin/server-fn-loader",
             options: { isServer: true },
           },
         ],

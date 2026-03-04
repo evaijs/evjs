@@ -16,6 +16,7 @@
   "devDependencies": {
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.8",
+    "@evai/webpack-plugin": "*",
     "html-webpack-plugin": "^5.6.6",
     "ts-loader": "^9.5.4",
     "typescript": "^5.7.3",

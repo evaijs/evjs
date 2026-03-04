@@ -36,10 +36,6 @@
     "./server": {
       "types": "./esm/server/index.d.ts",
       "import": "./esm/server/index.js"
-    },
-    "./webpack/server-fn-loader": {
-      "types": "./esm/webpack/server-fn-loader.d.ts",
-      "default": "./esm/webpack/server-fn-loader.js"
     }
   },
   "scripts": {

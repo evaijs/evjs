@@ -9,7 +9,7 @@ const clientConfig = {
   entry: "./src/main.tsx",
   output: {
     path: path.resolve(__dirname, "dist/client"),
-    filename: "client.js",
+    filename: "index.js",
     clean: true,
   },
   resolve: {
@@ -63,7 +63,7 @@ const serverConfig = {
   entry: "./src/server.ts",
   output: {
     path: path.resolve(__dirname, "dist/server"),
-    filename: "server.js",
+    filename: "index.js",
     clean: true,
     library: { type: "module" },
   },

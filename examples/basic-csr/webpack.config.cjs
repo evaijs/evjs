@@ -23,9 +23,19 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: {
-          loader: "ts-loader",
+          loader: "swc-loader",
           options: {
-            transpileOnly: true,
+            jsc: {
+              parser: {
+                syntax: "typescript",
+                tsx: true,
+              },
+              transform: {
+                react: {
+                  runtime: "automatic",
+                },
+              },
+            },
           },
         },
         exclude: /node_modules/,

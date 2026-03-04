@@ -6,7 +6,20 @@
   - [x] `route.ts` — re-exports of route creation APIs
   - [x] `client/index.ts` — public API barrel export
   - [x] `src/index.ts` — root barrel re-export
-- [x] Verify with `tsc --noEmit`
+- [x] Verify manifest with hashed production builds
+
+## Stage 2.6: SWC-based Transformation
+- [ ] Install `@swc/core` and set up loader
+- [ ] Implement SWC-based parser and visitor
+- [ ] Implement client-side transformation (body stripping)
+- [ ] Implement server-side transformation (registration insertion)
+- [x] Verify transformation with example app
+
+## Stage 2.7: SWC Loader Migration
+- [x] Install `swc-loader` and uninstall `ts-loader`
+- [x] Update `examples/basic-csr/webpack.config.cjs`
+- [x] Update `examples/basic-server-fns/webpack.config.cjs`
+- [x] Verify both examples build and run correctly
 
 ## Stage 2: React Server Functions (Data/AJAX)
 - [ ] Implement server function mechanism (used like a REST API, returning JSON data)

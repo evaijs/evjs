@@ -53,6 +53,27 @@ To support production builds with hashed filenames, we need stable identifiers f
 - Collect server function metadata.
 - Emit `evai-manifest.json`.
 
+## Stage 2.6: SWC-based Transformation
+Replace regex parsing in the Webpack loader with `@swc/core` for robust AST-based transformations.
+
+### [Component Name] @evai/webpack-plugin
+#### [MODIFY] [server-fn-loader.ts](file:///Users/xusd320/Codes/github/evai/packages/webpack-plugin/src/server-fn-loader.ts)
+- Use `@swc/core` to parse and transform the source.
+- Implement visitor to identify and rewrite exports.
+- Maintain stable ID generation logic.
+
+## Stage 2.7: SWC Loader Migration
+Replace `ts-loader` with `swc-loader` across the workspace for faster builds.
+
+### [Component Name] Examples (basic-csr, basic-server-fns)
+#### [MODIFY] [webpack.config.cjs](file:///Users/xusd320/Codes/github/evai/examples/basic-csr/webpack.config.cjs)
+- Replace all occurrences of `ts-loader` with `swc-loader`.
+- Configure `swc-loader` with appropriate options (jsc, target, syntax).
+
+#### [MODIFY] [webpack.config.cjs](file:///Users/xusd320/Codes/github/evai/examples/basic-server-fns/webpack.config.cjs)
+- Replace all occurrences of `ts-loader` with `swc-loader`.
+- Ensure compatibility with `server-fn-loader`.
+
 ### [Component Name] @evai/runtime
 #### [MODIFY] [handler.ts](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/server/handler.ts)
 - Add support for loading the manifest to resolve functions if needed (optional for now, registration works well for eager loads).

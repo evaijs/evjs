@@ -30,7 +30,7 @@ export class EvaiWebpackPlugin {
       const manifest = collector.getManifest();
       const content = JSON.stringify(manifest, null, 2);
 
-      compilation.assets["evai-manifest.json"] = {
+      compilation.assets["manifest.json"] = {
         source: () => content,
         size: () => content.length,
       } as any;

@@ -1,63 +1,91 @@
 import { createHash } from "node:crypto";
+import { parse } from "@swc/core";
 
 interface LoaderContext {
   getOptions(): { isServer?: boolean };
   resourcePath: string;
+  rootContext: string;
 }
+
+import path from "node:path";
 
 /**
  * Derive a stable function ID from the file path and export name.
  */
-function makeFnId(resourcePath: string, exportName: string): string {
+function makeFnId(rootContext: string, resourcePath: string, exportName: string): string {
+  const relativePath = path.relative(rootContext, resourcePath);
   return createHash("sha256")
-    .update(`${resourcePath}:${exportName}`)
+    .update(`${relativePath}:${exportName}`)
     .digest("hex")
     .slice(0, 16);
 }
 
 /**
- * Parse exported function/const names from the source using simple regex.
- */
-function parseExportNames(source: string): string[] {
-  const names: string[] = [];
-  const regex = /export\s+(?:async\s+)?(?:function|const|let|var)\s+(\w+)/g;
-  let m: RegExpExecArray | null;
-  while ((m = regex.exec(source)) !== null) {
-    names.push(m[1]);
-  }
-  return names;
-}
-
-/**
- * Check whether the source starts with the `"use server"` directive.
+ * Check whether the source starts with the "use server" directive.
  */
 function hasUseServerDirective(source: string): boolean {
   const trimmed = source.replace(/^(\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*/, "");
   return /^["']use server["'];?\s/.test(trimmed);
 }
 
-export default function serverFnLoader(this: LoaderContext, source: string): string {
+export default async function serverFnLoader(this: LoaderContext, source: string): Promise<string> {
   if (!hasUseServerDirective(source)) {
     return source;
   }
 
   const { isServer = false } = this.getOptions();
-  const exportNames = parseExportNames(source);
+
+  // Parse the source into an AST
+  const program = await parse(source, {
+    syntax: "typescript",
+    tsx: true,
+    comments: false,
+    script: false,
+  });
+
+  const exportNames: string[] = [];
+
+  // Iterate through module items to find exports
+  for (const item of program.body) {
+    if (item.type === "ExportDeclaration") {
+      const decl = item.declaration;
+      if (decl.type === "FunctionDeclaration") {
+        if (decl.identifier.value) exportNames.push(decl.identifier.value);
+      } else if (decl.type === "VariableDeclaration") {
+        for (const v of decl.declarations) {
+          if (v.id.type === "Identifier") {
+            exportNames.push(v.id.value);
+          }
+        }
+      }
+    } else if (item.type === "ExportNamedDeclaration") {
+      for (const specifier of item.specifiers) {
+        if (specifier.type === "ExportSpecifier") {
+          if (specifier.exported?.type === "Identifier") {
+            exportNames.push(specifier.exported.value);
+          } else if (specifier.orig.type === "Identifier") {
+            exportNames.push(specifier.orig.value);
+          }
+        }
+      }
+    }
+  }
 
   if (exportNames.length === 0) {
     return source;
   }
 
-  // If a global manifest collector is provided (via EvaiWebpackPlugin), register the functions
   const manifestCollector = (this as any)._compiler?._evai_manifest_collector;
 
   if (isServer) {
+    // Server build: keep original + register
     const registrations = exportNames
       .map((name) => {
-        const fnId = makeFnId(this.resourcePath, name);
+        const fnId = makeFnId(this.rootContext, this.resourcePath, name);
         if (manifestCollector) {
+          const relativePath = path.relative(this.rootContext, this.resourcePath);
           manifestCollector.addServerFn(fnId, {
-            file: this.resourcePath,
+            file: relativePath,
             name: name,
           });
         }
@@ -68,12 +96,13 @@ export default function serverFnLoader(this: LoaderContext, source: string): str
     return `import { registerServerFn } from "@evai/runtime/server";\n${source}\n${registrations}\n`;
   }
 
-  const stubs = exportNames
+  // Client build: replace with RPC stubs
+  const stubCode = exportNames
     .map((name) => {
-      const fnId = makeFnId(this.resourcePath, name);
+      const fnId = makeFnId(this.rootContext, this.resourcePath, name);
       return `export function ${name}(...args) {\n  return __evai_rpc("${fnId}", args);\n}`;
     })
     .join("\n\n");
 
-  return `import { __evai_rpc } from "@evai/runtime/client";\n\n${stubs}\n`;
+  return `import { __evai_rpc } from "@evai/runtime/client";\n\n${stubCode}\n`;
 }

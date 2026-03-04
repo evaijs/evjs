@@ -27,8 +27,20 @@ const clientConfig = {
         test: /\.server\.tsx?$/,
         use: [
           {
-            loader: "ts-loader",
-            options: { transpileOnly: true },
+            loader: "swc-loader",
+            options: {
+              jsc: {
+                parser: {
+                  syntax: "typescript",
+                  tsx: true,
+                },
+                transform: {
+                  react: {
+                    runtime: "automatic",
+                  },
+                },
+              },
+            },
           },
           {
             loader: "@evai/webpack-plugin/server-fn-loader",
@@ -40,8 +52,20 @@ const clientConfig = {
         test: /\.tsx?$/,
         exclude: [/node_modules/, /\.server\.tsx?$/],
         use: {
-          loader: "ts-loader",
-          options: { transpileOnly: true },
+          loader: "swc-loader",
+          options: {
+            jsc: {
+              parser: {
+                syntax: "typescript",
+                tsx: true,
+              },
+              transform: {
+                react: {
+                  runtime: "automatic",
+                },
+              },
+            },
+          },
         },
       },
     ],
@@ -87,8 +111,15 @@ const serverConfig = {
         test: /\.server\.tsx?$/,
         use: [
           {
-            loader: "ts-loader",
-            options: { transpileOnly: true },
+            loader: "swc-loader",
+            options: {
+              jsc: {
+                parser: {
+                  syntax: "typescript",
+                  tsx: true,
+                },
+              },
+            },
           },
           {
             loader: "@evai/webpack-plugin/server-fn-loader",
@@ -100,8 +131,15 @@ const serverConfig = {
         test: /\.tsx?$/,
         exclude: [/node_modules/, /\.server\.tsx?$/],
         use: {
-          loader: "ts-loader",
-          options: { transpileOnly: true },
+          loader: "swc-loader",
+          options: {
+            jsc: {
+              parser: {
+                syntax: "typescript",
+                tsx: true,
+              },
+            },
+          },
         },
       },
     ],

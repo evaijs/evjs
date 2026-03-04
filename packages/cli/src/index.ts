@@ -13,7 +13,7 @@ const pkg = fs.readJsonSync(path.join(__dirname, "../package.json"));
 const program = new Command();
 
 program
-  .name("evai")
+  .name("evcli")
   .description("CLI for the evai framework")
   .version(pkg.version);
 

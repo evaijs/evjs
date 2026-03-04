@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "evai dev",
-    "build": "evai build",
+    "dev": "evcli dev",
+    "build": "evcli build",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
@@ -13,7 +13,7 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@evai/cli": "*",
+    "evcli": "*",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "html-webpack-plugin": "^5.6.6",

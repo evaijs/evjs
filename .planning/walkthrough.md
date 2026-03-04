@@ -7,11 +7,11 @@
 `@evai/runtime` — a thin React framework over TanStack Router (code-based routing) and React Query.
 
 **Core package** (`packages/runtime/`):
-- [create-app.tsx](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/client/create-app.tsx) — `createApp()` factory that wires Router + QueryClient + DOM mount
-- [route.ts](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/client/route.ts) — re-exports of route creation APIs, components, and hooks
-- [client/index.ts](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/client/index.ts) — client barrel export
-- [server/index.ts](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/server/index.ts) — server barrel export (stub)
-- [index.ts](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/index.ts) — root barrel re-export
+- `src/client/create-app.tsx` — `createApp()` factory that wires Router + QueryClient + DOM mount
+- `src/client/route.ts` — re-exports of route creation APIs, components, and hooks
+- `src/client/index.ts` — client barrel export
+- `src/server/index.ts` — server barrel export (stub)
+- `src/index.ts` — root barrel re-export
 
 **Example app** (`examples/basic-csr/`):
 - Webpack-based client-only SPA with Home, About, and Posts pages

@@ -4,7 +4,7 @@ A React framework built on `@tanstack/react-router` (code-based routing) and `@t
 
 ## Roadmap
 
-- [x] Stage 1: Client-only SPA
+- [x] Stage 1: Client-first SPA
   - [x] `createApp()` factory (Router + React Query + DOM mount)
   - [x] Code-based routing (re-exports from `@tanstack/react-router`)
   - [x] ESM build via `tsc`
@@ -16,7 +16,7 @@ A React framework built on `@tanstack/react-router` (code-based routing) and `@t
 - [ ] Stage 3: React server functions (DOM Stream)
   - [ ] Server functions return a React DOM stream to the client
   - [ ] Integration with client-side rendering hooks
-- [ ] Stage 3: Server-side rendering (SSR)
+- [ ] Stage 4: Server-side rendering (SSR)
   - [ ] Server entry point (`packages/shell/src/server/`)
   - [ ] HTML streaming / `renderToPipeableStream`
   - [ ] Client hydration

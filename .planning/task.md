@@ -21,6 +21,15 @@
 - [x] Update `examples/basic-server-fns/webpack.config.cjs`
 - [x] Verify both examples build and run correctly
 
+## Stage 2.8: @evai/cli Implementation
+- [x] Initialize `packages/cli` with `package.json`
+- [x] Add `templates/` directory and copy basic examples
+- [x] Implement CLI entry point with `commander`
+- [x] Implement `init` command to scaffold new projects
+- [x] Implement `dev` command (wraps webpack-dev-server or custom dev loop)
+- [x] Implement `build` command (wraps webpack)
+- [x] Verify CLI by creating a new project from template
+
 ## Stage 2: React Server Functions (Data/AJAX)
 - [ ] Implement server function mechanism (used like a REST API, returning JSON data)
 - [ ] Implement build/bundler support for server vs client code splitting

@@ -74,6 +74,21 @@ Replace `ts-loader` with `swc-loader` across the workspace for faster builds.
 - Replace all occurrences of `ts-loader` with `swc-loader`.
 - Ensure compatibility with `server-fn-loader`.
 
+## Stage 2.8: @evai/cli Implementation
+Create a unified CLI for the evai framework to handle scaffolding and common tasks.
+
+### [Component Name] @evai/cli
+#### [NEW] [package.json](file:///Users/xusd320/Codes/github/evai/packages/cli/package.json)
+- Define `@evai/cli` name and dependencies (`commander`, `execa`, `fs-extra`).
+- Register `evai` binary.
+
+#### [NEW] [index.ts](file:///Users/xusd320/Codes/github/evai/packages/cli/src/index.ts)
+- Implement command line interface using `commander`.
+- Commands: `init`, `dev`, `build`.
+
+#### [NEW] [templates/](file:///Users/xusd320/Codes/github/evai/packages/cli/templates)
+- Provide pre-configured templates for CSR and Server Functions.
+
 ### [Component Name] @evai/runtime
 #### [MODIFY] [handler.ts](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/server/handler.ts)
 - Add support for loading the manifest to resolve functions if needed (optional for now, registration works well for eager loads).

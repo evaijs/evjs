@@ -2,16 +2,16 @@
 
 ## What was built
 
-A minimal framework skeleton in `@evai/shell` that wraps **TanStack Router** (code-based routing) and **React Query** behind an opinionated `createApp()` API.
+A minimal framework skeleton in `@evai/runtime` that wraps **TanStack Router** (code-based routing) and **React Query** behind an opinionated `createApp()` API.
 
 ## Files created
 
 | File | Purpose |
 |------|---------|
-| [route.ts](file:///Users/xusd320/Codes/github/evai/packages/shell/src/client/route.ts) | Re-exports of route creation APIs, components, hooks, and types from `@tanstack/react-router` |
-| [create-app.tsx](file:///Users/xusd320/Codes/github/evai/packages/shell/src/client/create-app.tsx) | `createApp()` factory — creates Router + QueryClient, returns `{ router, queryClient, render() }` |
-| [client/index.tsx](file:///Users/xusd320/Codes/github/evai/packages/shell/src/client/index.tsx) | Barrel export for the client module |
-| [src/index.ts](file:///Users/xusd320/Codes/github/evai/packages/shell/src/index.ts) | Root barrel — re-exports from `./client/` |
+| [route.ts](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/client/route.ts) | Re-exports of route creation APIs, components, hooks, and types from `@tanstack/react-router` |
+| [create-app.tsx](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/client/create-app.tsx) | `createApp()` factory — creates Router + QueryClient, returns `{ router, queryClient, render() }` |
+| [client/index.tsx](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/client/index.tsx) | Barrel export for the client module |
+| [src/index.ts](file:///Users/xusd320/Codes/github/evai/packages/runtime/src/index.ts) | Root barrel — re-exports from `./client/` |
 
 ## Consumer usage
 
@@ -22,7 +22,7 @@ import {
   createRoute,
   Outlet,
   Link,
-} from "@evai/shell";
+} from "@evai/runtime";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -51,10 +51,10 @@ app.render("#app");
 $ npm run check-types
 
 • turbo 2.8.13
-• Packages in scope: @evai/shell
+• Packages in scope: @evai/runtime
 • Running check-types in 1 packages
 
-@evai/shell:check-types: > tsc --noEmit
+@evai/runtime:check-types: > tsc --noEmit
 
  Tasks:    1 successful, 1 total
 ```

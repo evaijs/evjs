@@ -1,0 +1,32 @@
+{
+  "name": "@evai/cli",
+  "version": "0.0.1",
+  "description": "Command line interface for the evai framework",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "evai": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "execa": "^9.5.2",
+    "fs-extra": "^11.3.0",
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.13.5",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5.7.3"
+  }
+}

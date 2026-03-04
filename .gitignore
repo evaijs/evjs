@@ -2,5 +2,5 @@ node_modules
 .turbo
 dist
 .next
-packages/shell/esm
+packages/runtime/esm
 esm

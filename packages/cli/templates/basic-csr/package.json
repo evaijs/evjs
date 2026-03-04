@@ -1,0 +1,26 @@
+{
+  "name": "example-basic-csr",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "evai dev",
+    "build": "evai build",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@evai/runtime": "*",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@evai/cli": "*",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "html-webpack-plugin": "^5.6.6",
+    "swc-loader": "^0.2.7",
+    "typescript": "^5.7.3",
+    "webpack": "^5.105.4",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.3"
+  }
+}

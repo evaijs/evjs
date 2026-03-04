@@ -7,7 +7,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
-    publicPath: "/",
     clean: true,
   },
   resolve: {
@@ -23,7 +22,6 @@ module.exports = {
       },
       {
         test: /\.tsx?$/,
-
         use: {
           loader: "ts-loader",
           options: {
@@ -40,8 +38,7 @@ module.exports = {
     }),
   ],
   devServer: {
-    port: 3456,
+    port: 3000,
     hot: true,
-    historyApiFallback: true,
   },
 };

@@ -28,6 +28,9 @@ export class EvaiWebpackPlugin {
 
     compiler.hooks.emit.tap("EvaiWebpackPlugin", (compilation) => {
       const manifest = collector.getManifest();
+      if (Object.keys(manifest.serverFns).length === 0) {
+        return;
+      }
       const content = JSON.stringify(manifest, null, 2);
 
       compilation.assets["manifest.json"] = {

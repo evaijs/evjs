@@ -12,9 +12,9 @@
 - [x] Migrate workspace to `swc-loader`
 - [x] Use project-relative paths in manifest metadata
 
-## Stage 2.8: evcli Implementation
+## Stage 2.8: evaicli Implementation
 - [x] Initialize `packages/cli` with `package.json`
-- [x] Implement `evcli` with `init`, `dev`, `build` commands
+- [x] Implement `evaicli` with `init`, `dev`, `build` commands
 - [x] Verify with example project scaffolding
 
 ## Stage 3: Server-Side Rendering (SSR)

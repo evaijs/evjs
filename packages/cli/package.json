@@ -1,11 +1,11 @@
 {
-  "name": "evcli",
+  "name": "evaicli",
   "version": "0.0.1",
   "description": "Command line interface for the evai framework",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "evcli": "./dist/index.js"
+    "evaicli": "./dist/index.js"
   },
   "files": [
     "dist",

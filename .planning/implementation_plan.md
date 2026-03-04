@@ -23,7 +23,7 @@ Provide a thin framework layer over `@tanstack/react-router` and `@tanstack/reac
 
 ### CLI Tooling (`packages/cli`)
 #### [NEW] [package.json](../packages/cli/package.json)
-- Registers `evcli` binary.
+- Registers `evaicli` binary.
 #### [NEW] [index.ts](../packages/cli/src/index.ts)
 - `init`: Project scaffolding from templates.
 - `dev`/`build`: Wrapped Webpack commands.

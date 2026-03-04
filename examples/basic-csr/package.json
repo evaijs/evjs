@@ -1,10 +1,12 @@
 {
-  "name": "@evai/example-basic-csr",
+  "name": "example-basic-csr",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "up dev",
-    "build": "up build",
+    "dev": "webpack serve",
+    "build": "webpack --mode production",
+    "dev:utoo": "up dev --webpack",
+    "build:utoo": "up build --webpack",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
@@ -17,6 +19,11 @@
     "@types/react-dom": "^19.0.3",
     "@utoo/pack": "^1.2.12",
     "@utoo/pack-cli": "^1.2.12",
-    "typescript": "^5.7.3"
+    "html-webpack-plugin": "^5.6.6",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.7.3",
+    "webpack": "^5.105.4",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.3"
   }
 }

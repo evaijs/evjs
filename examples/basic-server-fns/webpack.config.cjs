@@ -7,6 +7,7 @@ const clientConfig = {
   name: "client",
   mode: "development",
   target: "web",
+  devtool: "source-map",
   entry: "./src/main.tsx",
   output: {
     path: path.resolve(__dirname, "dist/client"),
@@ -62,6 +63,7 @@ const serverConfig = {
   name: "server",
   mode: "development",
   target: "node",
+  devtool: "source-map",
   entry: "./src/server.ts",
   output: {
     path: path.resolve(__dirname, "dist/server"),

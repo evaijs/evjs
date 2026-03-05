@@ -24,5 +24,5 @@ app.render("#app");
 ## Verification
 
 - `tsc --noEmit`: Verified framework types are coherent.
-- `evcli build`: Successfully generates bundles and `manifest.json`.
-- `evcli dev`: Launches dev server with HR.
+- `ev build`: Successfully generates bundles and `manifest.json`.
+- `ev dev`: Launches dev server with HR.

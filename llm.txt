@@ -1,138 +1,67 @@
-# @evjs/runtime
+# ev Framework
 
-A React framework built on `@tanstack/react-router` (code-based routing) and `@tanstack/react-query`. Planned to support server rendering (SSR) and React server functions. Currently in stage 1: client-only SPA.
+A React framework built for speed and simplicity, leveraging `@tanstack/react-router` for code-based routing and `@tanstack/react-query` for state management. Currently in Stage 2: Supporting React Server Functions (Data/AJAX).
+
+- **Repository**: [evjs/evjs](https://github.com/evaijs/evjs)
+- **Organization**: `@evjs`
+- **CLI**: `ev`
 
 ## Roadmap
 
 - [x] Stage 1: Client-first SPA
-  - [x] `createApp()` factory (Router + React Query + DOM mount)
-  - [x] Code-based routing (re-exports from `@tanstack/react-router`)
-  - [x] ESM build via `tsc`
-  - [x] Example: `examples/basic-csr` (Webpack)
-- [x] Stage 2: React server functions (Data/AJAX)
-  - [x] Server functions behave like RESTful API (send/receive JSON data)
-  - [x] Bundler integration (server/client code splitting)
-  - [x] Stable IDs & `ev-manifest.json` for production/hashing
-  - [x] Example: `examples/basic-server-fns`
-- [ ] Stage 3: Server-side rendering (SSR)
-  - [ ] Server entry point (`packages/runtime/src/server/`)
-  - [ ] HTML streaming / `renderToPipeableStream`
-  - [ ] Client hydration
-  - [ ] Example: `examples/basic-ssr`
-- [ ] Stage 4: React server functions (DOM Stream)
-  - [ ] Server functions return a React DOM stream to the client
-  - [ ] Integration with client-side rendering hooks
+  - [x] `createApp()` factory (Router + Query + DOM)
+  - [x] Code-based routing (via TanStack Router)
+- [x] Stage 2: React Server Functions (Alpha)
+  - [x] Isomorphic RPC calls (`"use server"`)
+  - [x] Webpack plugin for server/client splitting
+  - [x] Stable manifest-based routing (`ev-manifest.json`)
+- [ ] Stage 3: Server-Side Rendering (SSR)
+  - [ ] Node.js server entry point
+  - [ ] HTML streaming & Hydration
+- [ ] Stage 4: Advanced RSF
+  - [ ] Server functions returning React DOM streams
 
-## Package structure
+## Packages
 
-```
-packages/runtime/
-  src/
-    index.ts                 # root barrel export
-    client/
-      index.ts               # client barrel export
-      create-app.tsx         # createApp() factory
-      route.ts               # re-exports from @tanstack/react-router
-```
+### `@evjs/runtime`
+Core runtime providing isomorphic utilities.
+- `client`: `createApp`, `createRoute`, `Outlet`, `Link`.
+- `server`: `createHandler`, `registerServerFn`.
 
-## Key API
+### `@evjs/cli`
+Command-line interface for project management.
+- `ev init [name]`: Scaffold a new project from templates.
+- `ev dev`: Start development server.
+- `ev build`: Build for production.
+
+### `@evjs/webpack-plugin`
+Build-time integration for React Server Functions.
+- `EvWebpackPlugin`: Orchestrates manifest generation and build lifecycle.
+- `server-fn-loader`: Automatically transforms `"use server"` files into client RPC stubs.
+
+## Key API: `@evjs/runtime`
 
 ### `createApp(options)`
-
-Creates and bootstraps a client SPA. Internally wires up TanStack Router and React Query.
-
 ```tsx
-import { createApp, createRootRoute, createRoute, Outlet, Link } from "@evjs/runtime";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <div>
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-      </nav>
-      <Outlet />
-    </div>
-  ),
-});
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: () => <h1>Home</h1>,
-});
-
-const routeTree = rootRoute.addChildren([indexRoute]);
-
-createApp({ routeTree }).render("#app");
+import { createApp, createRootRoute } from "@evjs/runtime";
+const rootRoute = createRootRoute({ component: Root });
+createApp({ routeTree: rootRoute.addChildren([...]) }).render("#app");
 ```
 
-#### Options
-
-- `routeTree` — route tree built via `createRootRoute` / `createRoute` / `addChildren`
-- `routerOptions` — optional overrides passed to TanStack `createRouter()` (e.g. `defaultPreload`)
-- `queryClientConfig` — optional React Query `QueryClient` config
-
-#### Returns
-
-- `router` — the TanStack Router instance
-- `queryClient` — the React Query client
-- `render(container)` — mounts the app into a DOM element or CSS selector
-
-### Re-exported from `@tanstack/react-router`
-
-Route creation: `createRootRoute`, `createRootRouteWithContext`, `createRoute`, `createRouteMask`, `createRouter`
-
-Components: `Outlet`, `Link`, `Navigate`, `CatchBoundary`, `ErrorComponent`, `RouterProvider`
-
-Hooks: `useRouter`, `useRouterState`, `useMatch`, `useParams`, `useSearch`, `useNavigate`, `useLoaderData`, `useLoaderDeps`, `useRouteContext`, `useLocation`, `useMatchRoute`, `useBlocker`, `useCanGoBack`
-
-Utilities: `redirect`, `isRedirect`, `notFound`, `isNotFound`, `getRouteApi`, `lazyRouteComponent`, `linkOptions`, `createLink`
-
-## Recommended project structure
-
-```
-src/
-  main.tsx          # rootRoute, route tree assembly, createApp().render()
-  pages/
-    home.tsx        # route definition + component
-    about.tsx       # route definition + component
-    posts/
-      index.tsx     # layout route + child routes + components
-```
-
-Each page file exports its route and co-locates the component:
-
+### Server Functions (`"use server"`)
+Define a server function:
 ```tsx
-import { createRoute } from "@evjs/runtime";
-import { rootRoute } from "../main";
-
-export const aboutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/about",
-  component: function About() {
-    return <h1>About</h1>;
-  },
-});
-```
-
-## Build
-
-`@evjs/runtime` compiles to ESM via `tsc` into `esm/`. Consumers import the compiled output — no raw TypeScript source is exported.
-
-```json
-{
-  "exports": {
-    ".": { "types": "./esm/index.d.ts", "import": "./esm/index.js" },
-    "./client": { "types": "./esm/client/index.d.ts", "import": "./esm/client/index.js" }
-  }
+// api/users.server.ts
+"use server";
+export async function getUsers() {
+  return await db.users.findMany();
 }
 ```
+Imported and called from client components as a standard async function. The `@evjs/webpack-plugin` handles the RPC transformation.
 
-## Monorepo
+## Monorepo Workflow
 
-This is an npm workspaces monorepo orchestrated by Turborepo.
-
-- `npm run build` — build all packages
-- `npm run check-types` — type-check all packages and examples
-- `npm run dev` — start dev servers
+Managed with Turborepo and npm workspaces.
+- `npm run build`: Build all libraries and examples.
+- `npm run dev`: Concurrent development mode.
+- `npm run release:alpha`: Build and publish all packages to `@evjs` scope.

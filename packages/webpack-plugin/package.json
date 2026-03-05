@@ -1,6 +1,6 @@
 {
   "name": "@evjs/webpack-plugin",
-  "version": "0.0.1-alpha.5",
+  "version": "0.0.1-alpha.6",
   "description": "Webpack plugin and loaders for the ev framework",
   "type": "module",
   "publishConfig": {
@@ -35,7 +35,7 @@
   "author": "xusd320",
   "license": "MIT",
   "dependencies": {
-    "@evjs/manifest": "0.0.1-alpha.5",
+    "@evjs/manifest": "0.0.1-alpha.6",
     "@swc/core": "^1.15.18",
     "glob": "^13.0.6"
   },

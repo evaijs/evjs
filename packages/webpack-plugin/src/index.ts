@@ -5,6 +5,10 @@ import type { Compiler } from "webpack";
 class ManifestCollector {
   serverFns: Record<string, ServerFnEntry> = {};
 
+  addServerFn(id: string, meta: ServerFnEntry) {
+    this.serverFns[id] = meta;
+  }
+
   getManifest(): EvManifest {
     return {
       version: 1,

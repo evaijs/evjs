@@ -9,10 +9,10 @@
 - **Type-Safe Routing**: Built on [TanStack Router](https://tanstack.com/router).
 - **Isomorphic Data Fetching**: Powered by [TanStack Query](https://tanstack.com/query).
 - **Server Functions**: Use `"use server"` to define server-side logic callable as standard async functions.
-- **Hono API Server**: Lightweight, Web Standards-based server via [Hono](https://hono.dev).
-- **Zero-Config Build**: Auto-discovers server functions — no manual imports needed.
+- **Dynamic Server Discovery**: Auto-detects server functions in real-time — no manual configuration or imports.
+- **Single-Config Build**: Harmonized client/server builds via Webpack Child Compilers.
 - **Unified CLI**: Scaffold and manage projects with the `ev` command.
-- **Modern Build**: Optimized with SWC and Webpack.
+- **Modern Build**: Optimized with SWC and HMR for both client and API.
 
 ## 🏗️ Monorepo Structure
 

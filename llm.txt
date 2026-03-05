@@ -11,22 +11,21 @@ A React framework built for speed and simplicity, leveraging `@tanstack/react-ro
 - [x] Stage 1: Client-first SPA
   - [x] `createApp()` factory (Router + Query + DOM)
   - [x] Code-based routing (via TanStack Router)
-- [x] Stage 2: React Server Functions (Alpha)
+- [x] Stage 2: React Server Functions
   - [x] Isomorphic RPC calls (`"use server"`)
-  - [x] Webpack plugin with zero-config auto-discovery
+  - [x] Webpack plugin with dynamic child-compiler & auto-discovery
   - [x] Versioned manifest schema (`manifest.json` v1)
   - [x] Hono-based API server
 - [ ] Stage 3: Server-Side Rendering (SSR)
   - [ ] HTML streaming & Hydration
 - [ ] Stage 4: React Server Components (RSC)
-  - [ ] Server functions returning React DOM streams
 
 ## Packages
 
 ### `@evjs/runtime`
 Core runtime providing isomorphic utilities.
 - `client`: `createApp`, `createRoute`, `Outlet`, `Link`, `__ev_rpc`.
-- `server`: `createServer`, `createRpcMiddleware`, `registerServerFn`.
+- `server`: `createServer`, `registerServerFn`.
 - Server powered by [Hono](https://hono.dev) + `@hono/node-server`.
 
 ### `@evjs/manifest`
@@ -36,14 +35,14 @@ Shared manifest schema types used by webpack-plugin (producer) and runtime (cons
 
 ### `@evjs/cli`
 Command-line interface for project management.
-- `ev init [name]`: Scaffold a new project from templates.
-- `ev dev`: Start development server.
-- `ev build`: Build for production.
+- `ev init [name]`: Scaffold a new project using dereferenced symlinks to examples.
+- `ev dev`: Start unified dev server (Client HMR + Node Server Watch).
+- `ev build`: Single-command optimized build for both client and server.
 
 ### `@evjs/webpack-plugin`
 Build-time integration for React Server Functions.
-- `EvWebpackPlugin`: Zero-config — auto-discovers `"use server"` files on server builds, emits `manifest.json`.
-- `server-fn-loader`: Transforms `"use server"` files into RPC stubs (client) or registered handlers (server).
+- `EvWebpackPlugin`: Zero-config child compiler manager. Auto-discovers `"use server"` files, manages entry-generation, and watches `src/` for dynamic updates.
+- `server-fn-loader`: Transforms `"use server"` files. Auto-detects client/server context.
 
 ## Key API
 
@@ -54,10 +53,10 @@ const rootRoute = createRootRoute({ component: Root });
 createApp({ routeTree: rootRoute.addChildren([...]) }).render("#app");
 ```
 
-### `createServer(options?)`
+### `createServer()`
 ```ts
 import { createServer } from "@evjs/runtime/server";
-createServer({ port: 3001 }); // Hono-based RPC server
+createServer(); // Starts Hono-based RPC server on port 3001
 ```
 
 ### Server Functions (`"use server"`)
@@ -72,11 +71,13 @@ Imported from client as a standard async function. The `@evjs/webpack-plugin` ha
 
 ## Architecture: Server Functions
 
+- **Child Compiler**: `EvWebpackPlugin` spawns a Node-targeted child compiler.
+- **Dynamic Discovery**: Plugin watches `src/` for files with `"use server"` and updates a virtual entry point.
 - **Client build**: `server-fn-loader` replaces function bodies with `__ev_rpc(fnId, args)` stubs.
 - **Server build**: `server-fn-loader` keeps bodies and injects `registerServerFn(fnId, fn)`.
-- **EvWebpackPlugin**: On server builds (`target: "node"`), auto-discovers `"use server"` files and injects them as Webpack entries. Emits `manifest.json`.
-- **Runtime**: `createServer()` starts a Hono app with RPC middleware at `/api/rpc`.
-- **Dev**: Client uses webpack-dev-server (port 3000) with proxy to API server (port 3001).
+- **Manifest**: Emitted to `dist/server/manifest.json`, mapping function IDs to build assets.
+- **Dev**: `ev dev` runs Webpack Dev Server (port 3000) and a watched Node process (port 3001).
+- **Communication**: Reverse-proxy in Dev Server routes `/api/*` to the Node API server.
 
 ## Monorepo Workflow
 

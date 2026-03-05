@@ -1,35 +1,32 @@
-# @evjs Implementation Plan (Client-First + Server Functions)
+# Template Symlinking & CLI Refactor
 
-Provide a thin framework layer over `@tanstack/react-router` and `@tanstack/react-query`.
+Simplify template maintenance by using directory-level symlinks to examples and enhancing the CLI to handle versioning and filtering.
+
+## User Review Required
+
+> [!IMPORTANT]
+> The `ev init` command will now perform post-processing on the generated `package.json` to ensure `@evjs/*` dependencies match the CLI version, as templates will now share `package.json` with examples (which use `*`).
 
 ## Proposed Changes
 
-### Core Foundation (`packages/runtime`)
-#### [NEW] [create-app.ts](../packages/runtime/src/client/create-app.ts)
-- `createApp()` factory to initialize router and query client.
-#### [NEW] [route.ts](../packages/runtime/src/client/route.ts)
-- Re-exports for route creation and navigation hooks.
-#### [NEW] [handler.ts](../packages/runtime/src/server/handler.ts)
-- Server-side RPC dispatcher for server functions.
+### [CLI]
+#### [MODIFY] [index.ts](file:///Users/xusd320/Codes/github/evai/packages/cli/src/index.ts)
+- Update `init` action to include a filter in `fs.copy` (skip `node_modules`, `dist`, `.turbo`).
+- Add logic to read `VERSION` and update `@evjs/*` dependency versions in the destination `package.json` after copying.
 
-### Build Infrastructure (`packages/webpack-plugin`)
-#### [MODIFY] [server-fn-loader.ts](../packages/webpack-plugin/src/server-fn-loader.ts)
-- Uses `@swc/core` for AST transformations.
-- Generates stable SHA-256 function IDs based on relative paths.
-- Strips bodies on client, wraps in registration on server.
-#### [NEW] [index.ts](../packages/webpack-plugin/src/index.ts)
-- `EvWebpackPlugin` for manifest generation.
-- Emits `manifest.json` mapping stable IDs to assets.
+### [Templates]
+#### [DELETE] [basic-server-fns](file:///Users/xusd320/Codes/github/evai/packages/cli/templates/basic-server-fns) (Individual symlinks/files)
+#### [NEW] [basic-server-fns](file:///Users/xusd320/Codes/github/evai/packages/cli/templates/basic-server-fns) (Symlink to example)
+#### [DELETE] [basic-csr](file:///Users/xusd320/Codes/github/evai/packages/cli/templates/basic-csr) (Individual symlinks/files)
+#### [NEW] [basic-csr](file:///Users/xusd320/Codes/github/evai/packages/cli/templates/basic-csr) (Symlink to example)
 
-### CLI Tooling (`packages/cli`)
-#### [NEW] [package.json](../packages/cli/package.json)
-- Registers `@evjscli` binary.
-#### [NEW] [index.ts](../packages/cli/src/index.ts)
-- `init`: Project scaffolding from templates.
-- `dev`/`build`: Wrapped Webpack commands.
+## Verification Plan
 
-## Ongoing: Stage 3 — Server-Side Rendering (SSR)
-### [Component Name] packages/runtime
-#### [NEW] [server-entry.tsx](../packages/runtime/src/server/server-entry.tsx)
-- Implement `renderToPipeableStream` for HTML streaming.
-- Integrate with TanStack Router's server-side rendering logic.
+### Manual Verification
+1. Run `ev init test-app -t basic-server-fns`.
+2. Verify `test-app/` does not contain `node_modules` or `dist`.
+3. Verify `test-app/package.json` has versioned dependencies (e.g., `^0.0.1-alpha.5`) instead of `*`.
+2.  **Add a server file**: Create `src/api/test.server.ts` with a `"use server"` export.
+3.  **Verify Child Compiler**: Ensure Webpack detects the new file and builds the server bundle.
+4.  **Verify Server Boot**: Ensure the Node API server starts automatically.
+5.  **Remove the file**: Verify the server entry is updated and the build remains consistent.

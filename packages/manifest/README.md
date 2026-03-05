@@ -17,9 +17,9 @@ Defines the structure of `manifest.json` emitted by `@evjs/webpack-plugin` and c
 ```json
 {
   "version": 1,
-  "serverFunctions": {
+  "serverFns": {
     "<fnId>": {
-      "file": "src/api/users.server.ts",
+      "moduleId": "f9b6...",
       "export": "getUsers"
     }
   }

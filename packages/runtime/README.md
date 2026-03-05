@@ -33,7 +33,7 @@ app.render("#app");
 ```ts
 import { createServer } from "@evjs/runtime/server";
 
-createServer({ port: 3001 });
+createServer(); // Starts Hono-based RPC server on port 3001
 ```
 
-The Hono server mounts an RPC endpoint at `/api/rpc` (configurable via `rpcEndpoint`). Server functions are auto-discovered by `EvWebpackPlugin` — no manual imports needed.
+The Hono server is automatically started and watched by the `ev dev` command. Server functions are auto-discovered by `EvWebpackPlugin` and registered at the `/api/rpc` endpoint — providing a zero-config, low-latency development experience.

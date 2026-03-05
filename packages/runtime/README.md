@@ -20,7 +20,15 @@ npm install @evjs/runtime
 ### Client Entry
 
 ```tsx
-import { createApp, createRootRoute } from "@evjs/runtime";
+import { createApp, createRootRoute, query, mutation } from "@evjs/runtime/client";
+import { getUsers, createUser } from "./api/users.server";
+
+// Using the Query Proxy
+function Users() {
+  const { data } = query(getUsers).useQuery([]);
+  const { mutate } = mutation(createUser).useMutation();
+  // ...
+}
 
 const rootRoute = createRootRoute({ component: Root });
 const app = createApp({ routeTree: rootRoute });

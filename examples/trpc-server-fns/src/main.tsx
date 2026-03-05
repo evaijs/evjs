@@ -4,32 +4,29 @@ import {
   createRootRoute,
   createRoute,
   Outlet,
-  Link,
+  query,
 } from "@evjs/runtime/client";
-import { createTRPCClient, httpBatchLink } from "@trpc/client";
+import { createTRPCClient, type TRPCLink } from "@trpc/client";
+import { observable } from "@trpc/server/observable";
 import { trpcHandler, getServerTime } from "./api/trpc.server";
 import type { AppRouter } from "./trpc";
 
 // ── tRPC Glue ──
 
 // Custom link that redirects tRPC calls to our @evjs Server Function
-const serverFnLink = () => {
-  return (props: any) => {
-    return (next: any) => {
-      return (op: any) => {
-        return {
-          subscribe(observer: any) {
-            trpcHandler(op)
-              .then((res) => {
-                observer.next({ result: { data: res.result.data } });
-                observer.complete();
-              })
-              .catch((err) => {
-                observer.error(err);
-              });
-          },
-        };
-      };
+const serverFnLink = (): TRPCLink<AppRouter> => {
+  return () => {
+    return ({ op }) => {
+      return observable((observer) => {
+        trpcHandler(op)
+          .then((res) => {
+            observer.next({ result: { data: res.result.data } });
+            observer.complete();
+          })
+          .catch((err) => {
+            observer.error(err);
+          });
+      });
     };
   };
 };
@@ -60,16 +57,15 @@ const rootRoute = createRootRoute({ component: Root });
 
 function HomePage() {
   const [trpcData, setTrpcData] = React.useState<any>(null);
-  const [serverTime, setServerTime] = React.useState<string>("");
+  const { data: serverTime, refetch: refetchTime } = query(getServerTime).useQuery([]);
 
   const refreshAction = async () => {
     // 1. Call via tRPC (proxied through Server Function)
     const res = await trpc.hello.query();
     setTrpcData(res);
 
-    // 2. Call direct Server Function
-    const time = await getServerTime();
-    setServerTime(time);
+    // 2. Refresh standard server function query
+    refetchTime();
   };
 
   React.useEffect(() => {

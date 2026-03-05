@@ -4,6 +4,9 @@ import {
   createRoute,
   Outlet,
   Link,
+  useQueryClient,
+  createEvQueryProxy,
+  createEvMutationProxy,
 } from "@evjs/runtime/client";
 import { getUsers, createUser } from "./api/users.server";
 
@@ -23,43 +26,44 @@ function Root() {
 
 const rootRoute = createRootRoute({ component: Root });
 
+// ── API Proxy ──
+import * as UsersAPI from "./api/users.server";
+const api = {
+  query: createEvQueryProxy(UsersAPI),
+  mutation: createEvMutationProxy(UsersAPI),
+};
+
 // ── Users Route ──
 
 function UsersPage() {
-  const [users, setUsers] = React.useState<
-    Array<{ id: string; name: string; email: string }>
-  >([]);
-  const [loading, setLoading] = React.useState(true);
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
 
-  React.useEffect(() => {
-    getUsers().then((data) => {
-      setUsers(data as Array<{ id: string; name: string; email: string }>);
-      setLoading(false);
-    });
-  }, []);
+  const { data: users = [], isLoading } = api.query.getUsers.useQuery([]);
+
+  const queryClient = useQueryClient();
+  const { mutateAsync: createMutation } = api.mutation.createUser.useMutation({
+    onSuccess: () => {
+      // Use the stable evId for cache invalidation
+      queryClient.invalidateQueries({ queryKey: [api.query.getUsers.evId] });
+    },
+  });
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     if (!name || !email) return;
-    const newUser = (await createUser({ name, email })) as {
-      id: string;
-      name: string;
-      email: string;
-    };
-    setUsers((prev) => [...prev, newUser]);
+    await createMutation({ name, email });
     setName("");
     setEmail("");
   }
 
-  if (loading) return <p>Loading users from server…</p>;
+  if (isLoading) return <p>Loading users from server…</p>;
 
   return (
     <div>
-      <h2>Users (fetched via server function)</h2>
+      <h2>Users (fetched via friendly useServerQuery)</h2>
       <ul>
-        {users.map((u) => (
+        {users.map((u: any) => (
           <li key={u.id}>
             {u.name} — {u.email}
           </li>

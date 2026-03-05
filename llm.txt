@@ -53,10 +53,16 @@ const rootRoute = createRootRoute({ component: Root });
 createApp({ routeTree: rootRoute.addChildren([...]) }).render("#app");
 ```
 
-### `createServer()`
-```ts
-import { createServer } from "@evjs/runtime/server";
-createServer(); // Starts Hono-based RPC server on port 3001
+### `query` and `mutation` Proxies
+```tsx
+import { query, mutation } from "@evjs/runtime/client";
+import { getUsers } from "./api/users.server";
+
+// 1. Hook usage
+const { data } = query(getUsers).useQuery([]);
+
+// 2. Extensibility usage (standard TanStack Query options)
+const options = query(getUsers).queryOptions([]);
 ```
 
 ### Server Functions (`"use server"`)

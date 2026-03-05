@@ -111,7 +111,7 @@ export default async function serverFnLoader(this: LoaderContext, source: string
   const stubCode = exportNames
     .map((name) => {
       const fnId = makeFnId(this.rootContext, this.resourcePath, name);
-      return `export function ${name}(...args) {\n  return __ev_rpc("${fnId}", args);\n}`;
+      return `export function ${name}(...args) {\n  return __ev_rpc("${fnId}", args);\n}\n${name}.evId = "${fnId}";`;
     })
     .join("\n\n");
 

@@ -32,6 +32,9 @@ const registry = new Map<string, ServerFn>();
 /**
  * Register a server function so it can be invoked by the RPC handler.
  * Called by the Webpack-transformed server bundles at module load time.
+ *
+ * @param fnId - The unique ID for this function.
+ * @param fn - The actual function implementation.
  */
 export function registerServerFn(fnId: string, fn: ServerFn): void {
   registry.set(fnId, fn);
@@ -57,6 +60,8 @@ function readBody(req: IncomingMessage): Promise<string> {
  *
  * Expects `POST` requests with JSON body `{ fnId: string, args: unknown[] }`.
  * Responds with `{ result: unknown }` on success or `{ error: string }` on failure.
+ *
+ * @returns An async function compatible with Node.js http.createServer or Express.
  */
 export function createHandler() {
   return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {

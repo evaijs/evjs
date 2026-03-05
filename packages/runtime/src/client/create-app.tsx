@@ -7,21 +7,57 @@ import type { AnyRoute, AnyRouter } from "@tanstack/react-router";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { createRoot } from "react-dom/client";
 
+/**
+ * Options for creating an ev application.
+ */
 export interface CreateAppOptions<TRouteTree extends AnyRoute> {
+  /** The root route tree produced by createRootRoute and addChildren. */
   routeTree: TRouteTree;
+  /**
+   * Optional configuration for the TanStack Router.
+   * @see {@link https://tanstack.com/router/latest/docs/framework/react/guide/router-options}
+   */
   routerOptions?: Omit<
     Parameters<typeof import("@tanstack/react-router").createRouter>[0],
     "routeTree"
   >;
+  /**
+   * Optional configuration for the TanStack Query Client.
+   * @see {@link https://tanstack.com/query/latest/docs/reference/QueryClient}
+   */
   queryClientConfig?: QueryClientConfig;
 }
 
+/**
+ * An initialized ev application instance.
+ */
 export interface App {
+  /** The TanStack Router instance. */
   router: AnyRouter;
+  /** The TanStack Query Client instance. */
   queryClient: QueryClient;
+  /**
+   * Mount the application into the DOM.
+   * @param container - A CSS selector string or an HTMLElement.
+   */
   render(container: string | HTMLElement): void;
 }
 
+/**
+ * Create a new ev application instance.
+ *
+ * This function initializes the router and query client and returns
+ * an app object that can be mounted into the DOM.
+ *
+ * @param options - Application configuration options.
+ * @returns An initialized App instance.
+ *
+ * @example
+ * ```tsx
+ * const app = createApp({ routeTree });
+ * app.render("#app");
+ * ```
+ */
 export function createApp<TRouteTree extends AnyRoute>(
   options: CreateAppOptions<TRouteTree>,
 ): App {

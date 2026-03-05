@@ -5,10 +5,6 @@ import type { Compiler } from "webpack";
 class ManifestCollector {
   serverFns: Record<string, ServerFnEntry> = {};
 
-  addServerFn(id: string, meta: ServerFnEntry) {
-    this.serverFns[id] = meta;
-  }
-
   getManifest(): EvManifest {
     return {
       version: 1,
@@ -16,6 +12,8 @@ class ManifestCollector {
     };
   }
 }
+
+type EvCompiler = Compiler & { _ev_manifest_collector?: ManifestCollector };
 
 /**
  * Webpack plugin for the ev framework.
@@ -28,8 +26,7 @@ export class EvWebpackPlugin {
     const collector = new ManifestCollector();
 
     // Attach collector to compiler so the loader can access it
-    // biome-ignore lint/suspicious/noExplicitAny: custom compiler extension
-    (compiler as any)._ev_manifest_collector = collector;
+    (compiler as EvCompiler)._ev_manifest_collector = collector;
 
     // Check if the current compiler is already the Node Child Compiler
     const isServer =
@@ -54,8 +51,8 @@ export class EvWebpackPlugin {
               let id = 0;
               for (const module of modules) {
                 // Determine if this is a NormalModule with a resource path
-                // biome-ignore lint/suspicious/noExplicitAny: Webpack NormalModule
-                const resource = (module as any).resource;
+                const resource =
+                  "resource" in module ? (module.resource as string) : null;
                 if (!resource || typeof resource !== "string") continue;
 
                 // Ensure it's a source file (not a node_module or internal webpack file)
@@ -115,8 +112,10 @@ export class EvWebpackPlugin {
                   }),
                   new compiler.webpack.node.NodeTargetPlugin(),
                   new compiler.webpack.ExternalsPlugin("commonjs", [
-                    // biome-ignore lint/suspicious/noExplicitAny: webpack externals callback
-                    ({ request }: any, cb: any) => {
+                    (
+                      { request }: { request?: string },
+                      cb: (err?: Error | null, result?: string) => void,
+                    ) => {
                       if (
                         request &&
                         typeof request === "string" &&
@@ -156,8 +155,7 @@ export class EvWebpackPlugin {
                 ],
               );
 
-              // biome-ignore lint/suspicious/noExplicitAny: custom compiler extension
-              (childCompiler as any)._ev_manifest_collector = collector;
+              (childCompiler as EvCompiler)._ev_manifest_collector = collector;
 
               childCompiler.runAsChild((err, _entries, childCompilation) => {
                 if (err) return finishCallback(err);

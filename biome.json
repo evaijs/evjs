@@ -29,7 +29,7 @@
         "noArrayIndexKey": "warn"
       },
       "performance": {
-        "noBarrelFile": "warn"
+        "noBarrelFile": "off"
       },
       "correctness": {
         "noUnusedVariables": "warn"

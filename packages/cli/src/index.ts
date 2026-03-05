@@ -78,8 +78,7 @@ program
       pkg.name = projectName;
       delete pkg.private; // Templates shouldn't be private by default
 
-      // biome-ignore lint/suspicious/noExplicitAny: deps is loosely typed from package.json
-      const updateDeps = (deps: any) => {
+      const updateDeps = (deps: Record<string, string> | undefined) => {
         if (!deps) return;
         for (const [name, val] of Object.entries(deps)) {
           // Sync all @evjs/* packages to current CLI version

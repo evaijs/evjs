@@ -3,7 +3,6 @@
  */
 
 // ── TanStack Query Integration ──
-// biome-ignore lint/performance/noBarrelFile: This is a library entry point
 export * from "@tanstack/react-query";
 export type { App, CreateAppOptions } from "./create-app";
 export { createApp } from "./create-app";

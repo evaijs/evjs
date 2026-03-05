@@ -1,10 +1,16 @@
 import { createHash } from "node:crypto";
 import { parse } from "@swc/core";
+import type { Compiler } from "webpack";
 
 interface LoaderContext {
   getOptions(): { isServer?: boolean };
   resourcePath: string;
   rootContext: string;
+  _compiler?: Compiler & {
+    _ev_manifest_collector?: {
+      addServerFn(id: string, meta: { moduleId: string; export: string }): void;
+    };
+  };
 }
 
 import path from "node:path";
@@ -44,10 +50,8 @@ export default async function serverFnLoader(
   const explicitOptions = this.getOptions() || {};
   let isServer = explicitOptions.isServer;
   if (typeof isServer === "undefined") {
-    // biome-ignore lint/suspicious/noExplicitAny: webpack compiler type
-    const compilerName = (this as any)._compiler?.name;
-    // biome-ignore lint/suspicious/noExplicitAny: webpack compiler type
-    const target = (this as any)._compiler?.options?.target;
+    const compilerName = this._compiler?.name;
+    const target = this._compiler?.options?.target;
     isServer = compilerName === "evServer" || target === "node";
   }
 
@@ -91,8 +95,7 @@ export default async function serverFnLoader(
     return source;
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: webpack compiler prop
-  const manifestCollector = (this as any)._compiler?._ev_manifest_collector;
+  const manifestCollector = this._compiler?._ev_manifest_collector;
 
   if (isServer) {
     // Server build: keep original + register

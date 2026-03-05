@@ -5,7 +5,7 @@
  * Usage (with any HTTP server, e.g. Express / Node http):
  *
  * ```ts
- * import { createHandler } from "ev-runtime/server";
+ * import { createHandler } from "@evjs/runtime/server";
  *
  * const handler = createHandler();
  *

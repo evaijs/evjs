@@ -93,7 +93,7 @@ export default async function serverFnLoader(this: LoaderContext, source: string
       })
       .join("\n");
 
-    return `import { registerServerFn } from "ev-runtime/server";\n${source}\n${registrations}\n`;
+    return `import { registerServerFn } from "@evjs/runtime/server";\n${source}\n${registrations}\n`;
   }
 
   // Client build: replace with RPC stubs
@@ -104,5 +104,5 @@ export default async function serverFnLoader(this: LoaderContext, source: string
     })
     .join("\n\n");
 
-  return `import { __ev_rpc } from "ev-runtime/client";\n\n${stubCode}\n`;
+  return `import { __ev_rpc } from "@evjs/runtime/client";\n\n${stubCode}\n`;
 }

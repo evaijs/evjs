@@ -12,9 +12,12 @@
 - [x] Migrate workspace to `swc-loader`
 - [x] Use project-relative paths in manifest metadata
 
-## Stage 2.8: @evjscli Implementation
-- [x] Initialize `packages/cli` with `package.json`
-- [x] Implement `@evjscli` with `init`, `dev`, `build` commands
+## Stage 2.8: ev cli
+- [x] Implement `ev` (init, dev, build)
+
+## Stage 2.9: Unified Release Flow
+- [/] Add root `release:alpha` script
+- [ ] Configure `turbo.json` for publish pipeline
 - [x] Verify with example project scaffolding
 
 ## Stage 3: Server-Side Rendering (SSR)

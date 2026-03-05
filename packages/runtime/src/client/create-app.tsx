@@ -15,7 +15,6 @@ export interface CreateAppOptions<TRouteTree extends AnyRoute> {
   routeTree: TRouteTree;
   /**
    * Optional configuration for the TanStack Router.
-   * @see {@link https://tanstack.com/router/latest/docs/framework/react/guide/router-options}
    */
   routerOptions?: Omit<
     Parameters<typeof import("@tanstack/react-router").createRouter>[0],
@@ -23,7 +22,6 @@ export interface CreateAppOptions<TRouteTree extends AnyRoute> {
   >;
   /**
    * Optional configuration for the TanStack Query Client.
-   * @see {@link https://tanstack.com/query/latest/docs/reference/QueryClient}
    */
   queryClientConfig?: QueryClientConfig;
 }

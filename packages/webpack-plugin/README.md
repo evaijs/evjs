@@ -4,10 +4,12 @@ Build-time integration for React Server Functions in the **ev** framework.
 
 ## Features
 
-- **`EvWebpackPlugin`**: High-level plugin that coordinates manifest generation and build stages.
-- **`server-fn-loader`**: Transformations for files marked with `"use server"`.
+- **`EvWebpackPlugin`**: Zero-config plugin that:
+  - Auto-discovers `"use server"` files on server builds (`target: "node"`).
+  - Emits a versioned `manifest.json` mapping function IDs to source locations.
+- **`server-fn-loader`**: Transforms files marked with `"use server"`.
   - On the **server**: Keeps source code and registers the function.
-  - On the **client**: Replaces the implementation with an RPC stub using `@evjs/runtime`.
+  - On the **client**: Replaces the implementation with an RPC stub.
 
 ## Usage
 
@@ -21,8 +23,10 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.server\.tsx?$/,
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
         use: [
+          { loader: "swc-loader", /* ... */ },
           {
             loader: "@evjs/webpack-plugin/server-fn-loader",
             options: { isServer: false }
@@ -33,3 +37,5 @@ module.exports = {
   }
 };
 ```
+
+On server builds, `EvWebpackPlugin` automatically discovers all `"use server"` files under `./src/` and injects them as Webpack entries — no manual imports needed.

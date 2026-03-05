@@ -1,6 +1,6 @@
 # @evjs/runtime
 
-Core runtime for the **ev** framework. It provides isomorphic utilities for client-side routing, state management, and server-side RPC handling.
+Core runtime for the **ev** framework. It provides isomorphic utilities for client-side routing, state management, and server-side RPC handling via Hono.
 
 ## Installation
 
@@ -13,7 +13,7 @@ npm install @evjs/runtime
 - **`createApp`**: A unified factory to bootstrap TanStack Router + Query.
 - **Routing**: Re-exports the full power of `@tanstack/react-router`.
 - **RPC**: Internal logic for calling `"use server"` functions from the client.
-- **SSR Support**: Server-side request handlers and function registries.
+- **Hono Server**: `createServer()` starts a Hono-based API server for RPC.
 
 ## Usage
 
@@ -28,12 +28,12 @@ const app = createApp({ routeTree: rootRoute });
 app.render("#app");
 ```
 
-### Server Handler
+### Server Entry
 
 ```ts
-import { createHandler } from "@evjs/runtime/server";
+import { createServer } from "@evjs/runtime/server";
 
-// Integration with standard Node.js http or Express
-const handler = createHandler();
-app.post("/api/rpc", handler);
+createServer({ port: 3001 });
 ```
+
+The Hono server mounts an RPC endpoint at `/api/rpc` (configurable via `rpcEndpoint`). Server functions are auto-discovered by `EvWebpackPlugin` — no manual imports needed.

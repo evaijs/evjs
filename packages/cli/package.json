@@ -24,6 +24,7 @@
     "commander": "^12.1.0",
     "execa": "^9.5.2",
     "fs-extra": "^11.3.0",
+    "glob": "^13.0.6",
     "picocolors": "^1.1.1",
     "prompts": "^2.4.2"
   },

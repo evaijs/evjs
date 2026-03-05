@@ -33,7 +33,14 @@ export default async function serverFnLoader(this: LoaderContext, source: string
     return source;
   }
 
-  const { isServer = false } = this.getOptions();
+  // Adaptively check if we are building the server (Child Compiler) or client
+  const explicitOptions = this.getOptions() || {};
+  let isServer = explicitOptions.isServer;
+  if (typeof isServer === "undefined") {
+    const compilerName = (this as any)._compiler?.name;
+    const target = (this as any)._compiler?.options?.target;
+    isServer = compilerName === "evServer" || target === "node";
+  }
 
   // Parse the source into an AST
   const program = await parse(source, {

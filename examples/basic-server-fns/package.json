@@ -3,10 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "webpack --config webpack.config.cjs",
-    "dev": "npm run dev:server & npm run dev:client",
-    "dev:client": "webpack serve --config webpack.config.cjs --config-name client",
-    "dev:server": "webpack --config webpack.config.cjs --config-name server && node dist/server/index.js",
+    "dev": "ev dev",
+    "build": "ev build",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {

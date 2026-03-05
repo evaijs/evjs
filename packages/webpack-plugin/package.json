@@ -36,7 +36,8 @@
   "license": "MIT",
   "dependencies": {
     "@evjs/manifest": "0.0.1-alpha.5",
-    "@swc/core": "^1.15.18"
+    "@swc/core": "^1.15.18",
+    "glob": "^13.0.6"
   },
   "devDependencies": {
     "typescript": "^5.7.3",

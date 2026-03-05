@@ -3,10 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "webpack serve",
-    "build": "webpack --mode production",
-    "dev:utoo": "up dev --webpack",
-    "build:utoo": "up build --webpack",
+    "dev": "ev dev",
+    "build": "ev build",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {

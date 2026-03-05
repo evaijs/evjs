@@ -61,7 +61,7 @@ export interface EvManifest {
   /** Schema version — bump on breaking changes. */
   version: 1;
   /** Server function registry (Stage 2). */
-  serverFunctions: Record<string, ServerFnEntry>;
+  serverFns: Record<string, ServerFnEntry>;
   /** SSR configuration (Stage 3 — reserved). */
   ssr?: SsrEntry;
   /** Client assets (Stage 3 — reserved). */

@@ -4,3 +4,4 @@ dist
 .next
 packages/runtime/esm
 esm
+.evjs

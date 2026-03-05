@@ -6,7 +6,6 @@ const { EvWebpackPlugin } = require("@evjs/webpack-plugin");
 const clientConfig = {
   name: "client",
   mode: "development",
-  target: "web",
   devtool: "source-map",
   entry: "./src/main.tsx",
   output: {
@@ -45,7 +44,6 @@ const clientConfig = {
           },
           {
             loader: "@evjs/webpack-plugin/server-fn-loader",
-            options: { isServer: false },
           },
         ],
       },
@@ -60,6 +58,9 @@ const clientConfig = {
   devServer: {
     port: 3000,
     hot: true,
+    devMiddleware: {
+      writeToDisk: (filePath) => /server/.test(filePath),
+    },
     proxy: [
       {
         context: ["/api"],
@@ -69,57 +70,4 @@ const clientConfig = {
   },
 };
 
-/** @type {import("webpack").Configuration} */
-const serverConfig = {
-  name: "server",
-  mode: "development",
-  target: "node",
-  devtool: "source-map",
-  entry: "./src/server.ts",
-  output: {
-    path: path.resolve(__dirname, "dist/server"),
-    filename: "index.js",
-    clean: true,
-    library: { type: "commonjs" },
-  },
-
-  resolve: {
-    extensions: [".tsx", ".ts", ".js"],
-  },
-  externalsPresets: { node: true },
-  externals: [], // Inline all node_modules except built-ins
-  module: {
-    rules: [
-      {
-        test: /\.m?js/,
-        resolve: { fullySpecified: false },
-      },
-      {
-        test: /\.tsx?$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: "swc-loader",
-            options: {
-              jsc: {
-                parser: {
-                  syntax: "typescript",
-                  tsx: true,
-                },
-              },
-            },
-          },
-          {
-            loader: "@evjs/webpack-plugin/server-fn-loader",
-            options: { isServer: true },
-          },
-        ],
-      },
-    ],
-  },
-  plugins: [
-    new EvWebpackPlugin(),
-  ],
-};
-
-module.exports = [clientConfig, serverConfig];
+module.exports = clientConfig;

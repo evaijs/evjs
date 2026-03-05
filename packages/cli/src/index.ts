@@ -74,64 +74,44 @@ program
   .command("dev")
   .description("Start development server")
   .action(async () => {
+    const cwd = process.cwd();
     console.log(pc.blue("Starting development server..."));
     try {
-      const hasServer = fs.existsSync(path.resolve(process.cwd(), "src/server.ts"));
+      console.log(pc.cyan("Starting Webpack Dev Server..."));
 
-      if (hasServer) {
-        console.log(pc.cyan("Building initial server bundle..."));
-        await execa("npx", ["webpack", "--config", "webpack.config.cjs", "--config-name", "server"], {
-          stdio: "inherit",
-          env: { ...process.env, NODE_ENV: "development" }
-        });
+      const clientRun = execa("npx", ["webpack", "serve", "--config", "webpack.config.cjs"], {
+        stdio: "inherit",
+        env: { ...process.env, NODE_ENV: "development" }
+      });
 
-        console.log(pc.cyan("Starting client and API dev servers..."));
+      // The background Node API execution (will wait for child compiler output)
+      const serverRun = (async () => {
+        const serverBundlePath = path.resolve(cwd, "dist/server/index.js");
 
-        const serverBuild = execa("npx", ["webpack", "--watch", "--config", "webpack.config.cjs", "--config-name", "server"], {
-          stdio: "inherit",
-          env: { ...process.env, NODE_ENV: "development" }
-        });
+        let started = false;
+        while (true) {
+          if (fs.existsSync(serverBundlePath)) {
+            if (!started) {
+              console.log(pc.green("Server bundle detected, starting Node API..."));
+              started = true;
 
-        const serverRun = execa("node", ["--watch", "dist/server/index.js"], {
-          stdio: "inherit",
-          env: { ...process.env, NODE_ENV: "development" }
-        });
-
-        console.log(pc.cyan("Waiting for API server to boot..."));
-
-        // Wait for port 3001 to become active
-        const http = await import("node:http");
-        await new Promise<void>((resolve) => {
-          let attempts = 0;
-          const interval = setInterval(() => {
-            attempts++;
-            const req = http.request({ method: "HEAD", host: "127.0.0.1", port: 3001, path: "/" }, (res) => {
-              clearInterval(interval);
-              resolve();
-            });
-            req.on("error", () => {
-              if (attempts > 30) {
-                // Give up after 3 seconds, let client start anyway
-                clearInterval(interval);
-                resolve();
+              // We use execa but we don't await it here because it's long-running
+              try {
+                await execa("node", ["--watch", "--watch-preserve-output", "dist/server/index.js"], {
+                  stdio: "inherit",
+                  env: { ...process.env, NODE_ENV: "development" }
+                });
+              } catch (e) {
+                // If it crashes, mark as not started so it can retry or restart
+                started = false;
               }
-            });
-            req.end();
-          }, 100);
-        });
+            }
+          }
+          await new Promise(r => setTimeout(r, 500));
+        }
+      })();
 
-        const client = execa("npx", ["webpack", "serve", "--config", "webpack.config.cjs", "--config-name", "client"], {
-          stdio: "inherit",
-          env: { ...process.env, NODE_ENV: "development" }
-        });
-
-        await Promise.all([client, serverBuild, serverRun]);
-      } else {
-        await execa("npx", ["webpack", "serve", "--config", "webpack.config.cjs"], {
-          stdio: "inherit",
-          env: { ...process.env, NODE_ENV: "development" },
-        });
-      }
+      await clientRun;
     } catch (e) {
       process.exit(1);
     }

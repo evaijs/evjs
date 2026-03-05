@@ -24,7 +24,8 @@ const clientConfig = {
         resolve: { fullySpecified: false },
       },
       {
-        test: /\.server\.tsx?$/,
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
         use: [
           {
             loader: "swc-loader",
@@ -47,26 +48,6 @@ const clientConfig = {
             options: { isServer: false },
           },
         ],
-      },
-      {
-        test: /\.tsx?$/,
-        exclude: [/node_modules/, /\.server\.tsx?$/],
-        use: {
-          loader: "swc-loader",
-          options: {
-            jsc: {
-              parser: {
-                syntax: "typescript",
-                tsx: true,
-              },
-              transform: {
-                react: {
-                  runtime: "automatic",
-                },
-              },
-            },
-          },
-        },
       },
     ],
   },
@@ -108,7 +89,8 @@ const serverConfig = {
         resolve: { fullySpecified: false },
       },
       {
-        test: /\.server\.tsx?$/,
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
         use: [
           {
             loader: "swc-loader",
@@ -126,21 +108,6 @@ const serverConfig = {
             options: { isServer: true },
           },
         ],
-      },
-      {
-        test: /\.tsx?$/,
-        exclude: [/node_modules/, /\.server\.tsx?$/],
-        use: {
-          loader: "swc-loader",
-          options: {
-            jsc: {
-              parser: {
-                syntax: "typescript",
-                tsx: true,
-              },
-            },
-          },
-        },
       },
     ],
   },

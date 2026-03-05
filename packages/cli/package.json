@@ -4,6 +4,9 @@
   "description": "Command line interface for the evjs framework",
   "type": "module",
   "main": "./dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "ev": "dist/index.js"
   },

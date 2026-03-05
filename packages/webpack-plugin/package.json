@@ -3,6 +3,9 @@
   "version": "0.0.1-alpha.1",
   "description": "Webpack plugin and loaders for the ev framework",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./esm/index.js",
   "exports": {
     ".": {

@@ -8,21 +8,7 @@ A React framework built for speed and simplicity, leveraging `@tanstack/react-ro
 
 ## Roadmap
 
-- [x] **Stage 1: Client-first SPA**
-  - [x] `createApp()` factory (Router + Query + DOM)
-  - [x] Code-based routing (via TanStack Router)
-- [x] **Stage 2: React Server Functions**
-  - [x] Pluggable server transport (`ServerTransport` interface)
-  - [x] Webpack plugin with dynamic child-compiler & auto-discovery
-  - [x] Runtime-agnostic API (Node, ECMA, Service Worker)
-- [ ] **Stage 3: Production Readiness & Architecture**
-  - [ ] **Parallel Compilation**: Move server build out of the `finishModules` blocked phase into a parallel sibling compiler for faster HMR.
-  - [ ] **Smart Serialization**: Integrate `superjson` or `seroval` to support Complex JS types (Date, Map, Set, Error) across the RPC boundary.
-  - [ ] **Server Context**: Implement `AsyncLocalStorage` to provide request context (Cookies, Headers, Auth) invisibly to server functions.
-  - [ ] **Error Boundaries**: Standardize how server-side RPC errors reflect in the client UI.
-- [ ] **Stage 4: Server-Side Rendering (SSR)**
-  - [ ] HTML streaming & Hydration
-- [ ] **Stage 5: React Server Components (RSC)**
+See [ROADMAP.md](./ROADMAP.md) for the full, detailed roadmap.
 
 ## Packages
 

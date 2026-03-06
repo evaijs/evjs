@@ -11,7 +11,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 await configure({
   sinks: { console: getConsoleSink() },
-  loggers: [{ category: ["evjs"], sinks: ["console"], lowestLevel: "info" }],
+  loggers: [
+    { category: ["logtape", "meta"], lowestLevel: "warning" },
+    { category: ["evjs"], sinks: ["console"], lowestLevel: "info" },
+  ],
 });
 
 const logger = getLogger(["evjs", "cli"]);

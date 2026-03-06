@@ -20,7 +20,8 @@
     "dev": "tsc -w",
     "check-types": "tsc --noEmit",
     "prepare": "npm run build",
-    "prepublishOnly": "node ../../scripts/sync-versions.js && npm run build"
+    "prepublishOnly": "node ../../scripts/sync-versions.js && npm run build && node scripts/deref-templates.js",
+    "postpublish": "node scripts/restore-templates.js"
   },
   "dependencies": {
     "@logtape/logtape": "^2.0.4",

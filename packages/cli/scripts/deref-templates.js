@@ -1,0 +1,33 @@
+/**
+ * Replace symlinked templates with real copies for npm publishing.
+ * npm pack does not follow symlinks, so we need to dereference them.
+ */
+import fs from "fs-extra";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const templatesDir = path.resolve(__dirname, "../templates");
+
+for (const entry of fs.readdirSync(templatesDir)) {
+  const entryPath = path.join(templatesDir, entry);
+  const stat = fs.lstatSync(entryPath);
+
+  if (stat.isSymbolicLink()) {
+    const realPath = fs.realpathSync(entryPath);
+    console.log(`Dereferencing symlink: ${entry} -> ${realPath}`);
+
+    // Remove symlink
+    fs.removeSync(entryPath);
+
+    // Copy real contents, excluding build artifacts
+    fs.copySync(realPath, entryPath, {
+      filter: (src) => {
+        const basename = path.basename(src);
+        return !["node_modules", "dist", ".turbo"].includes(basename);
+      },
+    });
+  }
+}
+
+console.log("Templates dereferenced for publishing.");

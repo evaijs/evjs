@@ -34,7 +34,7 @@
   │                                       │                  │
   │                                       ▼                  │
   │                              [ Shared Manifest ]         │
-  │                              (Network Schemas)         │
+  │                           (Client-Server Contract)       │
   │                                                        │
   │  Current Builder: Webpack                              │
   │  🔮 Future: Utoo(Turbopack)                            │
@@ -55,8 +55,8 @@
   │        │                            (use server)       │
   │        ▼                                  ▲            │
   │  [ Client Runtime ]                       │            │
-  │ (Network Bridge)  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            │
-  │                    Transparent API Calls                 │
+  │ (Server Interaction)  ━━━━━━━━━━━━━━━━━━━━━━━━┛            │
+  │                Client-Server Communication               │
   │                                                        │
   │  🔮 Future Capabilities:                               │
   │     - React Server Components (RSC)                    │

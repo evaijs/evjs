@@ -5,7 +5,6 @@ export default defineConfig({
   testMatch: "cases/*.ts",
   timeout: 30_000,
   retries: 0,
-  workers: 1, // Run examples sequentially to avoid port conflicts
   use: {
     headless: true,
     baseURL: "http://localhost:3000",

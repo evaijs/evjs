@@ -9,8 +9,8 @@ import {
   useQueryClient,
 } from "@evjs/runtime/client";
 import { useState } from "react";
-import { createPost, getPosts } from "./api/posts.server";
-import { createUser, getUsers } from "./api/users.server";
+import * as postsApi from "./api/posts.server";
+import * as usersApi from "./api/users.server";
 
 // ── Root Route ──
 
@@ -31,12 +31,12 @@ const rootRoute = createAppRootRoute({ component: Root });
 // ── API Proxy ──
 const api = {
   users: {
-    query: createQueryProxy({ getUsers, createUser }),
-    mutation: createMutationProxy({ getUsers, createUser }),
+    query: createQueryProxy(usersApi),
+    mutation: createMutationProxy(usersApi),
   },
   posts: {
-    query: createQueryProxy({ getPosts, createPost }),
-    mutation: createMutationProxy({ getPosts, createPost }),
+    query: createQueryProxy(postsApi),
+    mutation: createMutationProxy(postsApi),
   },
 };
 
@@ -96,7 +96,7 @@ function UsersPage() {
 
   return (
     <div>
-      <h2>Users (fetched via friendly useServerQuery)</h2>
+      <h2>Users (fetched via Query Proxy)</h2>
       <ul>
         {users.map((u: { id: string; name: string; email: string }) => (
           <li key={u.id}>

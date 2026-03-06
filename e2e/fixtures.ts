@@ -21,6 +21,10 @@ interface ExampleFixture {
   baseURL: string;
 }
 
+interface WorkerFixture {
+  _exampleApp: { webPort: number; apiPort: number };
+}
+
 /**
  * Create a test fixture for a specific example directory.
  *
@@ -35,138 +39,150 @@ export function createExampleTest(exampleName: string) {
     exampleName,
   );
 
-  return base.extend<ExampleFixture>({
-    // biome-ignore lint/correctness/noEmptyPattern: Playwright fixture pattern
-    baseURL: async ({ }, use) => {
-      // 1. Build with webpack
-      execSync("npx webpack --config webpack.config.cjs", {
-        cwd: exampleDir,
-        stdio: "pipe",
-      });
+  return base.extend<ExampleFixture, WorkerFixture>({
+    _exampleApp: [
+      // biome-ignore lint/correctness/noEmptyPattern: Playwright fixture pattern
+      async ({ }, use, workerInfo) => {
+        // Base port depends on both worker index and a hash of the example name
+        // to avoid conflicts if multiple worker fixtures run sequentially.
+        const hash = Array.from(exampleName).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+        const apiPort = 30000 + (workerInfo.workerIndex * 100) + (hash % 100);
+        const webPort = apiPort + 1;
 
-      // 2. Read the server manifest to get the hashed entry filename
-      const manifestPath = path.join(exampleDir, "dist", "server", "manifest.json");
-      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-      const serverEntryPath = path.join(
-        exampleDir,
-        "dist",
-        "server",
-        manifest.entry,
-      );
-
-      // 3. Write a CJS bootstrap that requires the hashed server bundle
-      const bootstrapPath = path.join(exampleDir, "dist", "_e2e_start.cjs");
-      fs.writeFileSync(
-        bootstrapPath,
-        [
-          `const bundle = require(${JSON.stringify(serverEntryPath)});`,
-          `const app = bundle.createApp();`,
-          `const { serve } = require("@hono/node-server");`,
-          `serve({ fetch: app.fetch, port: 3001 }, (info) => {`,
-          `  console.log("E2E_SERVER_READY:" + info.port);`,
-          `});`,
-        ].join("\n"),
-      );
-
-      // 3. Start the server
-      const serverProcess = spawn("node", [bootstrapPath], {
-        cwd: exampleDir,
-        stdio: "pipe",
-      });
-
-      await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error("Server did not start within 15s"));
-        }, 15_000);
-
-        serverProcess.stdout?.on("data", (data) => {
-          if (data.toString().includes("E2E_SERVER_READY")) {
-            clearTimeout(timeout);
-            resolve();
-          }
+        // 1. Build with webpack
+        execSync("npx webpack --config webpack.config.cjs", {
+          cwd: exampleDir,
+          stdio: "pipe",
         });
 
-        serverProcess.stderr?.on("data", (data) => {
-          console.error("[e2e-server]", data.toString());
+        // 2. Read the server manifest to get the hashed entry filename
+        const manifestPath = path.join(exampleDir, "dist", "server", "manifest.json");
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+        const serverEntryPath = path.join(
+          exampleDir,
+          "dist",
+          "server",
+          manifest.entry,
+        );
+
+        // 3. Write a CJS bootstrap that requires the hashed server bundle
+        const bootstrapPath = path.join(exampleDir, "dist", "_e2e_start.cjs");
+        fs.writeFileSync(
+          bootstrapPath,
+          [
+            `const bundle = require(${JSON.stringify(serverEntryPath)});`,
+            `const app = bundle.createApp();`,
+            `const { serve } = require("@hono/node-server");`,
+            `serve({ fetch: app.fetch, port: ${apiPort} }, (info) => {`,
+            `  console.log("E2E_SERVER_READY:" + info.port);`,
+            `});`,
+          ].join("\n"),
+        );
+
+        // 3. Start the server
+        const serverProcess = spawn("node", [bootstrapPath], {
+          cwd: exampleDir,
+          stdio: "pipe",
         });
 
-        serverProcess.on("exit", (code) => {
-          clearTimeout(timeout);
-          if (code !== null && code !== 0) {
-            reject(new Error(`Server exited with code ${code}`));
-          }
-        });
-      });
+        await new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error("Server did not start within 15s"));
+          }, 15_000);
 
-      // 4. Serve the client bundle on port 3000
-      const distDir = path.join(exampleDir, "dist", "client");
-      const indexHtml = fs.readFileSync(
-        path.join(distDir, "index.html"),
-        "utf-8",
-      );
-
-      const staticServer = http.createServer((req, res) => {
-        const url = req.url || "/";
-
-        // Proxy /api requests to the API server
-        if (url.startsWith("/api/")) {
-          const proxyReq = http.request(
-            `http://localhost:3001${url}`,
-            { method: req.method, headers: req.headers },
-            (proxyRes) => {
-              res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
-              proxyRes.pipe(res);
-            },
-          );
-          proxyReq.on("error", () => {
-            res.writeHead(502);
-            res.end("Bad Gateway");
+          serverProcess.stdout?.on("data", (data) => {
+            if (data.toString().includes("E2E_SERVER_READY")) {
+              clearTimeout(timeout);
+              resolve();
+            }
           });
-          req.pipe(proxyReq);
-          return;
+
+          serverProcess.stderr?.on("data", (data) => {
+            console.error("[e2e-server]", data.toString());
+          });
+
+          serverProcess.on("exit", (code) => {
+            clearTimeout(timeout);
+            if (code !== null && code !== 0) {
+              reject(new Error(`Server exited with code ${code}`));
+            }
+          });
+        });
+
+        // 4. Serve the client bundle on port 3000
+        const distDir = path.join(exampleDir, "dist", "client");
+        const indexHtml = fs.readFileSync(
+          path.join(distDir, "index.html"),
+          "utf-8",
+        );
+
+        const staticServer = http.createServer((req, res) => {
+          const url = req.url || "/";
+
+          // Proxy /api requests to the API server
+          if (url.startsWith("/api/")) {
+            const proxyReq = http.request(
+              `http://localhost:${apiPort}${url}`,
+              { method: req.method, headers: req.headers },
+              (proxyRes) => {
+                res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+                proxyRes.pipe(res);
+              },
+            );
+            proxyReq.on("error", () => {
+              res.writeHead(502);
+              res.end("Bad Gateway");
+            });
+            req.pipe(proxyReq);
+            return;
+          }
+
+          // Serve static files
+          if (url === "/" || url === "/index.html") {
+            res.writeHead(200, { "Content-Type": "text/html" });
+            res.end(indexHtml);
+            return;
+          }
+
+          const filePath = path.join(distDir, url);
+          if (fs.existsSync(filePath)) {
+            const ext = path.extname(filePath);
+            const contentType =
+              ext === ".js"
+                ? "application/javascript"
+                : ext === ".css"
+                  ? "text/css"
+                  : ext === ".map"
+                    ? "application/json"
+                    : "text/plain";
+            res.writeHead(200, { "Content-Type": contentType });
+            fs.createReadStream(filePath).pipe(res);
+          } else {
+            // SPA fallback
+            res.writeHead(200, { "Content-Type": "text/html" });
+            res.end(indexHtml);
+          }
+        });
+
+        await new Promise<void>((resolve) => {
+          staticServer.listen(webPort, resolve);
+        });
+
+        await use({ webPort, apiPort });
+
+        // Cleanup
+        staticServer.close();
+        serverProcess.kill();
+        try {
+          fs.unlinkSync(bootstrapPath);
+        } catch {
+          /* ignore */
         }
-
-        // Serve static files
-        if (url === "/" || url === "/index.html") {
-          res.writeHead(200, { "Content-Type": "text/html" });
-          res.end(indexHtml);
-          return;
-        }
-
-        const filePath = path.join(distDir, url);
-        if (fs.existsSync(filePath)) {
-          const ext = path.extname(filePath);
-          const contentType =
-            ext === ".js"
-              ? "application/javascript"
-              : ext === ".css"
-                ? "text/css"
-                : ext === ".map"
-                  ? "application/json"
-                  : "text/plain";
-          res.writeHead(200, { "Content-Type": contentType });
-          fs.createReadStream(filePath).pipe(res);
-        } else {
-          // SPA fallback
-          res.writeHead(200, { "Content-Type": "text/html" });
-          res.end(indexHtml);
-        }
-      });
-
-      await new Promise<void>((resolve) => {
-        staticServer.listen(3000, resolve);
-      });
-
-      await use("http://localhost:3000");
-
-      // Cleanup
-      staticServer.close();
-      serverProcess.kill();
-      try {
-        fs.unlinkSync(bootstrapPath);
-      } catch {
-        /* ignore */
-      }
+      },
+      { scope: "worker" },
+    ],
+    baseURL: async ({ _exampleApp }, use) => {
+      await use(`http://localhost:${_exampleApp.webPort}`);
     },
   });
 }

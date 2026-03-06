@@ -65,11 +65,7 @@ export async function transformServerFile(
     // Server build: keep original + register
     const registrations = exportNames
       .map((name) => {
-        const fnId = makeFnId(
-          options.rootContext,
-          options.resourcePath,
-          name,
-        );
+        const fnId = makeFnId(options.rootContext, options.resourcePath, name);
         if (options.onServerFn) {
           const relativePath = path.relative(
             options.rootContext,
@@ -91,11 +87,7 @@ export async function transformServerFile(
   // Client build: replace with transport stubs
   const stubCode = exportNames
     .map((name) => {
-      const fnId = makeFnId(
-        options.rootContext,
-        options.resourcePath,
-        name,
-      );
+      const fnId = makeFnId(options.rootContext, options.resourcePath, name);
       return `export function ${name}(...args) {\n  return __ev_call("${fnId}", args);\n}\n${name}.evId = "${fnId}";`;
     })
     .join("\n\n");

@@ -16,8 +16,7 @@ export function generateServerEntry(
   const imports: string[] = [];
 
   // Resolve app factory
-  const appFactoryRef =
-    config?.appFactory ?? "@evjs/runtime/server#createApp";
+  const appFactoryRef = config?.appFactory ?? "@evjs/runtime/server#createApp";
   const appFactory = parseModuleRef(appFactoryRef);
   imports.push(
     `import { ${appFactory.exportName} } from ${JSON.stringify(appFactory.module)};`,
@@ -33,8 +32,7 @@ export function generateServerEntry(
       );
     } else {
       // Rewrite the first import to include both exports
-      imports[0] =
-        `import { ${appFactory.exportName}, ${runner.exportName} } from ${JSON.stringify(appFactory.module)};`;
+      imports[0] = `import { ${appFactory.exportName}, ${runner.exportName} } from ${JSON.stringify(appFactory.module)};`;
     }
   }
 

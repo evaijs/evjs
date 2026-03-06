@@ -3,6 +3,7 @@ import type { Hono } from "hono";
 
 export interface NodeRunnerOptions {
   port?: number;
+  host?: string;
 }
 
 /**
@@ -11,9 +12,11 @@ export interface NodeRunnerOptions {
  */
 export function runNodeServer(app: Hono, options?: NodeRunnerOptions) {
   const port = options?.port || 3001;
-  const server = serve({ fetch: app.fetch, port }, (info) => {
+  const hostname = options?.host;
+  const server = serve({ fetch: app.fetch, port, hostname }, (info) => {
+    const address = info.address === "0.0.0.0" || info.address === "::" ? "localhost" : info.address;
     console.log(
-      `\x1b[32mev server API ready at http://localhost:${info.port}\x1b[0m`,
+      `\\x1b[32mev server API ready at http://${address}:${info.port}\\x1b[0m`,
     );
   });
 

@@ -107,7 +107,9 @@ program
 program
   .command("dev")
   .description("Start development server")
-  .action(async () => {
+  .option("-p, --port <port>", "Port to run the dev server on", "3000")
+  .option("-H, --host <host>", "Host to run the dev server on", "localhost")
+  .action(async (options) => {
     const cwd = process.cwd();
     console.log(pc.blue("Starting development server..."));
     try {
@@ -144,7 +146,7 @@ program
                 const serverUrl = pathToFileURL(${JSON.stringify(serverBundlePath)}).href;
                 import(serverUrl).then(mod => {
                   const app = mod.default || mod;
-                  runNodeServer(app, { port: 3001 });
+                  runNodeServer(app, { port: 3001, host: ${JSON.stringify(options.host)} });
                 }).catch(err => {
                   console.error('Failed to start ev server API:', err);
                 });

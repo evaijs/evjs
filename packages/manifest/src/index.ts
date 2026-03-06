@@ -8,15 +8,11 @@
  *   - dist/client/manifest.json → ClientManifest (future)
  */
 
-// ─── Shared ──────────────────────────────────────────────
-
 /** Base manifest fields shared by all environment manifests. */
 interface ManifestBase {
   /** Schema version — bump on breaking changes. */
   version: 1;
 }
-
-// ─── Server Manifest (dist/server/manifest.json) ─────────
 
 /** A registered server function entry. */
 export interface ServerFnEntry {
@@ -49,8 +45,6 @@ export interface ServerManifest extends ManifestBase {
   rsc?: Record<string, RscEntry>;
 }
 
-// ─── Client Manifest (dist/client/manifest.json) ─────────
-
 /** Per-page asset entry for MPA support (future — reserved). */
 export interface PageEntry {
   /** JavaScript bundle paths for this page. */
@@ -72,11 +66,3 @@ export interface ClientManifest extends ManifestBase {
   /** Per-page assets for MPA support (future — reserved). */
   pages?: Record<string, PageEntry>;
 }
-
-// ─── Legacy alias ────────────────────────────────────────
-
-/**
- * @deprecated Use `ServerManifest` or `ClientManifest` directly.
- * Kept for backward compatibility during migration.
- */
-export type EvManifest = ServerManifest;

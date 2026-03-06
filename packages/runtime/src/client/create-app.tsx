@@ -66,6 +66,7 @@ export function createApp<TRouteTree extends AnyRoute>(
   const router = createRouter({
     ...routerOptions,
     routeTree,
+    context: { queryClient, ...routerOptions?.context },
   } as Parameters<typeof createRouter>[0]);
 
   function render(container: string | HTMLElement): void {

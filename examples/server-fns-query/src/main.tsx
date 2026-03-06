@@ -1,8 +1,8 @@
 import {
   createApp,
+  createEvRootRoute,
   createMutationProxy,
   createQueryProxy,
-  createRootRoute,
   createRoute,
   Link,
   Outlet,
@@ -26,7 +26,7 @@ function Root() {
   );
 }
 
-const rootRoute = createRootRoute({ component: Root });
+const rootRoute = createEvRootRoute({ component: Root });
 
 // ── API Proxy ──
 const api = {
@@ -159,6 +159,15 @@ const usersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: UsersPage,
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(
+        api.users.query.getUsers.queryOptions([]),
+      ),
+      context.queryClient.ensureQueryData(
+        api.posts.query.getPosts.queryOptions([]),
+      ),
+    ]),
 });
 
 // ── Mount ──

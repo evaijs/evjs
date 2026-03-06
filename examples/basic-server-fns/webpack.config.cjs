@@ -55,14 +55,7 @@ const clientConfig = {
     new HtmlWebpackPlugin({
       template: "./index.html",
     }),
-    new EvWebpackPlugin({
-      server: {
-        runner:
-          !isProduction
-            ? "@evjs/runtime/server#runNodeServer"
-            : undefined,
-      },
-    }),
+    new EvWebpackPlugin(),
   ],
   optimization: isProduction
     ? { splitChunks: { chunks: "all" } }

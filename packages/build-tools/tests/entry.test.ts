@@ -14,29 +14,13 @@ describe("generateServerEntry", () => {
     expect(result).toContain("export default app");
   });
 
-  it("includes runner when configured", () => {
-    const result = generateServerEntry(
-      { runner: "@evjs/runtime/server#runNodeServer" },
-      ["/project/src/api/users.server.ts"],
-    );
+  it("always exports default app (environment-agnostic)", () => {
+    const result = generateServerEntry(undefined, [
+      "/project/src/api/users.server.ts",
+    ]);
 
-    // Runner and factory from same module should be combined import
-    expect(result).toContain("import { createApp, runNodeServer }");
-    expect(result).toContain("runNodeServer(app)");
-    expect(result).not.toContain("export default app");
-  });
-
-  it("separates imports when runner is from a different module", () => {
-    const result = generateServerEntry(
-      { runner: "./custom-runner#startServer" },
-      ["/project/src/api/users.server.ts"],
-    );
-
-    expect(result).toContain(
-      'import { createApp } from "@evjs/runtime/server"',
-    );
-    expect(result).toContain('import { startServer } from "./custom-runner"');
-    expect(result).toContain("startServer(app)");
+    expect(result).toContain("export default app");
+    expect(result).not.toContain("runNodeServer");
   });
 
   it("supports custom app factory", () => {

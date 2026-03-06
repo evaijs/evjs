@@ -46,6 +46,14 @@
     "./server": {
       "types": "./esm/server/index.d.ts",
       "import": "./esm/server/index.js"
+    },
+    "./server/node": {
+      "types": "./esm/server/environments/node.d.ts",
+      "import": "./esm/server/environments/node.js"
+    },
+    "./server/ecma": {
+      "types": "./esm/server/environments/ecma.d.ts",
+      "import": "./esm/server/environments/ecma.js"
     }
   },
   "scripts": {

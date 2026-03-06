@@ -103,7 +103,7 @@ export class EvWebpackPlugin {
               // Spawn the Node Server child compiler (webpack-specific)
               const outputOptions = {
                 filename: "../server/index.js",
-                library: { type: "commonjs", name: "evServer" },
+                library: { type: "commonjs2" },
                 chunkFormat: "commonjs",
               };
 
@@ -115,6 +115,7 @@ export class EvWebpackPlugin {
                     asyncChunkLoading: false,
                   }),
                   new compiler.webpack.node.NodeTargetPlugin(),
+                  new compiler.webpack.library.EnableLibraryPlugin("commonjs2"),
                   new compiler.webpack.ExternalsPlugin("commonjs", [
                     (
                       { request }: { request?: string },

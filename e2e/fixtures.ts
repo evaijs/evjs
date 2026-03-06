@@ -2,15 +2,15 @@
  * E2E test fixtures for evjs framework.
  *
  * Provides a custom test fixture that:
- * 1. Builds the example app with webpack (NODE_ENV=development to include server runner)
- * 2. Starts the compiled server bundle (which self-starts via runNodeServer)
+ * 1. Builds the example app with webpack
+ * 2. Starts the API server by requiring the bundle and using @hono/node-server
  * 3. Starts a static file server for the client bundle
  * 4. Tears everything down after tests complete
  */
 
 import { type ChildProcess, execSync, spawn } from "node:child_process";
-import fs from "node:fs";
 import http from "node:http";
+import fs from "node:fs";
 import path from "node:path";
 import { test as base, expect } from "@playwright/test";
 
@@ -24,13 +24,12 @@ interface ExampleFixture {
 /**
  * Create a test fixture for a specific example directory.
  *
- * Builds with webpack (NODE_ENV=development so the runner is included),
- * starts the server on port 3001, serves the client on port 3000.
+ * Builds with webpack, starts the server bundle via a CJS bootstrap
+ * (imports the app + starts it with @hono/node-server), serves client on port 3000.
  */
 export function createExampleTest(exampleName: string) {
-  // biome-ignore lint/style/noNonNullAssertion: import.meta.dirname always defined in Node 21+
   const exampleDir = path.resolve(
-    import.meta.dirname!,
+    import.meta.dirname,
     "..",
     "examples",
     exampleName,
@@ -38,70 +37,67 @@ export function createExampleTest(exampleName: string) {
 
   return base.extend<ExampleFixture>({
     // biome-ignore lint/correctness/noEmptyPattern: Playwright fixture pattern
-    baseURL: async ({}, use) => {
-      // 1. Build with NODE_ENV=development (includes server runner)
+    baseURL: async ({ }, use) => {
+      // 1. Build with webpack
       execSync("npx webpack --config webpack.config.cjs", {
         cwd: exampleDir,
         stdio: "pipe",
-        env: {
-          ...process.env,
-          NODE_ENV: "development",
-        },
       });
 
-      // 2. Start the server bundle (self-starting via runNodeServer on port 3001)
-      const serverBundlePath = path.join(
+      // 2. Write a CJS bootstrap that requires the server bundle
+      //    (which registers server fns as side effect and exports the Hono app)
+      //    then starts it with @hono/node-server.
+      const bootstrapPath = path.join(exampleDir, "dist", "_e2e_start.cjs");
+      const serverEntryPath = path.join(
         exampleDir,
         "dist",
         "server",
         "index.js",
       );
-      let serverProcess: ChildProcess | null = null;
 
-      if (fs.existsSync(serverBundlePath)) {
-        serverProcess = spawn("node", [serverBundlePath], {
-          cwd: exampleDir,
-          stdio: "pipe",
-          env: {
-            ...process.env,
-            NODE_ENV: "development",
-          },
+      fs.writeFileSync(
+        bootstrapPath,
+        [
+          `const bundle = require(${JSON.stringify(serverEntryPath)});`,
+          `const app = bundle.default || bundle;`,
+          `const { serve } = require("@hono/node-server");`,
+          `serve({ fetch: app.fetch, port: 3001 }, (info) => {`,
+          `  console.log("E2E_SERVER_READY:" + info.port);`,
+          `});`,
+        ].join("\n"),
+      );
+
+      // 3. Start the server
+      const serverProcess = spawn("node", [bootstrapPath], {
+        cwd: exampleDir,
+        stdio: "pipe",
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error("Server did not start within 15s"));
+        }, 15_000);
+
+        serverProcess.stdout?.on("data", (data) => {
+          if (data.toString().includes("E2E_SERVER_READY")) {
+            clearTimeout(timeout);
+            resolve();
+          }
         });
 
-        // Wait for server to be ready by polling port 3001
-        const start = Date.now();
-        const timeout = 15_000;
-        let ready = false;
+        serverProcess.stderr?.on("data", (data) => {
+          console.error("[e2e-server]", data.toString());
+        });
 
-        while (Date.now() - start < timeout) {
-          try {
-            await new Promise<void>((resolve, reject) => {
-              const req = http.get("http://localhost:3001/api/rpc", (res) => {
-                res.resume();
-                resolve();
-              });
-              req.on("error", reject);
-              req.setTimeout(500, () => {
-                req.destroy();
-                reject(new Error("timeout"));
-              });
-            });
-            ready = true;
-            break;
-          } catch {
-            await new Promise((r) => setTimeout(r, 300));
+        serverProcess.on("exit", (code) => {
+          clearTimeout(timeout);
+          if (code !== null && code !== 0) {
+            reject(new Error(`Server exited with code ${code}`));
           }
-        }
+        });
+      });
 
-        if (!ready) {
-          serverProcess.kill();
-          throw new Error(
-            `Server did not start on port 3001 within ${timeout}ms`,
-          );
-        }
-      }
-
-      // 3. Serve the client bundle on port 3000
+      // 4. Serve the client bundle on port 3000
       const distDir = path.join(exampleDir, "dist", "client");
       const indexHtml = fs.readFileSync(
         path.join(distDir, "index.html"),
@@ -164,8 +160,11 @@ export function createExampleTest(exampleName: string) {
 
       // Cleanup
       staticServer.close();
-      if (serverProcess) {
-        serverProcess.kill();
+      serverProcess.kill();
+      try {
+        fs.unlinkSync(bootstrapPath);
+      } catch {
+        /* ignore */
       }
     },
   });

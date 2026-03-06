@@ -8,14 +8,6 @@ export interface ServerEntryConfig {
   appFactory?: string;
 
   /**
-   * Optional module reference for a runner that auto-starts the server.
-   * When set, the bundle is self-starting instead of just exporting the app.
-   * Format: "module#exportName"
-   * @example "@evjs/runtime/server#runNodeServer"
-   */
-  runner?: string;
-
-  /**
    * Extra import statements to prepend to the server entry.
    * Useful for middleware, config, or side-effect imports.
    */

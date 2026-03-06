@@ -138,6 +138,7 @@ program
       // The background Node API execution (will wait for child compiler output)
       const _serverRun = (async () => {
         const serverBundlePath = path.resolve(cwd, "dist/server/index.js");
+        const bootstrapPath = path.resolve(cwd, "dist/server/_dev_start.cjs");
 
         let started = false;
         while (true) {
@@ -146,12 +147,25 @@ program
               logger.info`Server bundle detected, starting Node API...`;
               started = true;
 
-              // The server bundle is self-starting when a runner is configured
-              // in the webpack plugin. Just run it directly.
+              // Write a CJS bootstrap that imports the environment-agnostic
+              // server bundle and starts it with @hono/node-server.
+              fs.writeFileSync(
+                bootstrapPath,
+                [
+                  `const bundle = require(${JSON.stringify(serverBundlePath)});`,
+                  `const app = bundle.default || bundle;`,
+                  `const { serve } = require("@hono/node-server");`,
+                  `const port = process.env.PORT || 3001;`,
+                  `serve({ fetch: app.fetch, port }, (info) => {`,
+                  `  console.log("Server API ready at http://localhost:" + info.port);`,
+                  `});`,
+                ].join("\n"),
+              );
+
               try {
                 await execa(
                   "node",
-                  ["--watch", "--watch-preserve-output", serverBundlePath],
+                  ["--watch", "--watch-preserve-output", bootstrapPath],
                   {
                     stdio: "inherit",
                     env: { ...process.env, NODE_ENV: "development" },

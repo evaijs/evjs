@@ -37,7 +37,7 @@
   │                                 (RPC Schemas)          │
   │                                                        │
   │  Current Builder: Webpack                              │
-  │  🔮 Future: utoo                                       │
+  │  🔮 Future: Utoo(Turbopack)                            │
   └───────────────────────────────────────┬────────────────┘
                                           │
                                           ▼

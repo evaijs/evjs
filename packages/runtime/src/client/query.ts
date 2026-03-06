@@ -16,6 +16,7 @@ import {
 export type ServerFunction<TArgs extends unknown[], TResponse> = ((
   ...args: TArgs
 ) => Promise<TResponse>) & {
+  /** @internal Stable function ID set by the build-tools loader. */
   evId?: string;
 };
 
@@ -52,9 +53,6 @@ export interface QueryProxyHandler<TArgs extends unknown[], TResponse> {
 
   /** Returns the query key for this function and arguments. */
   queryKey(args?: TArgs): unknown[];
-
-  /** The stable function ID. */
-  evId: string;
 }
 
 /**
@@ -81,9 +79,6 @@ export interface MutationProxyHandler<TVariables, TResponse> {
   ): UseMutationOptions<TResponse, Error, TVariables> & {
     mutationFn: (variables: TVariables) => Promise<TResponse>;
   };
-
-  /** The stable function ID. */
-  evId: string;
 }
 
 /**

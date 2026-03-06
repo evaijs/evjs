@@ -16,7 +16,7 @@ Sets `NODE_ENV=development`.
 
 ### `ev build`
 Production build with `NODE_ENV=production`.
-Output: `dist/client/` (assets) + `dist/server/index.js` (standalone server).
+Output: `dist/client/` (assets) + `dist/server/main.[hash].js` (server bundle, discovered via `dist/server/manifest.json`).
 
 ## Configuration
 Detects `webpack.config.cjs` in project root. Uses `@evjs/webpack-plugin` for server function support.

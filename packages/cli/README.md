@@ -41,7 +41,7 @@ Sets `NODE_ENV=development`, which enables the `runner` in `EvWebpackPlugin` for
 
 Runs a single Webpack build with `NODE_ENV=production`, producing:
 - `dist/client/` — optimized client assets.
-- `dist/server/index.js` — standalone server bundle.
+- `dist/server/main.[hash].js` — server bundle (filename from `dist/server/manifest.json`).
 
 ## Configuration
 

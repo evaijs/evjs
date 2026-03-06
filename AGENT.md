@@ -31,8 +31,9 @@ Core runtime providing isomorphic utilities.
 
 ### `@evjs/manifest`
 Shared manifest schema types used by webpack-plugin (producer) and runtime (consumer).
-- `EvManifest` (versioned, currently v1).
-- `ServerFnEntry`, `SsrEntry`, `RscEntry`, `AssetsEntry`.
+- `ServerManifest` — server manifest (`dist/server/manifest.json`, versioned v1).
+- `ClientManifest` — client manifest (reserved for future `dist/client/manifest.json`).
+- `ServerFnEntry`, `RscEntry`, `PageEntry`.
 
 ### `@evjs/cli`
 Command-line interface for project management.

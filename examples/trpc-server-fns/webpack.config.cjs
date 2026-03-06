@@ -66,7 +66,7 @@ const clientConfig = {
     port: 3000,
     hot: true,
     devMiddleware: {
-      writeToDisk: (filePath) => /server/.test(filePath),
+      writeToDisk: true,
     },
     proxy: [
       {

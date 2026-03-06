@@ -55,9 +55,10 @@ const clientConfig = {
     }),
     new EvWebpackPlugin({
       server: {
-        runner: process.env.NODE_ENV === 'development'
-          ? "@evjs/runtime/server#runNodeServer"
-          : undefined,
+        runner:
+          process.env.NODE_ENV === "development"
+            ? "@evjs/runtime/server#runNodeServer"
+            : undefined,
       },
     }),
   ],

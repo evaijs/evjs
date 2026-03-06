@@ -94,8 +94,8 @@ export type QueryProxy<TModule> = {
     infer TArgs,
     infer TResponse
   >
-  ? QueryProxyHandler<TArgs, TResponse>
-  : QueryProxy<TModule[K]>;
+    ? QueryProxyHandler<TArgs, TResponse>
+    : QueryProxy<TModule[K]>;
 };
 
 export type MutationProxy<TModule> = {
@@ -103,8 +103,8 @@ export type MutationProxy<TModule> = {
     infer TVars,
     infer TResponse
   >
-  ? MutationProxyHandler<TVars, TResponse>
-  : MutationProxy<TModule[K]>;
+    ? MutationProxyHandler<TVars, TResponse>
+    : MutationProxy<TModule[K]>;
 };
 
 function createHandler(fn: ServerFunction<unknown[], unknown>, path: string[]) {
@@ -171,7 +171,7 @@ function createProxy(
   source?: unknown,
   path: string[] = [],
 ): unknown {
-  const target = source ?? (() => { });
+  const target = source ?? (() => {});
   return new Proxy(target as object, {
     get(_target, prop: string) {
       if (prop === "_evId") return (_target as { _evId?: string })._evId;
@@ -240,4 +240,3 @@ export const mutation = createProxy("mutation") as (<TVariables, TResponse>(
   fn: (args: TVariables) => Promise<TResponse>,
 ) => MutationProxyHandler<TVariables, TResponse>) &
   MutationProxy<Record<string, unknown>>;
-

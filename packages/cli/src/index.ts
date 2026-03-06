@@ -19,7 +19,10 @@ const logger = getLogger(["evjs", "cli"]);
 const pkg = fs.readJsonSync(path.resolve(__dirname, "../package.json"));
 const program = new Command();
 
-program.name("evjs").description("CLI for the ev framework").version(pkg.version);
+program
+  .name("evjs")
+  .description("CLI for the ev framework")
+  .version(pkg.version);
 
 program
   .command("init")
@@ -145,11 +148,7 @@ program
               try {
                 await execa(
                   "node",
-                  [
-                    "--watch",
-                    "--watch-preserve-output",
-                    serverBundlePath,
-                  ],
+                  ["--watch", "--watch-preserve-output", serverBundlePath],
                   {
                     stdio: "inherit",
                     env: { ...process.env, NODE_ENV: "development" },

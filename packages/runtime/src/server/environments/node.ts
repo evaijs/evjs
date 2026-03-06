@@ -17,8 +17,11 @@ export function runNodeServer(app: Hono, options?: NodeRunnerOptions) {
   const port = options?.port || 3001;
   const hostname = options?.host;
   const server = serve({ fetch: app.fetch, port, hostname }, (info) => {
-    const address = info.address === "0.0.0.0" || info.address === "::" ? "localhost" : info.address;
-    logger.info`ev server API ready at http://${address}:${info.port}`;
+    const address =
+      info.address === "0.0.0.0" || info.address === "::"
+        ? "localhost"
+        : info.address;
+    logger.info`Server API ready at http://${address}:${info.port}`;
   });
 
   return server;

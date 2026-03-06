@@ -23,7 +23,9 @@ type EvCompiler = Compiler & { _ev_manifest_collector?: ManifestCollector };
 function parseModuleRef(ref: string): { module: string; exportName: string } {
   const idx = ref.indexOf("#");
   if (idx === -1) {
-    throw new Error(`Invalid module reference "${ref}". Expected format: "module#exportName".`);
+    throw new Error(
+      `Invalid module reference "${ref}". Expected format: "module#exportName".`,
+    );
   }
   return { module: ref.slice(0, idx), exportName: ref.slice(idx + 1) };
 }
@@ -92,7 +94,9 @@ export class EvWebpackPlugin {
               const imports: string[] = [];
 
               // Resolve app factory
-              const appFactoryRef = this.options.server?.appFactory ?? "@evjs/runtime/server#createApp";
+              const appFactoryRef =
+                this.options.server?.appFactory ??
+                "@evjs/runtime/server#createApp";
               const appFactory = parseModuleRef(appFactoryRef);
               imports.push(
                 `import { ${appFactory.exportName} } from ${JSON.stringify(appFactory.module)};`,

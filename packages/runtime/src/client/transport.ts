@@ -28,7 +28,11 @@ export interface RequestContext {
  */
 export interface ServerTransport {
   /** Standard request-response call for server functions. */
-  send(fnId: string, args: unknown[], context?: RequestContext): Promise<unknown>;
+  send(
+    fnId: string,
+    args: unknown[],
+    context?: RequestContext,
+  ): Promise<unknown>;
 
   /**
    * Streaming call for RSC Flight protocol.
@@ -37,7 +41,11 @@ export interface ServerTransport {
    * @experimental Not yet implemented. Reserved for future RSC support.
    * Do not use — this method signature may change.
    */
-  stream?(fnId: string, args: unknown[], context?: RequestContext): ReadableStream<Uint8Array>;
+  stream?(
+    fnId: string,
+    args: unknown[],
+    context?: RequestContext,
+  ): ReadableStream<Uint8Array>;
 }
 
 export interface TransportOptions {
@@ -52,9 +60,16 @@ export interface TransportOptions {
 /**
  * Default fetch-based transport.
  */
-function createFetchTransport(baseUrl: string, endpoint: string): ServerTransport {
+function createFetchTransport(
+  baseUrl: string,
+  endpoint: string,
+): ServerTransport {
   return {
-    async send(fnId: string, args: unknown[], context?: RequestContext): Promise<unknown> {
+    async send(
+      fnId: string,
+      args: unknown[],
+      context?: RequestContext,
+    ): Promise<unknown> {
       const url = `${baseUrl}${endpoint}`;
 
       const res = await fetch(url, {

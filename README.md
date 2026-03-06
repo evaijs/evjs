@@ -22,6 +22,40 @@
 - [`packages/webpack-plugin`](./packages/webpack-plugin): Build-time integration for RSF.
 - [`examples/`](./examples): Starter templates and reference implementations.
 
+### Architecture Overview
+
+```text
+  ┌────────────────────────────────────────────────────────┐
+  │ Development & Build Time                               │
+  │                                                        │
+  │  [ @evjs/cli ]  ────────▶  [ @evjs/webpack-plugin ]    │
+  │  (Scaffolding)             (AST Parser & Compiler)     │
+  │                                       │                │
+  │                                       ▼                │
+  │                             [ @evjs/manifest ]         │
+  │                               (Shared Types)           │
+  └───────────────────────────────────────┬────────────────┘
+                                          │
+                                          ▼
+  ┌────────────────────────────────────────────────────────┐
+  │ Application Runtime                                    │
+  │                                                        │
+  │   Client (Browser)                 Server (Node)       │
+  │  ──────────────────               ───────────────      │
+  │                                                        │
+  │  [ React App ]                        [ Hono ]         │
+  │        │                              (Server)         │
+  │        ▼                                  │            │
+  │  [ TanStack Query ]                       ▼            │
+  │  (Data Fetching)                   [ Server Fns ]      │
+  │        │                            (use server)       │
+  │        ▼                                  ▲            │
+  │  [ @evjs/runtime/client ]                 │            │
+  │  (RPC Stubs)  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            │
+  │                      RPC over HTTP                     │
+  └────────────────────────────────────────────────────────┘
+```
+
 ## 🚀 Quick Start
 
 1. **Install the CLI**:

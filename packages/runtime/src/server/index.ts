@@ -2,8 +2,8 @@
  * Server-side runtime utilities.
  */
 
-export { createApp } from "./app.js";
-export type { CreateAppOptions } from "./app.js";
-export { runNodeServer } from "./runners/node.js";
-export type { NodeRunnerOptions } from "./runners/node.js";
-export { createRpcMiddleware, registerServerFn } from "./handler.js";
+export { createApp } from "./app";
+export type { CreateAppOptions } from "./app";
+export { runNodeServer } from "./runners/node";
+export type { NodeRunnerOptions } from "./runners/node";
+export { createRpcMiddleware, registerServerFn } from "./handler";

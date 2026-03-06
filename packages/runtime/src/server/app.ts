@@ -6,8 +6,8 @@
  */
 
 import { Hono } from "hono";
-import { DEFAULT_RPC_ENDPOINT } from "../constants.js";
-import { createRpcMiddleware } from "./handler.js";
+import { DEFAULT_RPC_ENDPOINT } from "../constants";
+import { createRpcMiddleware } from "./handler";
 
 /** Options for createApp. */
 export interface CreateAppOptions {

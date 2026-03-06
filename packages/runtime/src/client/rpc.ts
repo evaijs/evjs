@@ -6,7 +6,7 @@
  * `__ev_rpc(fnId, args)`. This module provides that helper.
  */
 
-import { DEFAULT_RPC_ENDPOINT } from "../constants.js";
+import { DEFAULT_RPC_ENDPOINT } from "../constants";
 
 export interface RpcOptions {
   /** Base URL for the RPC endpoint. Defaults to the current origin. */

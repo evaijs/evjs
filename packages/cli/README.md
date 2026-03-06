@@ -1,6 +1,6 @@
 # @evjs/cli
 
-Simplified CLI for the **ev** framework.
+Command-line interface for the **ev** framework.
 
 ## Installation
 
@@ -10,17 +10,39 @@ npm install -g @evjs/cli
 
 ## Commands
 
+| Command | Description |
+|---------|-------------|
+| `ev init [name]` | Scaffold a new project from a template |
+| `ev dev` | Start unified dev server (client HMR + API watch) |
+| `ev build` | Production build for client and server |
+
 ### `ev init [name]`
-Scaffold a new project. You can choose between:
-- `basic-csr`: Client-side rendered SPA.
-- `basic-server-fns`: Project with React Server Functions enabled.
+
+Interactive project scaffolding with template selection:
+
+| Template | Description |
+|----------|-------------|
+| `basic-csr` | Client-side rendered SPA |
+| `basic-server-fns` | SPA with React Server Functions |
+| `trpc-server-fns` | Server Functions with tRPC integration |
+
+Options:
+- `-t, --template <template>` — Skip interactive selection.
 
 ### `ev dev`
-Starts the unified development server. Orchestrates Webpack Dev Server for the client and a watched Node.js process for the API server. Handles dynamic discovery of new server functions without restarting.
+
+Starts two processes concurrently:
+1. **Webpack Dev Server** (port 3000) — client bundle with HMR.
+2. **Node API Server** (port 3001) — auto-detected once the server bundle is emitted. Uses `node --watch` for live reload on changes.
+
+Sets `NODE_ENV=development`, which enables the `runner` in `EvWebpackPlugin` for self-starting server bundles.
 
 ### `ev build`
-Compiles the project for production, generating both client assets (`dist/client`) and a standalone server bundle (`dist/server/index.js`).
+
+Runs a single Webpack build with `NODE_ENV=production`, producing:
+- `dist/client/` — optimized client assets.
+- `dist/server/index.js` — standalone server bundle.
 
 ## Configuration
 
-The CLI automatically detects your `webpack.config.cjs`. Using the `@evjs/webpack-plugin`, it manages a child compiler to bring zero-config server functions to your project. Templates are symlinked to the monorepo examples for 1:1 parity.
+The CLI detects `webpack.config.cjs` in the project root. Server function support comes from `@evjs/webpack-plugin` — no additional CLI config needed.

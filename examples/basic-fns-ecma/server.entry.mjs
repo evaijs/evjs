@@ -11,13 +11,15 @@
  * - Node.js 18+: use with @hono/node-server
  */
 
-import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 
 // Read server manifest to find the entry bundle
-const manifest = JSON.parse(readFileSync(new URL("./server/manifest.json", import.meta.url), "utf-8"));
+const manifest = JSON.parse(
+  readFileSync(new URL("./server/manifest.json", import.meta.url), "utf-8"),
+);
 const bundle = require(`./server/${manifest.entry}`);
 const app = bundle.createApp();
 
@@ -31,6 +33,8 @@ if (typeof process !== "undefined" && process.argv[1]?.endsWith("start.mjs")) {
   const { serve } = await import("@hono/node-server");
   const port = Number(process.env.PORT) || 3001;
   serve({ fetch: app.fetch, port }, (info) => {
-    console.log(`ECMA runtime server listening on http://localhost:${info.port}`);
+    console.log(
+      `ECMA runtime server listening on http://localhost:${info.port}`,
+    );
   });
 }

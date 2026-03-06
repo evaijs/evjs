@@ -10,9 +10,11 @@
 - **Isomorphic Data Fetching**: Powered by [TanStack Query](https://tanstack.com/query).
 - **Server Functions**: Use `"use server"` to define server-side logic callable as standard async functions.
 - **Dynamic Server Discovery**: Auto-detects server functions in real-time — no manual configuration or imports.
+- **Pluggable Transport**: Configurable `ServerTransport` interface for custom protocols and libraries.
+- **Runtime-Agnostic Server**: Hono-based server with Runner API for Node, Edge, or Bun.
+- **Configurable Builds**: Plugin options for `appFactory`, `runner`, and `setup` imports.
 - **Single-Config Build**: Harmonized client/server builds via Webpack Child Compilers.
 - **Unified CLI**: Scaffold and manage projects with the `ev` command.
-- **Modern Build**: Optimized with SWC and HMR for both client and API.
 
 ## 🏗️ Monorepo Structure
 
@@ -29,12 +31,12 @@
   │ Development & Build Time                               │
   │                                                        │
   │     [ CLI Tool ]  ────────▶  [ Build Integration ]     │
-  │    (Scaffolding,              (Native awareness of       │
-  │     Dev & Build)               React directives:         │
+  │    (Scaffolding,              (Native awareness of      │
+  │     Dev & Build)               React directives:        │
   │                                'use server'/'use client')│
-  │                                       ▼                  │
-  │                              [ Shared Manifest ]         │
-  │                           (Client-Server Contract)       │
+  │                                       ▼                 │
+  │                              [ Shared Manifest ]        │
+  │                           (Client-Server Contract)      │
   │                                                        │
   │  Current Builder: Webpack                              │
   │  🔮 Future: Utoo(Turbopack)                            │
@@ -44,19 +46,23 @@
   ┌────────────────────────────────────────────────────────┐
   │ Application Runtime                                    │
   │                                                        │
-  │   Client (Browser)                 Server (Node)       │
-  │  ──────────────────               ───────────────      │
+  │   Client (Browser)            Server (Node/Edge/Bun)   │
+  │  ──────────────────           ──────────────────────   │
   │                                                        │
-  │  [ React App ]                        [ Hono ]         │
-  │        │                              (Server)         │
-  │        ▼                                  │            │
-  │  [ TanStack Query ]                       ▼            │
-  │ (Queries & Mutations)              [ Server Fns ]      │
-  │        │                            (use server)       │
-  │        ▼                                  ▲            │
-  │  [ Client Runtime ]                       │            │
-  │ (Server Interaction)  ━━━━━━━━━━━━━━━━━━━━━━━━┛            │
-  │                Client-Server Communication               │
+  │  [ React App ]                    [ Hono App ]         │
+  │        │                          (Runtime-Agnostic)   │
+  │        ▼                               │               │
+  │  [ TanStack Router ]                   ▼               │
+  │  (Type-Safe Routing)           [ Server Fns ]          │
+  │        │                         (use server)          │
+  │        ▼                               ▲               │
+  │  [ TanStack Query ]                    │               │
+  │ (Queries & Mutations)                  │               │
+  │        │                               │               │
+  │        ▼                               │               │
+  │  [ ServerTransport ]                   │               │
+  │  (Pluggable: fetch,  ━━━━━━━━━━━━━━━━━━┛               │
+  │   axios, WebSocket)                                    │
   │                                                        │
   │  🔮 Future Capabilities:                               │
   │     - React Server Components (RSC)                    │

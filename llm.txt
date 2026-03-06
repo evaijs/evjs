@@ -12,10 +12,11 @@ A React framework built for speed and simplicity, leveraging `@tanstack/react-ro
   - [x] `createApp()` factory (Router + Query + DOM)
   - [x] Code-based routing (via TanStack Router)
 - [x] Stage 2: React Server Functions
-  - [x] Isomorphic RPC calls (`"use server"`)
+  - [x] Pluggable server transport (`ServerTransport` interface)
   - [x] Webpack plugin with dynamic child-compiler & auto-discovery
+  - [x] Configurable server entry (appFactory, runner, setup)
   - [x] Versioned manifest schema (`manifest.json` v1)
-  - [x] Hono-based API server
+  - [x] Runtime-agnostic Hono app with Runner API
 - [ ] Stage 3: Server-Side Rendering (SSR)
   - [ ] HTML streaming & Hydration
 - [ ] Stage 4: React Server Components (RSC)
@@ -24,9 +25,9 @@ A React framework built for speed and simplicity, leveraging `@tanstack/react-ro
 
 ### `@evjs/runtime`
 Core runtime providing isomorphic utilities.
-- `client`: `createApp`, `createRoute`, `Outlet`, `Link`, `__ev_rpc`.
-- `server`: `createServer`, `registerServerFn`.
-- Server powered by [Hono](https://hono.dev) + `@hono/node-server`.
+- `client`: `createApp`, `createRoute`, `Outlet`, `Link`, `configureTransport`, `ServerTransport`.
+- `server`: `createApp` (Hono), `runNodeServer` (Node runner), `registerServerFn`.
+- Server powered by [Hono](https://hono.dev), runtime-agnostic (Node, Edge, Bun).
 
 ### `@evjs/manifest`
 Shared manifest schema types used by webpack-plugin (producer) and runtime (consumer).
@@ -41,7 +42,10 @@ Command-line interface for project management.
 
 ### `@evjs/webpack-plugin`
 Build-time integration for React Server Functions.
-- `EvWebpackPlugin`: Zero-config child compiler manager. Auto-discovers `"use server"` files, manages entry-generation, and watches `src/` for dynamic updates.
+- `EvWebpackPlugin`: Configurable child compiler manager. Auto-discovers `"use server"` files, manages entry-generation.
+  - `server.appFactory`: Configurable app factory (default: `@evjs/runtime/server#createApp`).
+  - `server.runner`: Optional runner to bake into the bundle (e.g. `@evjs/runtime/server#runNodeServer`).
+  - `server.setup`: Extra import statements for middleware or config.
 - `server-fn-loader`: Transforms `"use server"` files. Auto-detects client/server context.
 
 ## Key API
@@ -73,13 +77,27 @@ export async function getUsers() {
   return await db.users.findMany();
 }
 ```
-Imported from client as a standard async function. The `@evjs/webpack-plugin` handles the RPC transformation.
+Imported from client as a standard async function. The `@evjs/webpack-plugin` handles the transformation.
+
+### Custom Transport
+```tsx
+import { configureTransport } from "@evjs/runtime/client";
+
+configureTransport({
+  transport: {
+    send: async (fnId, args) => {
+      const { data } = await axios.post("/api/rpc", { fnId, args });
+      return data.result;
+    },
+  },
+});
+```
 
 ## Architecture: Server Functions
 
 - **Child Compiler**: `EvWebpackPlugin` spawns a Node-targeted child compiler.
-- **Dynamic Discovery**: Plugin watches `src/` for files with `"use server"` and updates a virtual entry point.
-- **Client build**: `server-fn-loader` replaces function bodies with `__ev_rpc(fnId, args)` stubs.
+- **Dynamic Discovery**: Plugin scans client modules for `"use server"` files and generates a virtual entry.
+- **Client build**: `server-fn-loader` replaces function bodies with `__ev_call(fnId, args)` stubs.
 - **Server build**: `server-fn-loader` keeps bodies and injects `registerServerFn(fnId, fn)`.
 - **Manifest**: Emitted to `dist/server/manifest.json`, mapping function IDs to build assets.
 - **Dev**: `ev dev` runs Webpack Dev Server (port 3000) and a watched Node process (port 3001).

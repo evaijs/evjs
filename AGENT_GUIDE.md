@@ -8,6 +8,7 @@ This guide provides context and patterns for AI agents (like Cursor, Copilot, an
 - **Port 3000**: Webpack Dev Server (Client HMR).
 - **Port 3001**: API/Node Server (RPC Handler).
 - **Communication**: The Client proxies `/api/*` requests to Port 3001.
+- **Runtime-Agnostic**: The server app is a Hono instance, runnable on Node, Edge, or Bun via Runners.
 
 ## 1. Server Functions (`"use server"`)
 
@@ -15,7 +16,7 @@ Server functions MUST follow these rules:
 - **Directive**: Must start with `"use server";` at the top.
 - **Naming**: Files should ideally end in `.server.ts` or be placed in `src/api/`.
 - **Exports**: Must be **async functions** and use **named exports**.
-- **Transformation**: The build system automatically replaces bodies with RPC stubs on the client and registers them on the server.
+- **Transformation**: The build system automatically replaces bodies with transport stubs on the client and registers them on the server.
 
 ### Example
 ```typescript
@@ -65,20 +66,56 @@ const options = query(getUsers).queryOptions([id]);
 // useQuery(options), queryClient.fetchQuery(options), etc.
 ```
 
-## 3. Routing Patterns
+## 3. Webpack Plugin Configuration
+
+```js
+const { EvWebpackPlugin } = require("@evjs/webpack-plugin");
+
+new EvWebpackPlugin({
+  server: {
+    // App factory (default: "@evjs/runtime/server#createApp")
+    appFactory: "@evjs/runtime/server#createApp",
+    // Runner (set for dev, omit for Edge-compatible production builds)
+    runner: process.env.NODE_ENV === 'development'
+      ? "@evjs/runtime/server#runNodeServer"
+      : undefined,
+    // Optional extra imports
+    setup: [],
+  },
+})
+```
+
+## 4. Custom Transport
+
+The client transport is pluggable via `configureTransport`:
+```tsx
+import { configureTransport } from "@evjs/runtime/client";
+
+configureTransport({
+  transport: {
+    send: async (fnId, args, context) => {
+      // Use any HTTP library or protocol
+      const { data } = await axios.post("/api/rpc", { fnId, args });
+      return data.result;
+    },
+  },
+});
+```
+
+## 5. Routing Patterns
 
 `@evjs` uses `@tanstack/react-router`.
 - **Root Route**: Use `createRootRoute`.
 - **Pages**: Use `createRoute`.
 - **Navigation**: Use `<Link to="/path">` or `useNavigate()`.
 
-## 4. Coding Style Prefs
+## 6. Coding Style Prefs
 
-- **Top-Level Imports**: ALWAYS put all imports at the top of the file. No nested imports or mid-file imports allowed.
+- **Top-Level Imports**: ALWAYS put all imports at the top of the file.
 - **Biome Compliance**: Follow strict Biome linting rules:
   - Prefer `import type` for type-only imports.
   - Avoid `any` - use explicit types or `unknown`.
-  - No namespace imports (`import * as`) unless strictly necessary (like `React` or internal API modules).
+  - No namespace imports (`import * as`) unless strictly necessary.
 - **Type Safety**: Leverage tRPC-like inference via the proxies.
 - **Invalidation**: Invalidate queries using the stable `evId`:
   ```tsx

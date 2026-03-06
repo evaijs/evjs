@@ -1,6 +1,6 @@
 # @evjs/runtime
 
-Core runtime for the **ev** framework. It provides isomorphic utilities for client-side routing, state management, and server-side RPC handling via Hono.
+Core runtime for the **ev** framework. It provides isomorphic utilities for client-side routing, state management, and server-side handling via Hono.
 
 ## Installation
 
@@ -12,8 +12,8 @@ npm install @evjs/runtime
 
 - **`createApp`**: A unified factory to bootstrap TanStack Router + Query.
 - **Routing**: Re-exports the full power of `@tanstack/react-router`.
-- **RPC**: Internal logic for calling `"use server"` functions from the client.
-- **Hono Server**: `createServer()` starts a Hono-based API server for RPC.
+- **Server Transport**: Pluggable `ServerTransport` interface for client-server communication.
+- **Hono Server**: Runtime-agnostic `createApp()` returns a Hono instance, startable via Runners.
 
 ## Usage
 
@@ -23,25 +23,40 @@ npm install @evjs/runtime
 import { createApp, createRootRoute, query, mutation } from "@evjs/runtime/client";
 import { getUsers, createUser } from "./api/users.server";
 
-// Using the Query Proxy
 function Users() {
   const { data } = query(getUsers).useQuery([]);
   const { mutate } = mutation(createUser).useMutation();
-  // ...
 }
 
 const rootRoute = createRootRoute({ component: Root });
 const app = createApp({ routeTree: rootRoute });
-
 app.render("#app");
 ```
 
-### Server Entry
+### Server
+
+The server app is a runtime-agnostic Hono instance. Use a Runner to start it:
 
 ```ts
-import { createServer } from "@evjs/runtime/server";
+import { createApp, runNodeServer } from "@evjs/runtime/server";
 
-createServer(); // Starts Hono-based RPC server on port 3001
+const app = createApp();
+runNodeServer(app, { port: 3001 });
 ```
 
-The Hono server is automatically started and watched by the `ev dev` command. Server functions are auto-discovered by `EvWebpackPlugin` and registered at the `/api/rpc` endpoint — providing a zero-config, low-latency development experience.
+In development, the `ev dev` command with a configured `runner` in `EvWebpackPlugin` handles this automatically.
+
+### Custom Transport
+
+```ts
+import { configureTransport } from "@evjs/runtime/client";
+
+configureTransport({
+  transport: {
+    send: async (fnId, args) => {
+      const { data } = await axios.post("/api/rpc", { fnId, args });
+      return data.result;
+    },
+  },
+});
+```

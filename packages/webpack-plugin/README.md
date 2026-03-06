@@ -2,15 +2,33 @@
 
 Webpack adapter for the **ev** framework. Thin wrapper over [`@evjs/build-tools`](../build-tools) that connects bundler-agnostic build logic to Webpack's plugin and loader APIs.
 
-## Features
+## Installation
 
-- **`EvWebpackPlugin`**: Configurable plugin that:
-  - Spawns a Node-targeted **Child Compiler** for server-side code.
-  - **Auto-discovers** `"use server"` files dynamically.
-  - Supports configurable **app factory**, **runner**, and **setup imports**.
-  - Emits a versioned `manifest.json` mapping function IDs.
-- **`server-fn-loader`**: Transforms files marked with `"use server"`.
-  - Automatically detects if it is running in a client or server compiler context.
+```bash
+npm install @evjs/webpack-plugin
+```
+
+## Exports
+
+| Export | Description |
+|--------|-------------|
+| `EvWebpackPlugin` | Plugin that auto-discovers `"use server"` files and manages server builds |
+| `server-fn-loader` | Loader that transforms `"use server"` files for client/server |
+
+## How It Works
+
+### EvWebpackPlugin
+
+1. **Scans client modules** for `"use server"` files via `detectUseServer()` from build-tools.
+2. **Generates a server entry** via `generateServerEntry()` — produces a virtual data-URI module.
+3. **Spawns a child compiler** targeting Node.js — builds the server bundle alongside the client.
+4. **Emits `manifest.json`** mapping function IDs to their module and export names.
+
+### server-fn-loader
+
+Auto-detects whether it's running in the client or server compiler and delegates to `transformServerFile()`:
+- **Client compiler** → replaces function bodies with RPC stubs.
+- **Server compiler** → keeps original source, appends registrations, and reports to the manifest.
 
 ## Usage
 
@@ -23,8 +41,8 @@ module.exports = {
       server: {
         // App factory (default: "@evjs/runtime/server#createApp")
         appFactory: "@evjs/runtime/server#createApp",
-        // Runner — bake into bundle for self-starting (dev only)
-        runner: process.env.NODE_ENV === 'development'
+        // Runner — bake into bundle for self-starting dev server
+        runner: process.env.NODE_ENV === "development"
           ? "@evjs/runtime/server#runNodeServer"
           : undefined,
         // Extra imports (middleware, config, etc.)
@@ -46,3 +64,11 @@ module.exports = {
   },
 };
 ```
+
+### Plugin Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `server.appFactory` | `string` | `"@evjs/runtime/server#createApp"` | Module ref for app factory |
+| `server.runner` | `string?` | `undefined` | Module ref for auto-starting the server |
+| `server.setup` | `string[]` | `[]` | Extra imports to prepend to server entry |

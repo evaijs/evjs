@@ -33,6 +33,6 @@ Future directions under consideration. Nothing committed yet.
 
 - **SSR**: Server-side rendering with HTML streaming and hydration
 - **RSC**: React Server Components via Flight protocol
-- **Richer serialization**: Support for complex JS types (Date, Map, Set) over the wire — e.g. `superjson` or `devalue`
+- **Pluggable serialization**: Extendable serialize/deserialize hooks so users can bring their own library (e.g. `superjson`, `devalue`) — framework stays JSON by default
 - **Server context**: Providing request context (headers, cookies) to server functions
 - **More bundlers**: Vite and Rspack plugins (leveraging `@evjs/build-tools`)

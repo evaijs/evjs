@@ -19,6 +19,43 @@ class ManifestCollector {
 
 type EvCompiler = Compiler & { _ev_manifest_collector?: ManifestCollector };
 
+/** Parse a "module#export" reference string. */
+function parseModuleRef(ref: string): { module: string; exportName: string } {
+  const idx = ref.indexOf("#");
+  if (idx === -1) {
+    throw new Error(`Invalid module reference "${ref}". Expected format: "module#exportName".`);
+  }
+  return { module: ref.slice(0, idx), exportName: ref.slice(idx + 1) };
+}
+
+/** Configuration for the generated server entry. */
+export interface ServerEntryConfig {
+  /**
+   * Module reference for the app factory.
+   * Format: "module#exportName"
+   * @default "@evjs/runtime/server#createApp"
+   */
+  appFactory?: string;
+
+  /**
+   * Optional module reference for a runner that auto-starts the server.
+   * When set, the bundle is self-starting instead of just exporting the app.
+   * Format: "module#exportName"
+   * @example "@evjs/runtime/server#runNodeServer"
+   */
+  runner?: string;
+
+  /**
+   * Extra import statements to prepend to the server entry.
+   * Useful for middleware, config, or side-effect imports.
+   */
+  setup?: string[];
+}
+
+export interface EvWebpackPluginOptions {
+  server?: ServerEntryConfig;
+}
+
 /**
  * Webpack plugin for the ev framework.
  *
@@ -26,6 +63,11 @@ type EvCompiler = Compiler & { _ev_manifest_collector?: ManifestCollector };
  * and manages the server-side build via a child compiler.
  */
 export class EvWebpackPlugin {
+  private options: EvWebpackPluginOptions;
+
+  constructor(options?: EvWebpackPluginOptions) {
+    this.options = options ?? {};
+  }
   apply(compiler: Compiler) {
     const collector = new ManifestCollector();
 
@@ -48,9 +90,35 @@ export class EvWebpackPlugin {
             (modules, finishCallback) => {
               let hasServer = false;
               const imports: string[] = [];
+
+              // Resolve app factory
+              const appFactoryRef = this.options.server?.appFactory ?? "@evjs/runtime/server#createApp";
+              const appFactory = parseModuleRef(appFactoryRef);
               imports.push(
-                `import { createApp } from "@evjs/runtime/server";`,
+                `import { ${appFactory.exportName} } from ${JSON.stringify(appFactory.module)};`,
               );
+
+              // Resolve optional runner
+              let runner: { module: string; exportName: string } | null = null;
+              if (this.options.server?.runner) {
+                runner = parseModuleRef(this.options.server.runner);
+                // Only add a separate import if it's from a different module
+                if (runner.module !== appFactory.module) {
+                  imports.push(
+                    `import { ${runner.exportName} } from ${JSON.stringify(runner.module)};`,
+                  );
+                } else {
+                  // Rewrite the first import to include both exports
+                  imports[0] = `import { ${appFactory.exportName}, ${runner.exportName} } from ${JSON.stringify(appFactory.module)};`;
+                }
+              }
+
+              // Add user-provided setup imports
+              if (this.options.server?.setup) {
+                for (const stmt of this.options.server.setup) {
+                  imports.push(stmt);
+                }
+              }
 
               let id = 0;
               for (const module of modules) {
@@ -76,8 +144,6 @@ export class EvWebpackPlugin {
 
                   if (isServerFile) {
                     hasServer = true;
-                    // Compute a relative path from the compiler context (or just use absolute path)
-                    // But using absolute path avoids relative resolution issues completely.
                     imports.push(
                       `import * as _fns_${id++} from ${JSON.stringify(
                         resource,
@@ -92,8 +158,14 @@ export class EvWebpackPlugin {
               if (!hasServer) {
                 return finishCallback();
               }
-              imports.push(`const app = createApp();`);
-              imports.push(`export default app;`);
+
+              // Generate the app creation and export/runner
+              imports.push(`const app = ${appFactory.exportName}();`);
+              if (runner) {
+                imports.push(`${runner.exportName}(app);`);
+              } else {
+                imports.push(`export default app;`);
+              }
               const serverEntryContent = imports.join("\n");
 
               // Use a Data URI as a virtual entry point

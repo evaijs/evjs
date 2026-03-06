@@ -16,7 +16,7 @@ export function runNodeServer(app: Hono, options?: NodeRunnerOptions) {
   const server = serve({ fetch: app.fetch, port, hostname }, (info) => {
     const address = info.address === "0.0.0.0" || info.address === "::" ? "localhost" : info.address;
     console.log(
-      `\\x1b[32mev server API ready at http://${address}:${info.port}\\x1b[0m`,
+      `\x1b[32mev server API ready at http://${address}:${info.port}\x1b[0m`,
     );
   });
 

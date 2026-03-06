@@ -53,7 +53,13 @@ const clientConfig = {
     new HtmlWebpackPlugin({
       template: "./index.html",
     }),
-    new EvWebpackPlugin(),
+    new EvWebpackPlugin({
+      server: {
+        runner: process.env.NODE_ENV === 'development'
+          ? "@evjs/runtime/server#runNodeServer"
+          : undefined,
+      },
+    }),
   ],
   devServer: {
     port: 3000,

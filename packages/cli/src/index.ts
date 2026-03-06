@@ -107,9 +107,7 @@ program
 program
   .command("dev")
   .description("Start development server")
-  .option("-p, --port <port>", "Port to run the dev server on", "3000")
-  .option("-H, --host <host>", "Host to run the dev server on", "localhost")
-  .action(async (options) => {
+  .action(async () => {
     const cwd = process.cwd();
     console.log(pc.blue("Starting development server..."));
     try {
@@ -137,29 +135,15 @@ program
               );
               started = true;
 
-              // We run a small inline eval script that imports the runner plugin from `@evjs/runtime/server`,
-              // dynamically imports the built edge app, and passes the app to the runner.
-              // Note: we ensure everything is resolved as absolute URIs for stability.
-              const runScript = `
-                import { runNodeServer } from '@evjs/runtime/server';
-                import { pathToFileURL } from 'node:url';
-                const serverUrl = pathToFileURL(${JSON.stringify(serverBundlePath)}).href;
-                import(serverUrl).then(mod => {
-                  const app = mod.default || mod;
-                  runNodeServer(app, { port: 3001, host: ${JSON.stringify(options.host)} });
-                }).catch(err => {
-                  console.error('Failed to start ev server API:', err);
-                });
-              `;
-
-              // We use execa but we don't await it here because it's long-running
+              // The server bundle is self-starting when a runner is configured
+              // in the webpack plugin. Just run it directly.
               try {
                 await execa(
                   "node",
                   [
-                    "--input-type=module",
-                    "-e",
-                    runScript
+                    "--watch",
+                    "--watch-preserve-output",
+                    serverBundlePath,
                   ],
                   {
                     stdio: "inherit",

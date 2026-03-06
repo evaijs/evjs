@@ -51,7 +51,7 @@
   │        │                              (Server)         │
   │        ▼                                  │            │
   │  [ TanStack Query ]                       ▼            │
-  │  (Data Fetching)                   [ Server Fns ]      │
+  │ (Queries & Mutations)              [ Server Fns ]      │
   │        │                            (use server)       │
   │        ▼                                  ▲            │
   │  [ Client Runtime ]                       │            │

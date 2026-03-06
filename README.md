@@ -1,6 +1,6 @@
 # ev
 
-[![Vibe Coded](https://img.shields.io/badge/vibe-coded-ff69b4?style=flat-square)](https://en.wikipedia.org/wiki/Vibe_coding)
+[![Vibe Coding](https://img.shields.io/badge/vibe-coding-ff69b4?style=flat-square)](https://en.wikipedia.org/wiki/Vibe_coding)
 
 > **React Framework with Type-Safe Routing & Server Functions.**
 

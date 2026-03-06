@@ -37,7 +37,7 @@ export interface RscEntry {
  * entry filename, registered server functions, and future RSC/SSR metadata.
  */
 export interface ServerManifest extends ManifestBase {
-  /** Server bundle entry filename (e.g. "index.js" or "index.a1b2c3d4.js"). */
+  /** Server bundle entry filename (e.g. "main.js" or "main.a1b2c3d4.js"). */
   entry: string;
   /** Registered server functions (fnId → module + export). */
   fns: Record<string, ServerFnEntry>;

@@ -9,7 +9,7 @@ import type { Compiler } from "webpack";
 
 class ManifestCollector {
   fns: Record<string, ServerFnEntry> = {};
-  entry: string = "index.js";
+  entry: string = "main.js";
 
   addServerFn(id: string, meta: ServerFnEntry) {
     this.fns[id] = meta;
@@ -106,8 +106,8 @@ export class EvWebpackPlugin {
               const isProduction = compiler.options.mode === "production";
               const outputOptions = {
                 filename: isProduction
-                  ? "../server/index.[contenthash:8].js"
-                  : "../server/index.js",
+                  ? "../server/main.[contenthash:8].js"
+                  : "../server/main.js",
                 library: { type: "commonjs2" },
                 chunkFormat: "commonjs",
               };

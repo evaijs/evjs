@@ -12,14 +12,15 @@ export function buildClientOutput(
       makeFnId(options.rootContext, options.resourcePath, name),
     );
     return [
-      `export function ${name}(...args) { return __ev_call(${fnId}, args); }`,
-      `${name}.evId = ${fnId};`,
+      `export function ${name}(...args) { return ${RUNTIME.clientCall}(${fnId}, args); }`,
+      `${name}.${RUNTIME.fnIdProp} = ${fnId};`,
     ].join("\n");
   });
 
   return emitCode(
-    [`import { __ev_call } from "${RUNTIME.clientTransport}";`, ...stubs].join(
-      "\n",
-    ),
+    [
+      `import { ${RUNTIME.clientCall} } from "${RUNTIME.clientTransportModule}";`,
+      ...stubs,
+    ].join("\n"),
   );
 }

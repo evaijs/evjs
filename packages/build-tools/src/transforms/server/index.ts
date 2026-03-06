@@ -35,11 +35,11 @@ export function buildServerOutput(
     const fnId = JSON.stringify(
       makeFnId(options.rootContext, options.resourcePath, name),
     );
-    return `registerServerFn(${fnId}, ${name});`;
+    return `${RUNTIME.registerServerFn}(${fnId}, ${name});`;
   });
 
   return [
-    `import { registerServerFn } from "${RUNTIME.registerServerFn}";`,
+    `import { ${RUNTIME.registerServerFn} } from "${RUNTIME.serverModule}";`,
     source,
     emitCode(registrations.join("\n")),
   ].join("\n");

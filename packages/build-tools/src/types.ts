@@ -37,8 +37,13 @@ export interface TransformOptions {
   ) => void;
 }
 
-/** Runtime module paths used in generated code. */
+/** Runtime identifiers used in generated code. */
 export const RUNTIME = {
-  registerServerFn: "@evjs/runtime/server",
-  clientTransport: "@evjs/runtime/client/transport",
+  /** Module paths */
+  serverModule: "@evjs/runtime/server",
+  clientTransportModule: "@evjs/runtime/client/transport",
+  /** Function / property names */
+  registerServerFn: "registerServerFn",
+  clientCall: "__ev_call",
+  fnIdProp: "evId",
 } as const;

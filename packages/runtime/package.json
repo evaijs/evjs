@@ -54,6 +54,7 @@
     "prepublishOnly": "npm run build"
   },
   "files": [
-    "esm"
+    "esm",
+    "AGENT.md"
   ]
 }

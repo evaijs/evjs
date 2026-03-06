@@ -1,0 +1,37 @@
+{
+  "name": "@evjs/build-tools",
+  "version": "0.0.1-alpha.6",
+  "description": "Bundler-agnostic build utilities for the ev framework",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./esm/index.d.ts",
+      "import": "./esm/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "check-types": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "esm"
+  ],
+  "keywords": [
+    "ev",
+    "build",
+    "server-functions"
+  ],
+  "author": "xusd320",
+  "license": "MIT",
+  "dependencies": {
+    "@swc/core": "^1.15.18"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

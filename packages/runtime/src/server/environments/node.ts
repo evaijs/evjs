@@ -1,5 +1,8 @@
 import { serve } from "@hono/node-server";
+import { getLogger } from "@logtape/logtape";
 import type { Hono } from "hono";
+
+const logger = getLogger(["evjs", "server"]);
 
 export interface NodeRunnerOptions {
   port?: number;
@@ -15,9 +18,7 @@ export function runNodeServer(app: Hono, options?: NodeRunnerOptions) {
   const hostname = options?.host;
   const server = serve({ fetch: app.fetch, port, hostname }, (info) => {
     const address = info.address === "0.0.0.0" || info.address === "::" ? "localhost" : info.address;
-    console.log(
-      `\x1b[32mev server API ready at http://${address}:${info.port}\x1b[0m`,
-    );
+    logger.info`ev server API ready at http://${address}:${info.port}`;
   });
 
   return server;

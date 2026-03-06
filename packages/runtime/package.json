@@ -4,6 +4,7 @@
   "description": "",
   "dependencies": {
     "@hono/node-server": "^1.19.11",
+    "@logtape/logtape": "^2.0.4",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-router": "^1.163.3",
     "hono": "^4.12.5"

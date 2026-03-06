@@ -1,13 +1,20 @@
 #!/usr/bin/env node
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { configure, getConsoleSink, getLogger } from "@logtape/logtape";
 import { Command } from "commander";
 import { execa } from "execa";
 import fs from "fs-extra";
-import pc from "picocolors";
 import prompts from "prompts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+await configure({
+  sinks: { console: getConsoleSink() },
+  loggers: [{ category: ["evjs"], sinks: ["console"], lowestLevel: "info" }],
+});
+
+const logger = getLogger(["evjs", "cli"]);
 
 const pkg = fs.readJsonSync(path.resolve(__dirname, "../package.json"));
 const program = new Command();
@@ -51,18 +58,18 @@ program
     const targetDir = path.resolve(process.cwd(), projectName);
 
     if (fs.existsSync(targetDir)) {
-      console.error(pc.red(`Directory ${projectName} already exists!`));
+      logger.error`Directory ${projectName} already exists!`;
       process.exit(1);
     }
 
     const templateDir = path.resolve(__dirname, "../templates", template);
 
     if (!fs.existsSync(templateDir)) {
-      console.error(pc.red(`Template ${template} not found!`));
+      logger.error`Template ${template} not found!`;
       process.exit(1);
     }
 
-    console.log(pc.blue(`Scaffolding project in ${targetDir}...`));
+    logger.info`Scaffolding project in ${targetDir}...`;
     await fs.copy(templateDir, targetDir, {
       dereference: true,
       filter: (src) => {
@@ -98,10 +105,10 @@ program
       await fs.writeJson(pkgPath, pkg, { spaces: 2 });
     }
 
-    console.log(pc.green("\nDone! Now run:"));
-    console.log(pc.cyan(`  cd ${projectName}`));
-    console.log(pc.cyan("  npm install"));
-    console.log(pc.cyan("  npm run dev"));
+    logger.info`Done! Now run:`;
+    logger.info`  cd ${projectName}`;
+    logger.info`  npm install`;
+    logger.info`  npm run dev`;
   });
 
 program
@@ -109,9 +116,9 @@ program
   .description("Start development server")
   .action(async () => {
     const cwd = process.cwd();
-    console.log(pc.blue("Starting development server..."));
+    logger.info`Starting development server...`;
     try {
-      console.log(pc.cyan("Starting Webpack Dev Server..."));
+      logger.info`Starting Webpack Dev Server...`;
 
       const clientRun = execa(
         "npx",
@@ -130,9 +137,7 @@ program
         while (true) {
           if (fs.existsSync(serverBundlePath)) {
             if (!started) {
-              console.log(
-                pc.green("Server bundle detected, starting Node API..."),
-              );
+              logger.info`Server bundle detected, starting Node API...`;
               started = true;
 
               // The server bundle is self-starting when a runner is configured
@@ -170,13 +175,13 @@ program
   .command("build")
   .description("Build project for production")
   .action(async () => {
-    console.log(pc.blue("Building for production..."));
+    logger.info`Building for production...`;
     try {
       await execa("npx", ["webpack", "--config", "webpack.config.cjs"], {
         stdio: "inherit",
         env: { ...process.env, NODE_ENV: "production" },
       });
-      console.log(pc.green("Build complete!"));
+      logger.info`Build complete!`;
     } catch (_e) {
       process.exit(1);
     }

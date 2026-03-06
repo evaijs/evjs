@@ -8,5 +8,5 @@ export type { App, CreateAppOptions } from "./create-app";
 export { createApp } from "./create-app";
 export * from "./query";
 export * from "./route";
-export type { RpcOptions } from "./rpc";
+export type { RpcOptions, RpcTransport } from "./rpc";
 export { __ev_rpc, configureRpc } from "./rpc";

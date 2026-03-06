@@ -8,24 +8,72 @@
 
 import { DEFAULT_RPC_ENDPOINT } from "../constants";
 
+/**
+ * Transport interface for sending RPC calls.
+ * Implement this to use a custom request library or protocol.
+ */
+export interface RpcTransport {
+  send(fnId: string, args: unknown[]): Promise<unknown>;
+}
+
 export interface RpcOptions {
   /** Base URL for the RPC endpoint. Defaults to the current origin. */
   baseUrl?: string;
   /** Path prefix for the RPC endpoint. Defaults to `/api/rpc`. */
   endpoint?: string;
+  /** Custom transport. When provided, `baseUrl` and `endpoint` are ignored. */
+  transport?: RpcTransport;
 }
 
-let _options: Required<RpcOptions> = {
-  baseUrl: "",
-  endpoint: DEFAULT_RPC_ENDPOINT,
-};
+/**
+ * Default fetch-based transport.
+ */
+function createFetchTransport(baseUrl: string, endpoint: string): RpcTransport {
+  return {
+    async send(fnId: string, args: unknown[]): Promise<unknown> {
+      const url = `${baseUrl}${endpoint}`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fnId, args }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => res.statusText);
+        throw new Error(
+          `[ev/rpc] Server function "${fnId}" failed (${res.status}): ${text}`,
+        );
+      }
+
+      const payload = await res.json();
+
+      if (payload.error) {
+        throw new Error(
+          `[ev/rpc] Server function "${fnId}" threw: ${payload.error}`,
+        );
+      }
+
+      return payload.result;
+    },
+  };
+}
+
+let _transport: RpcTransport = createFetchTransport("", DEFAULT_RPC_ENDPOINT);
 
 /**
  * Configure the RPC client. Call once at app startup if you need to
- * customise the endpoint URL.
+ * customise the endpoint URL or provide a custom transport.
  */
 export function configureRpc(options: RpcOptions): void {
-  _options = { ..._options, ...options };
+  if (options.transport) {
+    _transport = options.transport;
+  } else {
+    _transport = createFetchTransport(
+      options.baseUrl ?? "",
+      options.endpoint ?? DEFAULT_RPC_ENDPOINT,
+    );
+  }
 }
 
 /**
@@ -41,28 +89,5 @@ export async function __ev_rpc(
   fnId: string,
   args: unknown[],
 ): Promise<unknown> {
-  const url = `${_options.baseUrl}${_options.endpoint}`;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fnId, args }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(
-      `[ev/rpc] Server function "${fnId}" failed (${res.status}): ${text}`,
-    );
-  }
-
-  const payload = await res.json();
-
-  if (payload.error) {
-    throw new Error(
-      `[ev/rpc] Server function "${fnId}" threw: ${payload.error}`,
-    );
-  }
-
-  return payload.result;
+  return _transport.send(fnId, args);
 }

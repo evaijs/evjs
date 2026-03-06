@@ -45,13 +45,13 @@ export function createExampleTest(exampleName: string) {
       });
 
       // 2. Read the server manifest to get the hashed entry filename
-      const manifestPath = path.join(exampleDir, "dist", "server", "server-entry.json");
+      const manifestPath = path.join(exampleDir, "dist", "server", "manifest.json");
       const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
       const serverEntryPath = path.join(
         exampleDir,
         "dist",
         "server",
-        manifest.main,
+        manifest.entry,
       );
 
       // 3. Write a CJS bootstrap that requires the hashed server bundle

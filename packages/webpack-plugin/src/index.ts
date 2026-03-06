@@ -9,15 +9,17 @@ import type { Compiler } from "webpack";
 
 class ManifestCollector {
   serverFns: Record<string, ServerFnEntry> = {};
+  entry: string = "index.js";
 
   addServerFn(id: string, meta: ServerFnEntry) {
     this.serverFns[id] = meta;
   }
 
-  getManifest(): EvManifest {
+  getManifest(): EvManifest & { entry: string } {
     return {
       version: 1,
       serverFns: this.serverFns,
+      entry: this.entry,
     };
   }
 }
@@ -104,7 +106,7 @@ export class EvWebpackPlugin {
               const isProduction = compiler.options.mode === "production";
               const outputOptions = {
                 filename: isProduction
-                  ? "../server/[name].[contenthash:8].js"
+                  ? "../server/index.[contenthash:8].js"
                   : "../server/index.js",
                 library: { type: "commonjs2" },
                 chunkFormat: "commonjs",
@@ -174,27 +176,14 @@ export class EvWebpackPlugin {
                   return finishCallback(childCompilation.errors[0]);
                 }
 
-                // Emit server manifest mapping entry names to hashed filenames
+                // Store the hashed entry filename on the collector
+                // so it gets merged into manifest.json by processAssets
                 if (childCompilation) {
-                  const manifest: Record<string, string> = {};
-                  for (const [name, entry] of childCompilation.entrypoints) {
+                  for (const [, entry] of childCompilation.entrypoints) {
                     const files = entry.getFiles();
                     if (files.length > 0) {
-                      // filenames are relative to client output (../server/main.xxxx.js)
-                      // normalize to just the basename
-                      const filename = files[0].replace(/^\.\.\/server\//, "");
-                      manifest[name] = filename;
+                      collector.entry = files[0].replace(/^\.\.\/server\//, "");
                     }
-                  }
-                  const manifestSource =
-                    new compiler.webpack.sources.RawSource(
-                      JSON.stringify(manifest, null, 2),
-                    );
-                  const entryManifestName = "../server/server-entry.json";
-                  if (compilation.getAsset(entryManifestName)) {
-                    compilation.updateAsset(entryManifestName, manifestSource);
-                  } else {
-                    compilation.emitAsset(entryManifestName, manifestSource);
                   }
                 }
 

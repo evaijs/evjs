@@ -21,6 +21,8 @@
   "author": "xusd320",
   "scripts": {
     "build": "turbo build",
+    "test": "turbo test",
+    "test:e2e": "playwright test --config e2e/playwright.config.ts",
     "dev": "turbo dev",
     "lint": "biome check .",
     "format": "biome format --write .",
@@ -29,6 +31,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
-    "turbo": "^2.4.2"
+    "@playwright/test": "^1.58.2",
+    "turbo": "^2.4.2",
+    "vitest": "^4.0.18"
   }
 }

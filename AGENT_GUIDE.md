@@ -103,14 +103,23 @@ configureTransport({
 });
 ```
 
-## 5. Routing Patterns
+## 5. Build-Tools Internals
+
+`@evjs/build-tools` uses a `transforms/` directory with `client/` and `server/` subdirectories:
+- `transforms/client/` — generates `__ev_call` transport stubs.
+- `transforms/server/` — prepends `registerServerFn` calls + manifest reporting.
+- `transforms/utils.ts` — shared `extractExportNames` AST traversal.
+- `codegen.ts` — `emitCode()` validates and formats via SWC `parseSync → printSync`.
+- `types.ts` — `RUNTIME` constant centralizes all runtime identifiers (module paths, function names). **Never hardcode** these in templates.
+
+## 6. Routing Patterns
 
 `@evjs` uses `@tanstack/react-router`.
 - **Root Route**: Use `createRootRoute`.
 - **Pages**: Use `createRoute`.
 - **Navigation**: Use `<Link to="/path">` or `useNavigate()`.
 
-## 6. Coding Style Prefs
+## 7. Coding Style Prefs
 
 - **Top-Level Imports**: ALWAYS put all imports at the top of the file.
 - **Biome Compliance**: Follow strict Biome linting rules:

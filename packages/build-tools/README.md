@@ -38,6 +38,28 @@ const clientStub = await transformServerFile(source, {
 ## Architecture
 
 ```
+src/
+  codegen.ts              ← SWC parseSync→printSync code emitter
+  entry.ts                ← Server entry generation
+  types.ts                ← Shared types + RUNTIME identifier constants
+  utils.ts                ← detectUseServer, makeFnId, parseModuleRef
+  index.ts                ← Barrel re-exports
+  transforms/
+    index.ts              ← Orchestrator: parse → extract → delegate
+    utils.ts              ← extractExportNames (AST traversal)
+    client/
+      index.ts            ← buildClientOutput (__ev_call stubs)
+    server/
+      index.ts            ← buildServerOutput (registerServerFn + manifest)
+```
+
+### Code Generation
+
+Generated code uses `emitCode()` from `codegen.ts` — a `parseSync → printSync` roundtrip through SWC for syntax validation and consistent formatting. Runtime identifiers (`registerServerFn`, `__ev_call`, `evId`, module paths) are centralized in `RUNTIME` from `types.ts` — no hardcoded strings in templates.
+
+### Bundler Adapter Pattern
+
+```
 @evjs/build-tools (pure functions)     Bundler Adapters
 ────────────────────────────────       ─────────────────
 • generateServerEntry()                @evjs/webpack-plugin

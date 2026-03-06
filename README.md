@@ -34,7 +34,7 @@
   │                                       │                  │
   │                                       ▼                  │
   │                              [ Shared Manifest ]         │
-  │                                 (RPC Schemas)          │
+  │                              (Network Schemas)         │
   │                                                        │
   │  Current Builder: Webpack                              │
   │  🔮 Future: Utoo(Turbopack)                            │
@@ -55,8 +55,8 @@
   │        │                            (use server)       │
   │        ▼                                  ▲            │
   │  [ Client Runtime ]                       │            │
-  │  (RPC Stubs)  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            │
-  │                      RPC over HTTP                     │
+  │ (Network Bridge)  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛            │
+  │                    Transparent API Calls                 │
   │                                                        │
   │  🔮 Future Capabilities:                               │
   │     - React Server Components (RSC)                    │

@@ -1,5 +1,5 @@
 import { emitCode } from "../../codegen.js";
-import type { TransformOptions } from "../../types.js";
+import { RUNTIME, type TransformOptions } from "../../types.js";
 import { makeFnId } from "../../utils.js";
 
 /** Client build: replace function bodies with __ev_call transport stubs. */
@@ -18,9 +18,8 @@ export function buildClientOutput(
   });
 
   return emitCode(
-    [
-      'import { __ev_call } from "@evjs/runtime/client/transport";',
-      ...stubs,
-    ].join("\n"),
+    [`import { __ev_call } from "${RUNTIME.clientTransport}";`, ...stubs].join(
+      "\n",
+    ),
   );
 }

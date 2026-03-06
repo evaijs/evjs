@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { emitCode } from "../../codegen.js";
-import type { TransformOptions } from "../../types.js";
+import { RUNTIME, type TransformOptions } from "../../types.js";
 import { makeFnId } from "../../utils.js";
 
 /** Derive a stable module ID from a file path relative to root. */
@@ -39,7 +39,7 @@ export function buildServerOutput(
   });
 
   return [
-    'import { registerServerFn } from "@evjs/runtime/server";',
+    `import { registerServerFn } from "${RUNTIME.registerServerFn}";`,
     source,
     emitCode(registrations.join("\n")),
   ].join("\n");

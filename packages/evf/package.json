@@ -1,6 +1,6 @@
 {
   "name": "evf",
-  "version": "0.0.1-rc.4",
+  "version": "0.0.1-rc.5",
   "description": "The evf meta-framework",
   "type": "module",
   "main": "./dist/config.js",
@@ -31,7 +31,7 @@
     "postpublish": "node scripts/restore-templates.js"
   },
   "dependencies": {
-    "@evjs/webpack-plugin": "0.0.1-rc.4",
+    "@evjs/webpack-plugin": "0.0.1-rc.5",
     "@logtape/logtape": "^2.0.4",
     "commander": "^12.1.0",
     "execa": "^9.5.2",

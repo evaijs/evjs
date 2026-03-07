@@ -19,7 +19,7 @@ export type {
   DispatchSuccess,
 } from "./dispatch";
 export { dispatch } from "./dispatch";
-export type { RpcMiddlewareOptions } from "./handler";
-export { createRpcMiddleware } from "./handler";
+export type { HandlerOptions } from "./handler";
+export { createHandler } from "./handler";
 export type { ServerFn } from "./register";
 export { registerServerFn } from "./register";

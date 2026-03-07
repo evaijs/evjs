@@ -62,7 +62,7 @@ const wss = new WebSocketServer({ server, path: "/ws" });
 wss.on("connection", (ws) => {
   ws.on("message", async (raw) => {
     const { id, fnId, args } = JSON.parse(raw.toString());
-    const request = new Request("http://localhost/api/rpc", {
+    const request = new Request("http://localhost/api/fn", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fnId, args: args ?? [] }),

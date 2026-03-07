@@ -26,10 +26,10 @@ export interface CreateAppOptions<TRouteTree extends AnyRoute> {
    */
   queryClientConfig?: QueryClientConfig;
   /**
-   * RPC endpoint path. When provided, automatically configures the transport.
-   * Defaults to `/api/rpc` if not specified.
+   * server function endpoint path. When provided, automatically configures the transport.
+   * Defaults to `/api/fn` if not specified.
    */
-  rpcEndpoint?: string;
+  endpoint?: string;
 }
 
 /**
@@ -65,10 +65,10 @@ export interface App {
 export function createApp<TRouteTree extends AnyRoute>(
   options: CreateAppOptions<TRouteTree>,
 ): App {
-  const { routeTree, routerOptions, queryClientConfig, rpcEndpoint } = options;
+  const { routeTree, routerOptions, queryClientConfig, endpoint } = options;
 
-  if (rpcEndpoint) {
-    initTransport({ endpoint: rpcEndpoint });
+  if (endpoint) {
+    initTransport({ endpoint: endpoint });
   }
 
   const queryClient = new QueryClient(queryClientConfig);

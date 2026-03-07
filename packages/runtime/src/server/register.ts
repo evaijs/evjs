@@ -2,7 +2,7 @@
  * Minimal server function registry.
  *
  * This module is intentionally decoupled from the framework runtime
- * (Hono, RPC handler, etc.) so that the server bundle only contains
+ * (Hono, server function handler, etc.) so that the server bundle only contains
  * user-defined functions + this tiny registry.
  *
  * The framework runtime imports FROM this module to read the registry.
@@ -15,7 +15,7 @@ export type ServerFn = (...args: unknown[]) => Promise<unknown>;
 export const registry = new Map<string, ServerFn>();
 
 /**
- * Register a server function so it can be invoked via RPC.
+ * Register a server function so it can be invoked via the transport.
  * Called automatically by the build-tools-transformed server bundles at load time.
  *
  * @param fnId - The unique ID for this function.

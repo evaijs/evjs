@@ -1,5 +1,5 @@
 /**
- * Hono middleware for dispatching RPC calls to registered server functions.
+ * Hono middleware for dispatching server function calls to registered server functions.
  *
  * This is a thin HTTP adapter on top of the protocol-agnostic `dispatch()`
  * function. For custom transports (WebSocket, IPC), use `dispatch()` directly.
@@ -9,24 +9,24 @@ import { Hono } from "hono";
 import { type Codec, jsonCodec } from "../codec";
 import { dispatch } from "./dispatch";
 
-export interface RpcMiddlewareOptions {
+export interface HandlerOptions {
   /** Custom codec for request/response encoding. Defaults to JSON. */
   codec?: Codec;
 }
 
 /**
- * Create a Hono sub-app that handles RPC requests.
+ * Create a Hono sub-app that handles server function requests.
  *
  * Expects `POST /` with a serialized body containing `{ fnId: string, args: unknown[] }`.
  * Responds with `{ result: unknown }` on success or `{ error: string }` on failure.
  *
- * @returns A Hono app to be mounted at the desired path (e.g. `/api/rpc`).
+ * @returns A Hono app to be mounted at the desired path (e.g. `/api/fn`).
  */
-export function createRpcMiddleware(options?: RpcMiddlewareOptions): Hono {
+export function createHandler(options?: HandlerOptions): Hono {
   const codec = options?.codec ?? jsonCodec;
-  const rpc = new Hono();
+  const handler = new Hono();
 
-  rpc.post("/", async (c) => {
+  handler.post("/", async (c) => {
     const raw = await c.req.text();
     const body = codec.deserialize(raw) as {
       fnId: string;
@@ -48,5 +48,5 @@ export function createRpcMiddleware(options?: RpcMiddlewareOptions): Hono {
     });
   });
 
-  return rpc;
+  return handler;
 }

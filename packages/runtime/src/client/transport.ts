@@ -7,7 +7,7 @@
  */
 
 import { type Codec, jsonCodec } from "../codec";
-import { DEFAULT_RPC_ENDPOINT } from "../constants";
+import { DEFAULT_ENDPOINT } from "../constants";
 import { ServerFunctionError } from "../errors";
 
 /**
@@ -51,9 +51,9 @@ export interface ServerTransport {
 }
 
 export interface TransportOptions {
-  /** Base URL for the RPC endpoint. Defaults to the current origin. */
+  /** Base URL for the server function endpoint. Defaults to the current origin. */
   baseUrl?: string;
-  /** Path prefix for the RPC endpoint. Defaults to `/api/rpc`. */
+  /** Path prefix for the server function endpoint. Defaults to `/api/fn`. */
   endpoint?: string;
   /** Custom transport. When provided, `baseUrl` and `endpoint` are ignored. */
   transport?: ServerTransport;
@@ -118,7 +118,7 @@ let _transport: ServerTransport | null = null;
 
 function getTransport(): ServerTransport {
   if (!_transport) {
-    _transport = createFetchTransport("", DEFAULT_RPC_ENDPOINT);
+    _transport = createFetchTransport("", DEFAULT_ENDPOINT);
   }
   return _transport;
 }
@@ -139,7 +139,7 @@ export function initTransport(options: TransportOptions): void {
   } else {
     _transport = createFetchTransport(
       options.baseUrl ?? "",
-      options.endpoint ?? DEFAULT_RPC_ENDPOINT,
+      options.endpoint ?? DEFAULT_ENDPOINT,
       options.codec,
     );
   }

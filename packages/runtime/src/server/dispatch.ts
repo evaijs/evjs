@@ -1,5 +1,5 @@
 /**
- * Protocol-agnostic RPC dispatcher.
+ * Protocol-agnostic server function dispatcher.
  *
  * Looks up a registered server function by ID, invokes it with the
  * given arguments, and returns a structured result. This is the core
@@ -25,7 +25,7 @@ export interface DispatchError {
 export type DispatchResult = DispatchSuccess | DispatchError;
 
 /**
- * Dispatch an RPC call to a registered server function.
+ * Dispatch an server function call to a registered server function.
  *
  * @param fnId - The unique function ID.
  * @param args - The arguments to pass to the function.

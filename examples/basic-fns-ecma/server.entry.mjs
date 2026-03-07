@@ -7,7 +7,7 @@
  * Works in any Fetch API-compatible runtime:
  * - Deno: `deno serve start.mjs`
  * - Bun: `bun run start.mjs`
- * - Cloudflare Workers: deploy as-is
+ * - Edge runtimes: deploy as-is
  * - Node.js 18+: use with @hono/node-server
  */
 

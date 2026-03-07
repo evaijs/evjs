@@ -7,6 +7,7 @@
 
 import { Hono } from "hono";
 import { type Codec, jsonCodec } from "../codec";
+import { DEFAULT_CONTENT_TYPE } from "../constants";
 import { dispatch } from "./dispatch";
 
 export interface HandlerOptions {
@@ -35,10 +36,10 @@ export function createHandler(options?: HandlerOptions): Hono {
 
     const response = await dispatch(body.fnId, body.args ?? []);
 
-    const contentType = codec.contentType ?? "application/json";
+    const contentType = codec.contentType ?? DEFAULT_CONTENT_TYPE;
     const serialized = codec.serialize(
       "error" in response
-        ? { error: response.error, fnId: response.fnId }
+        ? { error: response.error, fnId: response.fnId, data: response.data }
         : { result: response.result },
     );
 

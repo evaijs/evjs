@@ -7,6 +7,7 @@ import {
   type UseSuspenseQueryResult,
   useMutation,
   useQuery,
+  useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { __ev_call, getFnId } from "./transport";
@@ -57,6 +58,9 @@ export interface QueryProxyHandler<TArgs extends unknown[], TResponse> {
 
   /** Returns the query key for this function and arguments. */
   queryKey(...args: TArgs): unknown[];
+
+  /** Invalidate cached queries for this function. */
+  invalidate(...args: TArgs): void;
 }
 
 /**
@@ -71,7 +75,10 @@ export interface MutationProxyHandler<TVariables, TResponse> {
     options?: Omit<
       UseMutationOptions<TResponse, Error, TVariables>,
       "mutationFn"
-    >,
+    > & {
+      /** Server functions whose queries should be invalidated on success. */
+      invalidates?: ((...args: unknown[]) => unknown)[];
+    },
   ): UseMutationResult<TResponse, Error, TVariables>;
 
   /** Returns standard TanStack Mutation options. */
@@ -110,28 +117,18 @@ function splitArgsAndOptions(rawArgs: unknown[]): {
   args: unknown[];
   options?: Record<string, unknown>;
 } {
+  const last = rawArgs[rawArgs.length - 1];
   if (
     rawArgs.length > 0 &&
-    rawArgs[rawArgs.length - 1] != null &&
-    typeof rawArgs[rawArgs.length - 1] === "object" &&
-    !Array.isArray(rawArgs[rawArgs.length - 1]) &&
-    // Heuristic: if the last arg has typical query option keys, treat it as options
-    Object.keys(rawArgs[rawArgs.length - 1] as object).some((k) =>
-      [
-        "enabled",
-        "staleTime",
-        "gcTime",
-        "refetchInterval",
-        "retry",
-        "select",
-        "placeholderData",
-        "initialData",
-      ].includes(k),
-    )
+    last != null &&
+    typeof last === "object" &&
+    !Array.isArray(last) &&
+    // Plain object check — rules out class instances, Dates, etc.
+    Object.getPrototypeOf(last) === Object.prototype
   ) {
     return {
       args: rawArgs.slice(0, -1),
-      options: rawArgs[rawArgs.length - 1] as Record<string, unknown>,
+      options: last as Record<string, unknown>,
     };
   }
   return { args: rawArgs };
@@ -159,11 +156,31 @@ function createHandler(fn: ServerFunction<unknown[], unknown>, path: string[]) {
       });
     },
     useMutation: (
-      options?: Omit<UseMutationOptions<unknown, Error, unknown>, "mutationFn">,
+      options?: Omit<
+        UseMutationOptions<unknown, Error, unknown>,
+        "mutationFn"
+      > & {
+        invalidates?: ((...args: unknown[]) => unknown)[];
+      },
     ) => {
+      const queryClient = useQueryClient();
+      const { invalidates, ...restOptions } = options ?? {};
       return useMutation({
-        ...options,
+        ...restOptions,
         mutationFn: (variables: unknown) => fn(variables),
+        onSuccess: (...onSuccessArgs) => {
+          if (invalidates) {
+            for (const target of invalidates) {
+              const targetId = getFnId(target);
+              if (targetId) {
+                queryClient.invalidateQueries({ queryKey: [targetId] });
+              }
+            }
+          }
+          (
+            restOptions as UseMutationOptions<unknown, Error, unknown>
+          )?.onSuccess?.(...onSuccessArgs);
+        },
       });
     },
     queryOptions: (...rawArgs: unknown[]) => {
@@ -185,6 +202,12 @@ function createHandler(fn: ServerFunction<unknown[], unknown>, path: string[]) {
     },
     queryKey: (...args: unknown[]) => {
       return [fnId || path.join("."), ...args];
+    },
+    invalidate: (...args: unknown[]) => {
+      const queryClient = useQueryClient();
+      queryClient.invalidateQueries({
+        queryKey: [fnId || path.join("."), ...args],
+      });
     },
     path: path.join("."),
   };

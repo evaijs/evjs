@@ -7,7 +7,49 @@
  * to build custom transport adapters (WebSocket, IPC, etc.).
  */
 
+import { DEFAULT_ERROR_STATUS } from "../constants";
+import { ServerError } from "../errors";
 import { registry } from "./register";
+
+/**
+ * Context passed to middleware functions.
+ */
+export interface MiddlewareContext {
+  /** The function ID being called. */
+  fnId: string;
+  /** The arguments passed to the function. */
+  args: unknown[];
+}
+
+/**
+ * Middleware function type.
+ * Call `next()` to proceed to the next middleware or the function itself.
+ *
+ * @example
+ * ```ts
+ * registerMiddleware(async (ctx, next) => {
+ *   console.log(`Calling ${ctx.fnId}`);
+ *   const start = Date.now();
+ *   const result = await next();
+ *   console.log(`${ctx.fnId} took ${Date.now() - start}ms`);
+ *   return result;
+ * });
+ * ```
+ */
+export type Middleware = (
+  ctx: MiddlewareContext,
+  next: () => Promise<unknown>,
+) => Promise<unknown>;
+
+const middlewares: Middleware[] = [];
+
+/**
+ * Register a middleware that wraps all server function calls.
+ * Middleware functions run in registration order.
+ */
+export function registerMiddleware(fn: Middleware): void {
+  middlewares.push(fn);
+}
 
 /** Successful dispatch result. */
 export interface DispatchSuccess {
@@ -19,7 +61,9 @@ export interface DispatchError {
   error: string;
   fnId: string;
   /** HTTP-equivalent status code for the error. */
-  status: 400 | 404 | 500;
+  status: number;
+  /** Structured error data (if thrown via ServerError). */
+  data?: unknown;
 }
 
 export type DispatchResult = DispatchSuccess | DispatchError;
@@ -63,10 +107,29 @@ export async function dispatch(
   }
 
   try {
-    const result = await fn(...args);
+    // Build middleware chain
+    let index = 0;
+    const runFn = () => fn(...args);
+    const next = (): Promise<unknown> => {
+      if (index < middlewares.length) {
+        const mw = middlewares[index++];
+        return mw({ fnId, args }, next);
+      }
+      return runFn();
+    };
+
+    const result = await next();
     return { result };
   } catch (err) {
+    if (err instanceof ServerError) {
+      return {
+        error: err.message,
+        fnId,
+        status: err.status,
+        data: err.data,
+      };
+    }
     const message = err instanceof Error ? err.message : String(err);
-    return { error: message, fnId, status: 500 };
+    return { error: message, fnId, status: DEFAULT_ERROR_STATUS };
   }
 }

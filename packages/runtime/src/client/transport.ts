@@ -7,7 +7,11 @@
  */
 
 import { type Codec, jsonCodec } from "../codec";
-import { DEFAULT_ENDPOINT } from "../constants";
+import {
+  DEFAULT_CONTENT_TYPE,
+  DEFAULT_ENDPOINT,
+  DEFAULT_ERROR_STATUS,
+} from "../constants";
 import { ServerFunctionError } from "../errors";
 
 /**
@@ -80,7 +84,7 @@ function createFetchTransport(
       const res = await fetch(url, {
         method: "POST",
         headers: {
-          "Content-Type": codec.contentType ?? "application/json",
+          "Content-Type": codec.contentType ?? DEFAULT_CONTENT_TYPE,
           ...context?.headers,
         },
         body: codec.serialize({ fnId, args }),
@@ -105,7 +109,8 @@ function createFetchTransport(
         throw new ServerFunctionError(
           `Server function "${name}" threw: ${payload.error}`,
           (payload.fnId as string) ?? fnId,
-          500,
+          DEFAULT_ERROR_STATUS,
+          { data: payload.data },
         );
       }
 

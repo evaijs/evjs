@@ -96,172 +96,44 @@ const usersRoute = createRoute({
 });
 ```
 
-### Routing (Complex Example)
+### Routing
 
-Structure routes via `pages/*` files:
+> See `examples/complex-routing/` for a full working example using `pages/*` file structure.
+
+**Recommended structure:**
 
 ```
 src/
-├── main.tsx                  ← route tree + type registration
-├── api/data.server.ts        ← server functions
+├── main.tsx              ← route tree wiring + type registration
+├── api/*.server.ts       ← server functions
 └── pages/
-    ├── __root.tsx             ← root layout + nav
-    ├── home.tsx               ← /
-    ├── posts/index.tsx        ← /posts (layout + index + $postId)
-    ├── user.tsx               ← /users/$username
-    ├── dashboard.tsx          ← pathless layout + /dashboard
-    ├── search.tsx             ← /search?q=
-    └── catch.tsx              ← redirect + 404
+    ├── __root.tsx         ← root layout (nav + <Outlet />)
+    ├── home.tsx           ← static route
+    ├── posts/index.tsx    ← nested group (layout + index + $postId)
+    ├── dashboard.tsx      ← pathless layout + child route
+    ├── search.tsx         ← typed search params
+    └── catch.tsx          ← redirect + 404
 ```
 
-#### `src/pages/__root.tsx` — Root layout
+**Key patterns:**
+
+| Pattern | Code | Notes |
+|---------|------|-------|
+| Dynamic slug | `path: "$postId"` | Access via `route.useParams()` → `{ postId: string }` |
+| Pathless layout | `id: "dashboard-layout"` | Shared UI without URL segment, use `<Outlet />` |
+| Index route | `path: "/"` inside a group | Shown when parent matches exactly |
+| Catch-all / 404 | `path: "*"` | Matches unmatched URLs |
+| Search params | `validateSearch: (s) => ({ q: s.q ?? "" })` | Access via `route.useSearch()` |
+| Redirect | `beforeLoad: () => { throw redirect({ to: "/posts" }) }` | |
+| Route nesting | `postsRoute.addChildren([indexRoute, detailRoute])` | |
+| Loader prefetch | `loader: ({ params, context }) => context.queryClient.ensureQueryData(...)` | |
+
+**Type-safe routing (CRITICAL):**
 
 ```tsx
-import { createAppRootRoute, Link, Outlet } from "@evjs/runtime/client";
-
-export const rootRoute = createAppRootRoute({
-  component: () => (
-    <div>
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/posts">Posts</Link>
-        <Link to="/dashboard">Dashboard</Link>
-      </nav>
-      <Outlet />
-    </div>
-  ),
-});
-```
-
-#### `src/pages/posts/index.tsx` — Nested group with dynamic `$postId`
-
-```tsx
-import { createRoute, Link, Outlet } from "@evjs/runtime/client";
-import { query } from "@evjs/runtime/client";
-import { getPost, getPosts } from "../../api/data.server";
-import { rootRoute } from "../__root";
-
-// Layout: /posts (sidebar + outlet)
-export const postsRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/posts",
-  component: () => (
-    <div style={{ display: "flex" }}>
-      <PostsSidebar />
-      <Outlet />
-    </div>
-  ),
-});
-
-// Index: /posts/ (no post selected)
-export const postsIndexRoute = createRoute({
-  getParentRoute: () => postsRoute,
-  path: "/",
-  component: () => <p>Select a post</p>,
-});
-
-// Detail: /posts/$postId (dynamic slug)
-export const postDetailRoute = createRoute({
-  getParentRoute: () => postsRoute,
-  path: "$postId",
-  loader: ({ params, context }) =>
-    context.queryClient.ensureQueryData(query(getPost).queryOptions(params.postId)),
-  component: PostDetail,
-});
-
-function PostDetail() {
-  const { postId } = postDetailRoute.useParams(); // postId: string (type-safe!)
-  const { data: post } = query(getPost).useQuery(postId);
-  // ...
-}
-```
-
-#### `src/pages/dashboard.tsx` — Pathless layout
-
-```tsx
-import { createRoute, Outlet } from "@evjs/runtime/client";
-import { rootRoute } from "./__root";
-
-// Pathless layout: `id` instead of `path` — shared UI, no URL segment
-export const dashboardLayout = createRoute({
-  getParentRoute: () => rootRoute,
-  id: "dashboard-layout",
-  component: () => <div className="dashboard"><Outlet /></div>,
-});
-
-export const dashboardRoute = createRoute({
-  getParentRoute: () => dashboardLayout,
-  path: "/dashboard",
-  component: DashboardPage,
-});
-```
-
-#### `src/pages/search.tsx` — Typed search params
-
-```tsx
-import { createRoute } from "@evjs/runtime/client";
-import { rootRoute } from "./__root";
-
-export const searchRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/search",
-  validateSearch: (search: Record<string, unknown>) => ({
-    q: (search.q as string) || "",
-    page: Number(search.page) || 1,
-  }),
-  component: SearchPage,
-});
-
-function SearchPage() {
-  const { q, page } = searchRoute.useSearch(); // q: string, page: number (type-safe!)
-  // <Link to="/search" search={{ q: "hello", page: 2 }}>
-}
-```
-
-#### `src/pages/catch.tsx` — Redirect + 404
-
-```tsx
-import { createRoute, redirect } from "@evjs/runtime/client";
-import { rootRoute } from "./__root";
-
-export const redirectRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/old-blog",
-  beforeLoad: () => { throw redirect({ to: "/posts" }); },
-});
-
-export const notFoundRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "*",
-  component: () => <h1>404 — Not Found</h1>,
-});
-```
-
-#### `src/main.tsx` — Route tree + type registration
-
-```tsx
-import { createApp } from "@evjs/runtime/client";
-import { rootRoute } from "./pages/__root";
-import { notFoundRoute, redirectRoute } from "./pages/catch";
-import { dashboardLayout, dashboardRoute } from "./pages/dashboard";
-import { homeRoute } from "./pages/home";
-import { postDetailRoute, postsIndexRoute, postsRoute } from "./pages/posts";
-import { searchRoute } from "./pages/search";
-import { userRoute } from "./pages/user";
-
-const routeTree = rootRoute.addChildren([
-  homeRoute,
-  postsRoute.addChildren([postsIndexRoute, postDetailRoute]),
-  userRoute,
-  dashboardLayout.addChildren([dashboardRoute]),
-  searchRoute,
-  redirectRoute,
-  notFoundRoute,
-]);
-
+// main.tsx — ALWAYS register the router type
 const app = createApp({ routeTree });
 
-// REQUIRED for type-safe useParams, useSearch, Link, etc.
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof app.router;
@@ -271,16 +143,18 @@ declare module "@tanstack/react-router" {
 app.render("#app");
 ```
 
-**Key patterns:**
-| Pattern | Usage |
-|---------|-------|
-| `path: "$postId"` | Dynamic slug — access via `route.useParams()` |
-| `id: "layout"` | Pathless layout — shared UI without URL segment |
-| `path: "/"` | Index route within a group |
-| `path: "*"` | Catch-all / 404 |
-| `validateSearch` | Typed search params (`?q=hello&page=2`) |
-| `beforeLoad` + `redirect()` | Redirect |
-| `addChildren([...])` | Nest routes under a parent |
+Without this declaration, `useParams()`, `useSearch()`, and `Link` all return `any`.
+
+**Use route-scoped hooks** (not global):
+
+```tsx
+// ✅ Type-safe — postId: string
+const { postId } = postDetailRoute.useParams();
+
+// ❌ Untyped — returns any
+const params = useParams({ from: "/posts/$postId" });
+
+
 
 ### Transport Configuration
 

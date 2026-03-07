@@ -87,6 +87,145 @@ const usersRoute = createRoute({
 });
 ```
 
+### Routing (Complex Example)
+
+```tsx
+import {
+  createApp, createAppRootRoute, createRoute,
+  Link, Outlet, Navigate, useParams, useSearch,
+  redirect, notFound, lazyRouteComponent,
+} from "@evjs/runtime";
+import { query } from "@evjs/runtime/client";
+import { getUsers, getUser, getPosts } from "./api/data.server";
+
+// ── Root layout ──
+const rootRoute = createAppRootRoute({
+  component: () => (
+    <div>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/dashboard">Dashboard</Link>
+        <Link to="/posts">Posts</Link>
+      </nav>
+      <Outlet />
+    </div>
+  ),
+});
+
+// ── Static routes ──
+const homeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: () => <h1>Home</h1>,
+});
+
+// ── Pathless layout (shared UI, no URL segment) ──
+const dashboardLayout = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "dashboard-layout",     // `id` instead of `path` = pathless
+  component: () => (
+    <div className="dashboard">
+      <aside>Sidebar</aside>
+      <main><Outlet /></main>
+    </div>
+  ),
+});
+
+const dashboardRoute = createRoute({
+  getParentRoute: () => dashboardLayout,
+  path: "/dashboard",
+  component: DashboardPage,
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData(query(getUsers).queryOptions([])),
+});
+
+// ── Nested group with dynamic param ──
+const postsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/posts",
+  component: () => (
+    <div style={{ display: "flex", gap: "1rem" }}>
+      <PostsSidebar />
+      <Outlet />
+    </div>
+  ),
+});
+
+const postsIndexRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: "/",                   // /posts (index)
+  component: () => <p>Select a post</p>,
+});
+
+const postDetailRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: "$postId",             // /posts/:postId (dynamic slug)
+  component: PostDetail,
+  loader: ({ params, context }) =>
+    context.queryClient.ensureQueryData(
+      query(getUser).queryOptions([params.postId])
+    ),
+});
+
+function PostDetail() {
+  const { postId } = postDetailRoute.useParams();
+  // ...
+}
+
+// ── Search params ──
+const searchRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/search",
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: (search.q as string) || "",
+    page: Number(search.page) || 1,
+  }),
+  component: SearchPage,
+});
+
+function SearchPage() {
+  const { q, page } = searchRoute.useSearch();
+  // <Link to="/search" search={{ q: "hello", page: 2 }}>
+}
+
+// ── Redirect ──
+const oldRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/old-path",
+  beforeLoad: () => { throw redirect({ to: "/posts" }); },
+});
+
+// ── Catch-all (404) ──
+const notFoundRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "*",
+  component: () => <h1>404 — Not Found</h1>,
+});
+
+// ── Route tree ──
+const routeTree = rootRoute.addChildren([
+  homeRoute,
+  dashboardLayout.addChildren([dashboardRoute]),
+  postsRoute.addChildren([postsIndexRoute, postDetailRoute]),
+  searchRoute,
+  oldRoute,
+  notFoundRoute,
+]);
+
+createApp({ routeTree }).render("#app");
+```
+
+**Key patterns:**
+| Pattern | Usage |
+|---------|-------|
+| `path: "$postId"` | Dynamic slug — access via `route.useParams()` |
+| `id: "layout"` | Pathless layout — shared UI without URL segment |
+| `path: "/"` | Index route within a group |
+| `path: "*"` | Catch-all / 404 |
+| `validateSearch` | Typed search params (`?q=hello&page=2`) |
+| `beforeLoad` + `redirect()` | Redirect |
+| `addChildren([...])` | Nest routes under a parent |
+
 ### Transport Configuration
 
 ```tsx

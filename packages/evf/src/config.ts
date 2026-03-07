@@ -1,7 +1,7 @@
 /**
  * Server configuration.
  *
- * Controls server function endpoint, runner, middleware, and codec.
+ * Controls server function endpoint, runner, middleware, codec, and port.
  */
 export interface ServerConfig {
   /** Server runner module. Default: "@evjs/runtime/server/node". */
@@ -10,16 +10,34 @@ export interface ServerConfig {
   endpoint?: string;
   /** Middleware module paths to auto-register in server entry. */
   middleware?: string[];
-  /** Extra side-effect imports for the server entry. */
-  setup?: string[];
+  /** Dev server options. */
+  dev?: {
+    /** API server port (dev mode). Default: 3001. */
+    port?: number;
+    [key: string]: unknown;
+  };
 }
 
 /**
  * Client configuration.
  *
- * Controls transport settings for server function calls.
+ * Controls entry point, HTML template, dev server, and transport.
  */
 export interface ClientConfig {
+  /** Client entry point. Default: "./src/main.tsx". */
+  entry?: string;
+  /** HTML template path. Default: "./index.html". */
+  html?: string;
+  // TODO: MPA support — add `pages` field as Record<string, { entry, html? }>
+  // When `pages` is set it takes precedence over `entry`/`html` and generates
+  // multiple webpack entries + HtmlWebpackPlugin instances.
+  /** Dev server options. */
+  dev?: {
+    /** Dev server port. Default: 3000. */
+    port?: number;
+    /** Extra webpack-dev-server options (merged with defaults). */
+    [key: string]: unknown;
+  };
   /** Transport options for server function calls. */
   transport?: {
     /** Base URL for the server function endpoint. */
@@ -30,28 +48,11 @@ export interface ClientConfig {
 }
 
 /**
- * Build configuration.
- *
- * Controls webpack config generation.
- */
-export interface BuildConfig {
-  /** Client entry point. Default: "./src/main.tsx". */
-  entry?: string;
-  /** HTML template path. Default: "./index.html". */
-  html?: string;
-  /** Dev server port. Default: 3000. */
-  port?: number;
-  /** API server port. Default: 3001. */
-  serverPort?: number;
-}
-
-/**
  * evf framework configuration.
  */
 export interface EvfConfig {
   server?: ServerConfig;
   client?: ClientConfig;
-  build?: BuildConfig;
 }
 
 /**
@@ -59,15 +60,17 @@ export interface EvfConfig {
  *
  * @example
  * ```ts
- * // evf.config.ts
+ * // ev.config.ts
  * import { defineConfig } from "evf";
  *
  * export default defineConfig({
+ *   client: {
+ *     entry: "./src/main.tsx",
+ *     dev: { port: 3000 },
+ *   },
  *   server: {
  *     endpoint: "/api/fn",
- *   },
- *   build: {
- *     port: 3000,
+ *     dev: { port: 3001 },
  *   },
  * });
  * ```

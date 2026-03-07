@@ -30,7 +30,7 @@ for (const pkg of packages) {
     modified = true;
   }
 
-  // Sync internal @evjs/* dependencies
+  // Sync internal @evjs/* and evf dependencies
   for (const depType of [
     "dependencies",
     "devDependencies",
@@ -38,7 +38,7 @@ for (const pkg of packages) {
   ]) {
     if (pkgJson[depType]) {
       for (const depName of Object.keys(pkgJson[depType])) {
-        if (depName.startsWith("@evjs/")) {
+        if (depName.startsWith("@evjs/") || depName === "evf") {
           // preserve prefix exactly but bump version, or just hardcode exact version
           const expected = rootVersion; // exact pinning for alpha, or use ^
           if (pkgJson[depType][depName] !== expected) {
@@ -58,7 +58,7 @@ for (const pkg of packages) {
 
 // 3. Sync cli templates dependency versions
 console.log(`\nSyncing template dependencies...`);
-const templatesDir = path.resolve(rootDir, "packages/cli/templates");
+const templatesDir = path.resolve(rootDir, "packages/evf/templates");
 const templates = fs.readdirSync(templatesDir);
 
 for (const template of templates) {
@@ -94,7 +94,7 @@ for (const template of templates) {
 
   if (modified) {
     fs.writeFileSync(pkgPath, `${JSON.stringify(pkgJson, null, 2)}\n`);
-    console.log(`Updated packages/cli/templates/${template}/package.json`);
+    console.log(`Updated packages/evf/templates/${template}/package.json`);
   }
 }
 

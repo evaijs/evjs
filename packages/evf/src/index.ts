@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { configure, getConsoleSink, getLogger } from "@logtape/logtape";
@@ -7,6 +8,7 @@ import { execa } from "execa";
 import fs from "fs-extra";
 import prompts from "prompts";
 
+const esmRequire = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 await configure({
@@ -118,41 +120,29 @@ program
   });
 
 /**
- * Resolve the webpack config path.
+ * Resolve the webpack configuration object.
  *
- * If evf.config.ts exists, generate a temporary webpack config from it.
- * Otherwise, fall back to webpack.config.cjs.
+ * If ev.config.ts exists, build config from it.
+ * If neither ev.config.ts nor webpack.config.cjs exists, use zero-config defaults.
+ * Falls back to webpack.config.cjs if present and no ev.config.ts.
  */
-async function resolveWebpackConfig(cwd: string): Promise<string> {
+async function resolveWebpackConfig(
+  cwd: string,
+): Promise<Record<string, unknown>> {
   const { loadConfig } = await import("./load-config.js");
-
   const evfConfig = await loadConfig(cwd);
-  if (evfConfig) {
-    // Generate webpack config and write as a temp file
+
+  const fallback = path.resolve(cwd, "webpack.config.cjs");
+  if (evfConfig || !fs.existsSync(fallback)) {
     const { createWebpackConfig } = await import("./create-webpack-config.js");
-    const webpackConfig = createWebpackConfig(evfConfig, cwd);
-    const tmpPath = path.resolve(
-      cwd,
-      "node_modules/.cache/evf/webpack.config.cjs",
-    );
-    fs.mkdirSync(path.dirname(tmpPath), { recursive: true });
-    fs.writeFileSync(
-      tmpPath,
-      `module.exports = ${JSON.stringify(webpackConfig, null, 2)};`,
-    );
-    logger.info`Using evf.config.ts`;
-    return tmpPath;
+    logger.info`Using ${evfConfig ? "ev.config.ts" : "zero-config defaults"}`;
+    return createWebpackConfig(evfConfig, cwd);
   }
 
   // Fallback to webpack.config.cjs
-  const fallback = path.resolve(cwd, "webpack.config.cjs");
-  if (fs.existsSync(fallback)) {
-    logger.info`Using webpack.config.cjs`;
-    return fallback;
-  }
-
-  logger.error`No evf.config.ts or webpack.config.cjs found.`;
-  process.exit(1);
+  logger.info`Using webpack.config.cjs`;
+  const mod = await import(fallback);
+  return mod.default ?? mod;
 }
 
 program
@@ -160,25 +150,25 @@ program
   .description("Start development server")
   .action(async () => {
     const cwd = process.cwd();
-    const configPath = await resolveWebpackConfig(cwd);
-    const serverPort = (await import("./load-config.js"))
-      .loadConfig(cwd)
-      .then((c) => c?.build?.serverPort ?? 3001)
-      .catch(() => 3001);
+    process.env.NODE_ENV ??= "development";
+    const webpackConfig = await resolveWebpackConfig(cwd);
+
+    const { loadConfig } = await import("./load-config.js");
+    const evfConfig = await loadConfig(cwd);
+    const serverPort = evfConfig?.server?.dev?.port ?? 3001;
 
     logger.info`Starting development server...`;
     try {
-      const clientRun = execa(
-        "npx",
-        ["webpack", "serve", "--config", configPath],
-        {
-          stdio: "inherit",
-          env: { ...process.env, NODE_ENV: "development" },
-        },
-      );
+      const webpack = esmRequire("webpack");
+      const WebpackDevServer = esmRequire("webpack-dev-server");
+
+      const compiler = webpack(webpackConfig);
+      const devServerOptions =
+        (webpackConfig as { devServer?: object }).devServer ?? {};
+      const server = new WebpackDevServer(devServerOptions, compiler);
+      await server.start();
 
       // Background: wait for server bundle, then start Node API
-      const port = await serverPort;
       const _serverRun = (async () => {
         const manifestPath = path.resolve(cwd, "dist/server/manifest.json");
         const bootstrapPath = path.resolve(cwd, "dist/server/_dev_start.cjs");
@@ -205,7 +195,7 @@ program
                   `const bundle = require(${JSON.stringify(serverBundlePath)});`,
                   `const app = bundle.createApp();`,
                   `const { serve } = require("@hono/node-server");`,
-                  `const port = process.env.PORT || ${port};`,
+                  `const port = process.env.PORT || ${serverPort};`,
                   `serve({ fetch: app.fetch, port }, (info) => {`,
                   `  console.log("Server API ready at http://localhost:" + info.port);`,
                   `});`,
@@ -229,8 +219,6 @@ program
           await new Promise((r) => setTimeout(r, 500));
         }
       })();
-
-      await clientRun;
     } catch (_e) {
       process.exit(1);
     }
@@ -241,18 +229,42 @@ program
   .description("Build project for production")
   .action(async () => {
     const cwd = process.cwd();
-    const configPath = await resolveWebpackConfig(cwd);
+    process.env.NODE_ENV ??= "production";
+    const webpackConfig = await resolveWebpackConfig(cwd);
 
     logger.info`Building for production...`;
-    try {
-      await execa("npx", ["webpack", "--config", configPath], {
-        stdio: "inherit",
-        env: { ...process.env, NODE_ENV: "production" },
-      });
-      logger.info`Build complete!`;
-    } catch (_e) {
-      process.exit(1);
-    }
+    const webpack = esmRequire("webpack");
+    const compiler = webpack(webpackConfig);
+
+    await new Promise<void>((resolve, reject) => {
+      compiler.run(
+        (
+          err: Error | null,
+          stats: {
+            hasErrors: () => boolean;
+            toString: (opts: object) => string;
+          },
+        ) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          console.log(
+            stats.toString({
+              colors: true,
+              modules: false,
+              children: true,
+            }),
+          );
+          if (stats.hasErrors()) {
+            process.exit(1);
+          }
+          compiler.close(() => resolve());
+        },
+      );
+    });
+    logger.info`Build complete!`;
   });
 
 program.parse();
+

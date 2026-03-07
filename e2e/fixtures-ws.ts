@@ -30,12 +30,12 @@ export function createWebSocketExampleTest() {
   return base.extend<ExampleFixture, WorkerFixture>({
     _wsApp: [
       // biome-ignore lint/correctness/noEmptyPattern: Playwright fixture pattern
-      async ({}, use, workerInfo) => {
+      async ({ }, use, workerInfo) => {
         const basePort = 31000 + workerInfo.workerIndex * 100;
         const webPort = basePort;
 
         // 1. Build with webpack
-        execSync("npx webpack --config webpack.config.cjs", {
+        execSync("npx ev build", {
           cwd: exampleDir,
           stdio: "pipe",
         });

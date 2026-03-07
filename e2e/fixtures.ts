@@ -1,5 +1,5 @@
 /**
- * E2E test fixtures for evjs framework.
+ * E2E test fixtures for evf framework.
  *
  * Provides a custom test fixture that:
  * 1. Builds the example app with webpack
@@ -42,7 +42,7 @@ export function createExampleTest(exampleName: string) {
   return base.extend<ExampleFixture, WorkerFixture>({
     _exampleApp: [
       // biome-ignore lint/correctness/noEmptyPattern: Playwright fixture pattern
-      async ({}, use, workerInfo) => {
+      async ({ }, use, workerInfo) => {
         // Base port depends on both worker index and a hash of the example name
         // to avoid conflicts if multiple worker fixtures run sequentially.
         const hash = Array.from(exampleName).reduce(
@@ -53,7 +53,7 @@ export function createExampleTest(exampleName: string) {
         const webPort = apiPort + 1;
 
         // 1. Build with webpack
-        execSync("npx webpack --config webpack.config.cjs", {
+        execSync("npx ev build", {
           cwd: exampleDir,
           stdio: "pipe",
         });

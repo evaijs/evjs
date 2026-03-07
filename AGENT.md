@@ -122,7 +122,7 @@ initTransport({
 Managed with Turborepo and npm workspaces.
 - `npm run build`: Build all libraries and examples.
 - `npm run dev`: Concurrent development mode.
-- `npm run release:alpha`: Build and publish all packages to `@evjs` scope.
+- `npm run release:alpha`: Build and publish all packages (`@evjs/*` scope + `evf`).
 
 ## Server Function Rules
 

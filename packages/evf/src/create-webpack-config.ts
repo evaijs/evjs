@@ -1,5 +1,8 @@
+import { createRequire } from "node:module";
 import path from "node:path";
 import type { EvfConfig } from "./config.js";
+
+const esmRequire = createRequire(import.meta.url);
 
 /**
  * Default values for evf configuration.
@@ -12,46 +15,41 @@ const DEFAULTS = {
 } as const;
 
 /**
- * Generate a webpack configuration object from EvfConfig.
+ * Create a webpack configuration object from EvfConfig.
  *
  * This replaces the 70+ line webpack.config.cjs boilerplate that
- * every project had to maintain manually.
+ * every project had to maintain manually. Returns a plain object
+ * that can be passed directly to the webpack Node API.
  */
 export function createWebpackConfig(
   config: EvfConfig | undefined,
   cwd: string,
-) {
-  const build = config?.build;
-  const entry = build?.entry ?? DEFAULTS.entry;
-  const html = build?.html ?? DEFAULTS.html;
-  const port = build?.port ?? DEFAULTS.port;
-  const serverPort = build?.serverPort ?? DEFAULTS.serverPort;
+): Record<string, unknown> {
+  const client = config?.client;
+  const server = config?.server;
+  const entry = client?.entry ?? DEFAULTS.entry;
+  const html = client?.html ?? DEFAULTS.html;
+  const port = client?.dev?.port ?? DEFAULTS.port;
+  const serverPort = server?.dev?.port ?? DEFAULTS.serverPort;
   const isProduction = process.env.NODE_ENV === "production";
 
-  // Dynamic requires — webpack and plugins are peer dependencies
-  // loaded at runtime so the evf package itself stays light.
-  const tryRequire = (id: string) => {
+  const HtmlWebpackPlugin = esmRequire("html-webpack-plugin");
+  const { EvWebpackPlugin } = esmRequire("@evjs/webpack-plugin");
+
+  const pluginOptions =
+    server?.middleware?.length
+      ? { server: { middleware: server.middleware } }
+      : undefined;
+
+  // Resolve loader paths from evf's dependency tree so they work
+  // even when the user's project doesn't list them as direct deps.
+  const resolveLoader = (id: string): string => {
     try {
-      return require(id);
+      return esmRequire.resolve(id);
     } catch {
-      console.error(`Missing dependency: ${id}. Run: npm install -D ${id}`);
-      process.exit(1);
+      return id;
     }
   };
-
-  const HtmlWebpackPlugin = tryRequire("html-webpack-plugin");
-  const { EvWebpackPlugin } = tryRequire("@evjs/webpack-plugin");
-
-  const serverConfig = config?.server;
-  const pluginOptions: Record<string, unknown> = {};
-  if (serverConfig?.setup || serverConfig?.middleware) {
-    pluginOptions.server = {
-      setup: [
-        ...(serverConfig.setup ?? []),
-        ...(serverConfig.middleware ?? []),
-      ],
-    };
-  }
 
   return {
     name: "client",
@@ -77,23 +75,18 @@ export function createWebpackConfig(
           exclude: /node_modules/,
           use: [
             {
-              loader: "swc-loader",
+              loader: resolveLoader("swc-loader"),
               options: {
                 jsc: {
-                  parser: {
-                    syntax: "typescript",
-                    tsx: true,
-                  },
-                  transform: {
-                    react: {
-                      runtime: "automatic",
-                    },
-                  },
+                  parser: { syntax: "typescript", tsx: true },
+                  transform: { react: { runtime: "automatic" } },
                 },
               },
             },
             {
-              loader: "@evjs/webpack-plugin/server-fn-loader",
+              loader: resolveLoader(
+                "@evjs/webpack-plugin/server-fn-loader",
+              ),
             },
           ],
         },
@@ -101,9 +94,7 @@ export function createWebpackConfig(
     },
     plugins: [
       new HtmlWebpackPlugin({ template: html }),
-      new EvWebpackPlugin(
-        Object.keys(pluginOptions).length > 0 ? pluginOptions : undefined,
-      ),
+      new EvWebpackPlugin(pluginOptions),
     ],
     optimization: isProduction
       ? { splitChunks: { chunks: "all" as const } }
@@ -111,15 +102,14 @@ export function createWebpackConfig(
     devServer: {
       port,
       hot: true,
-      devMiddleware: {
-        writeToDisk: true,
-      },
+      devMiddleware: { writeToDisk: true },
       proxy: [
         {
           context: ["/api"],
           target: `http://localhost:${serverPort}`,
         },
       ],
+      ...client?.dev,
     },
   };
 }

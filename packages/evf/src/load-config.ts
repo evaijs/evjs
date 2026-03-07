@@ -2,12 +2,16 @@ import fs from "node:fs";
 import path from "node:path";
 import type { EvfConfig } from "./config.js";
 
-const CONFIG_FILES = ["evf.config.ts", "evf.config.js", "evf.config.mjs"];
+const CONFIG_FILES = [
+  "ev.config.ts",
+  "ev.config.js",
+  "ev.config.mjs",
+];
 
 /**
  * Load evf config from the project root.
  *
- * Looks for `evf.config.ts`, `.js`, or `.mjs` in the given directory.
+ * Looks for `ev.config.ts`, `.js`, or `.mjs` in the given directory.
  * Returns undefined if no config file is found.
  */
 export async function loadConfig(cwd: string): Promise<EvfConfig | undefined> {

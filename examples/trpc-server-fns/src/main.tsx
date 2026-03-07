@@ -72,9 +72,8 @@ const rootRoute = createRootRoute({ component: Root });
 
 function HomePage() {
   const [trpcData, setTrpcData] = useState<unknown>(null);
-  const { data: serverTime, refetch: refetchTime } = query(
-    getServerTime,
-  ).useQuery();
+  const { data: serverTime, refetch: refetchTime } =
+    query(getServerTime).useQuery();
 
   const refreshAction = useCallback(async () => {
     // 1. Call via tRPC (proxied through Server Function)
@@ -152,4 +151,13 @@ const homeRoute = createRoute({
 // ── Mount ──
 
 const routeTree = rootRoute.addChildren([homeRoute]);
-createApp({ routeTree }).render("#app");
+const app = createApp({ routeTree });
+
+// Register router type for full IDE type-safety on useParams, useSearch, Link, etc.
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof app.router;
+  }
+}
+
+app.render("#app");

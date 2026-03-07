@@ -106,4 +106,13 @@ const messagesRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([messagesRoute]);
 
-createApp({ routeTree }).render("#app");
+const app = createApp({ routeTree });
+
+// Register router type for full IDE type-safety on useParams, useSearch, Link, etc.
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof app.router;
+  }
+}
+
+app.render("#app");

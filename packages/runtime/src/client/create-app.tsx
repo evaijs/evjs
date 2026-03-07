@@ -3,7 +3,7 @@ import {
   type QueryClientConfig,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import type { AnyRoute, AnyRouter } from "@tanstack/react-router";
+import type { AnyRoute } from "@tanstack/react-router";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { createRoot } from "react-dom/client";
 import { initTransport } from "./transport";
@@ -34,10 +34,25 @@ export interface CreateAppOptions<TRouteTree extends AnyRoute> {
 
 /**
  * An initialized ev application instance.
+ *
+ * Register the router type for full IDE type safety on `useParams`,
+ * `useSearch`, `Link`, etc:
+ *
+ * ```tsx
+ * const app = createApp({ routeTree });
+ *
+ * declare module "@tanstack/react-router" {
+ *   interface Register {
+ *     router: typeof app.router;
+ *   }
+ * }
+ *
+ * app.render("#app");
+ * ```
  */
-export interface App {
-  /** The TanStack Router instance. */
-  router: AnyRouter;
+export interface App<TRouter> {
+  /** The TanStack Router instance (use `typeof app.router` for type registration). */
+  router: TRouter;
   /** The TanStack Query Client instance. */
   queryClient: QueryClient;
   /**
@@ -53,18 +68,25 @@ export interface App {
  * This function initializes the router and query client and returns
  * an app object that can be mounted into the DOM.
  *
- * @param options - Application configuration options.
- * @returns An initialized App instance.
+ * Register the router type globally for full IDE type-safety on
+ * `useParams`, `useSearch`, `Link`, etc:
  *
  * @example
  * ```tsx
  * const app = createApp({ routeTree });
+ *
+ * declare module "@tanstack/react-router" {
+ *   interface Register {
+ *     router: typeof app.router;
+ *   }
+ * }
+ *
  * app.render("#app");
  * ```
  */
 export function createApp<TRouteTree extends AnyRoute>(
   options: CreateAppOptions<TRouteTree>,
-): App {
+) {
   const { routeTree, routerOptions, queryClientConfig, endpoint } = options;
 
   if (endpoint) {

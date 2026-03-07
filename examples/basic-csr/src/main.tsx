@@ -10,4 +10,13 @@ const routeTree = rootRoute.addChildren([
   postsRoute.addChildren([postsIndexRoute, postDetailRoute]),
 ]);
 
-createApp({ routeTree }).render("#app");
+const app = createApp({ routeTree });
+
+// Register router type for full IDE type-safety on useParams, useSearch, Link, etc.
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof app.router;
+  }
+}
+
+app.render("#app");

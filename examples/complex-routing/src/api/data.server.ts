@@ -3,11 +3,41 @@
 // ── Mock data ──
 
 const posts = [
-  { id: "1", title: "Getting Started with evjs", body: "evjs is a zero-config React meta-framework...", author: "alice", tags: ["intro", "tutorial"] },
-  { id: "2", title: "Server Functions Deep Dive", body: "Server functions use the \"use server\" directive...", author: "bob", tags: ["server", "advanced"] },
-  { id: "3", title: "Routing Patterns", body: "evjs uses TanStack Router for type-safe routing...", author: "alice", tags: ["routing", "tutorial"] },
-  { id: "4", title: "WebSocket Transport", body: "You can swap HTTP for WebSocket transport...", author: "charlie", tags: ["transport", "advanced"] },
-  { id: "5", title: "Deploying to Edge", body: "Run your evjs app on Deno, Bun, or Workers...", author: "bob", tags: ["deploy", "edge"] },
+  {
+    id: "1",
+    title: "Getting Started with evjs",
+    body: "evjs is a zero-config React meta-framework...",
+    author: "alice",
+    tags: ["intro", "tutorial"],
+  },
+  {
+    id: "2",
+    title: "Server Functions Deep Dive",
+    body: 'Server functions use the "use server" directive...',
+    author: "bob",
+    tags: ["server", "advanced"],
+  },
+  {
+    id: "3",
+    title: "Routing Patterns",
+    body: "evjs uses TanStack Router for type-safe routing...",
+    author: "alice",
+    tags: ["routing", "tutorial"],
+  },
+  {
+    id: "4",
+    title: "WebSocket Transport",
+    body: "You can swap HTTP for WebSocket transport...",
+    author: "charlie",
+    tags: ["transport", "advanced"],
+  },
+  {
+    id: "5",
+    title: "Deploying to Edge",
+    body: "Run your evjs app on Deno, Bun, or Workers...",
+    author: "bob",
+    tags: ["deploy", "edge"],
+  },
 ];
 
 const users: Record<string, { name: string; bio: string }> = {
@@ -24,8 +54,7 @@ export async function getPosts(query?: string) {
   const q = query.toLowerCase();
   return posts.filter(
     (p) =>
-      p.title.toLowerCase().includes(q) ||
-      p.tags.some((t) => t.includes(q)),
+      p.title.toLowerCase().includes(q) || p.tags.some((t) => t.includes(q)),
   );
 }
 

@@ -1,12 +1,22 @@
-import { createRoute, Link, Outlet } from "@evjs/runtime/client";
-import { query } from "@evjs/runtime/client";
+import { createRoute, Link, Outlet, query } from "@evjs/runtime/client";
 import { getPost, getPosts } from "../../api/data.server";
 import { rootRoute } from "../__root";
 
 const styles = {
   sidebar: { display: "flex", gap: "1.5rem" },
-  nav: { minWidth: 180, borderRight: "1px solid #e5e7eb", paddingRight: "1rem" },
-  tag: { display: "inline-block", background: "#f3f4f6", borderRadius: 4, padding: "2px 8px", fontSize: 12, marginRight: 4 },
+  nav: {
+    minWidth: 180,
+    borderRight: "1px solid #e5e7eb",
+    paddingRight: "1rem",
+  },
+  tag: {
+    display: "inline-block",
+    background: "#f3f4f6",
+    borderRadius: 4,
+    padding: "2px 8px",
+    fontSize: 12,
+    marginRight: 4,
+  },
 };
 
 // ── Posts layout (/posts) ──

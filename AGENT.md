@@ -1,161 +1,161 @@
-# ev Framework
+# evf — AI Agent Guide
 
-A React framework built for speed and simplicity, leveraging `@tanstack/react-router` for code-based routing and `@tanstack/react-query` for state management.
+> This file is optimized for AI coding agents. It describes the project structure, key APIs, patterns, rules, and common tasks.
 
+## Project Identity
+
+- **Name**: evf (meta-framework), `@evjs/*` (package scope)
 - **Repository**: [evaijs/evjs](https://github.com/evaijs/evjs)
-- **Organization**: `@evjs`
-- **CLI**: `ev`
+- **CLI command**: `ev`
+- **Config file**: `ev.config.ts` (optional — zero-config by default)
+- **Linter**: Biome
+- **Build**: Turborepo + npm workspaces
 
-## Roadmap
+## Package Map
 
-See [ROADMAP.md](./ROADMAP.md) for the full, detailed roadmap.
+| Package | Path | Purpose |
+|---------|------|---------|
+| `evf` | `packages/evf` | CLI (`ev init`, `ev dev`, `ev build`) + `defineConfig` |
+| `@evjs/runtime` | `packages/runtime` | Client (React + TanStack) + Server (Hono) |
+| `@evjs/build-tools` | `packages/build-tools` | Bundler-agnostic server function transforms (SWC) |
+| `@evjs/manifest` | `packages/manifest` | Shared manifest schema types |
+| `@evjs/webpack-plugin` | `packages/webpack-plugin` | Webpack adapter wrapping build-tools |
 
-## Packages
+## Architecture
 
-### `@evjs/runtime`
-Core runtime providing isomorphic utilities.
-- `client`: `createApp`, `createRoute`, `Outlet`, `Link`, `initTransport`, `ServerTransport`.
-- `server`: `createApp` (Hono, supports `endpoint` option), `runNodeServer` (Node runner), `registerServerFn`.
-- `server/ecma`: `createHandler` — ECMA-standard adapter for Deno, Bun, or any Fetch-compatible runtime.
-- Server powered by [Hono](https://hono.dev), runtime-agnostic (Node, Edge, Bun).
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for diagrams.
+See [ROADMAP.md](./ROADMAP.md) for the roadmap.
 
-### `@evjs/manifest`
-Shared manifest schema types used by webpack-plugin (producer) and runtime (consumer).
-- `ServerManifest` — server manifest (`dist/server/manifest.json`, versioned v1).
-- `ClientManifest` — client manifest (reserved for future `dist/client/manifest.json`).
-- `ServerFnEntry`, `RscEntry`, `PageEntry`.
+## Configuration (`ev.config.ts`)
 
-### `evf`
-Command-line interface for project management.
-- `ev init [name]`: Scaffold a new project using dereferenced symlinks to examples.
-- `ev dev`: Start unified dev server (Client HMR + Node Server Watch).
-- `ev build`: Single-command optimized build for both client and server.
+Optional — the framework works zero-config. When needed:
 
-### `@evjs/build-tools`
-Bundler-agnostic build utilities for server functions.
-- `generateServerEntry(config, modules)`: Generates server entry source code.
-- `transformServerFile(source, options)`: SWC-based transform for `"use server"` files.
-- `detectUseServer()`, `makeFnId()`, `parseModuleRef()`: Pure utility functions.
-- `codegen.ts`: `emitCode()` — SWC `parseSync → printSync` roundtrip for validated, formatted output.
-- `types.ts`: `RUNTIME` constant — single source of truth for runtime identifiers (module paths, function names). No hardcoded strings in templates.
-- `transforms/client/`: Generates `__ev_call` transport stubs.
-- `transforms/server/`: Prepends `registerServerFn` calls + manifest reporting.
-- `transforms/utils.ts`: Shared `extractExportNames` AST traversal.
+```ts
+import { defineConfig } from "evf";
 
-### `@evjs/webpack-plugin`
-Webpack adapter — thin wrapper over `@evjs/build-tools`.
-- `EvWebpackPlugin`: Child compiler manager. Delegates entry generation and module discovery to `@evjs/build-tools`.
-- `server-fn-loader`: Thin wrapper that calls `transformServerFile()` from build-tools.
-
-## Key API
-
-### `createApp(options)`
-```tsx
-import { createApp, createRootRoute } from "@evjs/runtime";
-const rootRoute = createRootRoute({ component: Root });
-createApp({ routeTree: rootRoute.addChildren([...]) }).render("#app");
-```
-
-### `query` and `mutation` Proxies
-```tsx
-import { query, mutation } from "@evjs/runtime/client";
-import { getUsers } from "./api/users.server";
-
-// 1. Hook usage
-const { data } = query(getUsers).useQuery([]);
-
-// 2. Extensibility usage (standard TanStack Query options)
-const options = query(getUsers).queryOptions([]);
-```
-
-### Server Functions (`"use server"`)
-```tsx
-// api/users.server.ts
-"use server";
-export async function getUsers() {
-  return await db.users.findMany();
-}
-```
-Imported from client as a standard async function. The `@evjs/webpack-plugin` handles the transformation.
-
-### Custom Endpoint
-```tsx
-import { initTransport } from "@evjs/runtime/client";
-
-// Point to a remote or custom-path server function endpoint
-initTransport({
-  baseUrl: "https://api.example.com",
-  endpoint: "/server-function",  // default: "/api/fn"
-});
-```
-
-### Custom Transport
-```tsx
-import { initTransport } from "@evjs/runtime/client";
-
-initTransport({
-  transport: {
-    send: async (fnId, args) => {
-      const { data } = await axios.post("/api/fn", { fnId, args });
-      return data.result;
-    },
+export default defineConfig({
+  client: {
+    entry: "./src/main.tsx",   // default
+    html: "./index.html",      // default
+    dev: { port: 3000 },       // dev server port
+  },
+  server: {
+    endpoint: "/api/fn",       // server function endpoint
+    runner: "@evjs/runtime/server/node",
+    middleware: [],
+    dev: { port: 3001 },       // API server port (dev)
   },
 });
 ```
 
-## Architecture: Server Functions
+## Key APIs
 
-- **Build-Tools Core**: `@evjs/build-tools` provides bundler-agnostic entry generation and file transformation.
-- **Webpack Adapter**: `EvWebpackPlugin` calls `generateServerEntry()` + spawns a child compiler.
-- **Dynamic Discovery**: Plugin scans client modules for `"use server"` files, passes paths to build-tools.
-- **Client build**: `server-fn-loader` delegates to `transformServerFile()` → replaces bodies with `__ev_call(fnId, args)` stubs.
-- **Server build**: `server-fn-loader` keeps bodies and injects `registerServerFn(fnId, fn)`.
-- **Manifest**: Emitted to `dist/server/manifest.json`, mapping function IDs to build assets.
-- **Endpoint Path**: Configurable via `createApp({ endpoint })` on the server and `initTransport({ endpoint })` on the client. Default: `/api/fn`.
-- **Dev**: `ev dev` runs Webpack Dev Server (port 3000) and a watched Node process (port 3001).
-- **Communication**: Reverse-proxy in Dev Server routes `/api/*` (or custom path) to the Node API server.
-- **ECMA Adapter**: `server.entry.mjs` + `@evjs/runtime/server/ecma` enables deployment to Deno, Bun, Workers.
-- **SW Adapter**: `swMock.entry.js` runs server functions inside a browser Service Worker (with Node.js mock APIs for testing).
+### Client
 
-## Monorepo Workflow
+```tsx
+import { createApp, createRootRoute, createRoute } from "@evjs/runtime";
+import { query, mutation } from "@evjs/runtime/client";
+import { initTransport } from "@evjs/runtime/client";
+```
 
-Managed with Turborepo and npm workspaces.
-- `npm run build`: Build all libraries and examples.
-- `npm run dev`: Concurrent development mode.
-- `npm run release:alpha`: Build and publish all packages (`@evjs/*` scope + `evf`).
+- `createApp({ routeTree }).render("#app")` — mount app
+- `query(fn).useQuery(args)` — data fetching hook
+- `mutation(fn).useMutation()` — mutation hook
+- `query(fn).queryOptions(args)` — for prefetching / cache
 
-## Server Function Rules
+### Server Functions
 
-- **Directive**: Files must start with `"use server";`.
-- **Naming**: Files should end in `.server.ts` or be placed in `src/api/`.
-- **Exports**: Must be **async functions** with **named exports**.
-- **Transformation**: Build system replaces bodies with transport stubs (client) or registers them (server).
+```tsx
+// src/api/users.server.ts
+"use server";
+
+export async function getUsers() {
+  return await db.users.findMany();
+}
+```
+
+- Files must start with `"use server";`
+- Only **named async function exports** are supported
+- Build system auto-transforms: client gets transport stubs, server keeps original bodies
+
+### Server
+
+```tsx
+import { createApp } from "@evjs/runtime/server";
+import { runNodeServer } from "@evjs/runtime/server";
+import { createHandler } from "@evjs/runtime/server/ecma";
+```
+
+- `createApp({ endpoint })` — Hono app with server function handler
+- `runNodeServer(app, port)` — Node.js runner
+- `createHandler(app)` — ECMA adapter (Deno, Bun, Workers)
+
+## Build System
+
+The `evf` CLI uses webpack Node API directly — no temp config files:
+
+1. `ev build` → loads `ev.config.ts` (or uses zero-config defaults) → creates webpack config object → calls `webpack()` Node API
+2. `ev dev` → same config → starts `WebpackDevServer` + watches for server bundle → auto-starts Node API server
+
+Internally:
+- `@evjs/webpack-plugin` handles server function discovery + child compiler
+- `@evjs/build-tools` does the actual SWC transforms (bundler-agnostic)
 
 ## Query Patterns
 
-Always use `query` / `mutation` proxies from `@evjs/runtime/client`. Do NOT use `useQuery` with manual fetch.
+Always use `query` / `mutation` proxies. Do **NOT** use `useQuery` with manual fetch.
 
 ```tsx
-// Direct wrapper
+// Hook usage
 const { data } = query(getUsers).useQuery([]);
 
-// Module proxy
-const users = { query: createQueryProxy(UsersAPI) };
-users.query.getUsers.useQuery([]);
-
-// queryOptions (for prefetch, etc.)
+// queryOptions (prefetch, cache invalidation)
 const opts = query(getUsers).queryOptions([id]);
 queryClient.prefetchQuery(opts);
 
-// Invalidation — use the stable evId
+// Cache invalidation — use stable evId
 queryClient.invalidateQueries({ queryKey: [getUsers.evId] });
 
-// Mutation args — pass as tuple
+// Mutation — args as tuple
 mutation(createUser).useMutation().mutate([{ name: "Alice" }]);
 ```
 
-## Coding Style
+## Rules
 
-- **Imports**: All imports at top of file. Use `import type` for type-only imports.
-- **Linting**: Biome — no `any`, no `import * as` unless necessary.
-- **No manual server entries**: The framework generates `server-entry.ts` dynamically.
+1. **Imports**: All imports at top of file. Use `import type` for type-only imports.
+2. **Linting**: Biome — no `any`, no `import * as` unless necessary.
+3. **No manual server entries**: The framework generates server entry dynamically.
+4. **No manual webpack configs**: Use `ev.config.ts` or zero-config defaults.
+5. **Server function files**: Must start with `"use server";`, use `.server.ts` extension or `src/api/` directory.
+6. **Server function exports**: Must be async functions with named exports.
+
+## Common Tasks
+
+### Add a new server function
+
+1. Create `src/api/[name].server.ts`
+2. Add `"use server";` at the top
+3. Export async functions
+4. Import and use on client with `query()` or `mutation()`
+
+### Add a new route
+
+1. Create route with `createRoute({ getParentRoute, path, component })`
+2. Add to route tree via `parentRoute.addChildren([newRoute])`
+
+### Add a new example
+
+1. Create directory under `examples/`
+2. Add `package.json` with `"evf": "*"` as devDep
+3. Add `src/main.tsx` + `index.html`
+4. Scripts: `"dev": "ev dev"`, `"build": "ev build"`
+
+## Monorepo Commands
+
+```bash
+npm run build           # Build all packages + examples
+npm run test            # Unit tests (vitest)
+npm run test:e2e        # E2E tests (playwright)
+npm run dev             # Dev mode (turborepo)
+npm run release:alpha   # Publish all packages (@evjs/* + evf)
+```

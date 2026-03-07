@@ -1,22 +1,58 @@
-# evf
+# evf — Agent Guide
 
-Command-line interface for the ev framework.
+> AI-agent reference for the `evf` CLI package.
 
-## Commands
+## What This Package Does
 
-### `ev init [name]`
-Scaffold a new project. Templates: `basic-csr`, `basic-server-fns`, `trpc-server-fns`.
-Option: `-t, --template <template>` to skip interactive selection.
+The `evf` package is the CLI and config layer of the ev meta-framework. It provides:
 
-### `ev dev`
-Starts two processes:
-1. Webpack Dev Server (port 3000) — client HMR.
-2. Node API Server (port 3001) — auto-starts via `node --watch` when server bundle is emitted.
-Sets `NODE_ENV=development`.
+1. **`ev init`** — scaffolds projects from templates
+2. **`ev dev`** — starts WebpackDevServer + Node API server
+3. **`ev build`** — runs production webpack build
+4. **`defineConfig`** — type-safe configuration export
 
-### `ev build`
-Production build with `NODE_ENV=production`.
-Output: `dist/client/` (assets) + `dist/server/main.[hash].js` (server bundle, discovered via `dist/server/manifest.json`).
+## Key Files
 
-## Configuration
-Detects `webpack.config.cjs` in project root. Uses `@evjs/webpack-plugin` for server function support.
+| File | Purpose |
+|------|---------|
+| `src/index.ts` | CLI entry — Commander commands (`init`, `dev`, `build`) |
+| `src/config.ts` | `EvfConfig` types + `defineConfig()` helper |
+| `src/load-config.ts` | Loads `ev.config.ts` / `.js` / `.mjs` from project root |
+| `src/create-webpack-config.ts` | Generates webpack config object from `EvfConfig` |
+
+## Config Shape
+
+```ts
+interface EvfConfig {
+  client?: {
+    entry?: string;        // default: "./src/main.tsx"
+    html?: string;         // default: "./index.html"
+    dev?: { port?: number; ... };  // default port: 3000
+    transport?: { baseUrl?: string; endpoint?: string };
+  };
+  server?: {
+    runner?: string;
+    endpoint?: string;     // default: "/api/fn"
+    middleware?: string[];
+    dev?: { port?: number; ... };  // default port: 3001
+  };
+}
+```
+
+## How Build Works
+
+1. `ev build` / `ev dev` calls `resolveWebpackConfig(cwd)`
+2. If `ev.config.ts` exists → load it, pass to `createWebpackConfig()`
+3. If no config and no `webpack.config.cjs` → use zero-config defaults
+4. `createWebpackConfig()` returns a webpack config **object** (no temp files)
+5. CLI calls `webpack()` Node API directly
+
+## Dependencies
+
+Webpack toolchain (`webpack`, `webpack-dev-server`, `html-webpack-plugin`, `swc-loader`, `@evjs/webpack-plugin`) are **dependencies of evf** — users don't need to install them separately.
+
+## Rules
+
+- Do NOT generate temp config files — use webpack Node API directly
+- Module resolution uses `createRequire(import.meta.url)` for reliable dep resolution
+- Config file name is `ev.config.ts` (not `evf.config.ts`)

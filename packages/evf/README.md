@@ -1,48 +1,67 @@
 # evf
 
-Command-line interface for the **ev** framework.
+> CLI and configuration for the **evf** meta-framework.
 
-## Installation
+## Install
 
 ```bash
 npm install -g evf
 ```
+
+## Zero-Config
+
+No configuration file is needed. `ev dev` and `ev build` work out of the box with sensible defaults:
+
+- Entry: `./src/main.tsx`
+- HTML: `./index.html`
+- Client dev server: port 3000
+- API server (dev): port 3001
+- Server functions auto-discovered via `"use server"` directive
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
 | `ev init [name]` | Scaffold a new project from a template |
-| `ev dev` | Start unified dev server (client HMR + API watch) |
-| `ev build` | Production build for client and server |
+| `ev dev` | Start dev server (client HMR + API watch) |
+| `ev build` | Production build (client + server) |
 
 ### `ev init [name]`
 
-Interactive project scaffolding with template selection:
-
-| Template | Description |
-|----------|-------------|
-| `basic-csr` | Client-side rendered SPA |
-| `basic-server-fns` | SPA with React Server Functions |
-| `trpc-server-fns` | Server Functions with tRPC integration |
-
-Options:
-- `-t, --template <template>` — Skip interactive selection.
+Templates: `basic-csr`, `basic-server-fns`, `trpc-server-fns`.
+Option: `-t, --template <template>` to skip interactive selection.
 
 ### `ev dev`
 
-Starts two processes concurrently:
-1. **Webpack Dev Server** (port 3000) — client bundle with HMR.
-2. **Node API Server** (port 3001) — auto-detected once the server bundle is emitted. Uses `node --watch` for live reload on changes.
-
-Sets `NODE_ENV=development`, which enables the `runner` in `EvWebpackPlugin` for self-starting server bundles.
+Uses webpack Node API directly (no temp config files):
+1. **WebpackDevServer** (port 3000) — client bundle with HMR.
+2. **Node API Server** (port 3001) — auto-starts when server bundle is emitted, uses `node --watch`.
 
 ### `ev build`
 
-Runs a single Webpack build with `NODE_ENV=production`, producing:
-- `dist/client/` — optimized client assets.
-- `dist/server/main.[hash].js` — server bundle (filename from `dist/server/manifest.json`).
+Runs webpack via Node API with `NODE_ENV=production`:
+- `dist/client/` — optimized client assets with content hashes.
+- `dist/server/main.[hash].js` — server bundle (entry discovered via `dist/server/manifest.json`).
 
 ## Configuration
 
-The CLI detects `webpack.config.cjs` in the project root. Server function support comes from `@evjs/webpack-plugin` — no additional CLI config needed.
+Create `ev.config.ts` in the project root (optional):
+
+```ts
+import { defineConfig } from "evf";
+
+export default defineConfig({
+  client: {
+    entry: "./src/main.tsx",
+    html: "./index.html",
+    dev: { port: 3000 },
+  },
+  server: {
+    endpoint: "/api/fn",
+    middleware: [],
+    dev: { port: 3001 },
+  },
+});
+```
+
+The `client.dev` and `server.dev` fields accept extra options that are merged with defaults.

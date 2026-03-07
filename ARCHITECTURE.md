@@ -2,14 +2,14 @@
 
 ## Overview
 
-`ev` is a React meta-framework with type-safe routing (TanStack Router), data fetching (TanStack Query), and server functions (`"use server"`). It uses a Hono-based API server and is designed to be bundler-agnostic.
+`evf` is a zero-config React meta-framework with type-safe routing (TanStack Router), data fetching (TanStack Query), and server functions (`"use server"`). It uses a Hono-based API server and is designed to be bundler-agnostic.
 
 ```
 ┌──────────────────────────────────────────────────────┐
 │ Build Time                                           │
 │                                                      │
-│   evf             @evjs/build-tools            │
-│   (ev dev / build)      (bundler-agnostic core)      │
+│   evf (CLI)            @evjs/build-tools             │
+│   (ev dev / build)     (bundler-agnostic core)       │
 │        │                     │                       │
 │        ▼                     ▼                       │
 │   @evjs/webpack-plugin  ← thin adapter              │
@@ -27,8 +27,8 @@
 │   ────────────────          ──────────────────────   │
 │   TanStack Router           Hono App (createApp)     │
 │   TanStack Query            registerServerFn()       │
-│   __ev_call() stubs         createHandler()    │
-│   ServerTransport           Runner API (runNodeServer)│
+│   __ev_call() stubs         createHandler()          │
+│   ServerTransport           Runner API               │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -36,7 +36,8 @@
 
 ```
 evf
-  └─▶ spawns webpack with @evjs/webpack-plugin
+  └─▶ webpack Node API (no temp files)
+  └─▶ @evjs/webpack-plugin
 
 @evjs/webpack-plugin
   └─▶ @evjs/build-tools (pure functions, no bundler deps)
@@ -48,6 +49,27 @@ evf
   ├─▶ hono, @hono/node-server (server)
   ├─▶ @tanstack/react-router (client)
   └─▶ @tanstack/react-query (client)
+```
+
+## Configuration Flow
+
+```
+ev.config.ts (optional)
+  │
+  ▼
+defineConfig({ client, server })
+  │
+  ├─ client.entry, client.html      → webpack entry + HtmlWebpackPlugin
+  ├─ client.dev.port                 → WebpackDevServer port
+  ├─ server.endpoint                 → EvWebpackPlugin options
+  ├─ server.middleware               → server entry middleware
+  └─ server.dev.port                 → API server port (dev proxy target)
+  │
+  ▼
+createWebpackConfig() → webpack config object (in-memory, no temp files)
+  │
+  ▼
+webpack Node API (webpack() / WebpackDevServer)
 ```
 
 ## Server Function Pipeline
@@ -68,7 +90,7 @@ Source (.server.ts)
                         registerServerFn(fnId, getUsers)
 ```
 
-## Build-Tools Internals
+## Build-Tools Structure
 
 ```
 packages/build-tools/src/
@@ -103,16 +125,21 @@ export const RUNTIME = {
 ## Dev Server Architecture
 
 ```
-Browser ──▶ Webpack Dev Server (port 3000)
+Browser ──▶ WebpackDevServer (port 3000)
                │
                ├─ Static assets (HMR)
                │
                └─ /api/* ──proxy──▶ Node Server (port 3001)
                                       │
                                       └─ Hono App
-                                           └─ POST /api/fn (default, configurable via endpoint)
+                                           └─ POST /api/fn
                                                 └─ registry.get(fnId)(...args)
 ```
+
+`ev dev` uses the webpack Node API directly:
+1. Creates webpack compiler + WebpackDevServer in-process
+2. Polls for `dist/server/manifest.json`
+3. Writes a CJS bootstrap and runs it with `node --watch`
 
 ## Deployment Adapters
 

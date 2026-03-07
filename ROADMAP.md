@@ -50,10 +50,25 @@ Call server-side logic from the browser as normal async functions.
   - [x] Reverse proxy in dev server (`/api/*` → API server)
   - [x] E2E tests with parallel execution and dynamic ports
 
+## ✅ Stage 3 — Zero-Config Meta-Framework
+
+DX improvements: unified CLI and zero-config builds.
+
+- [x] Zero-config `ev build` / `ev dev` — no `webpack.config.cjs` needed
+- [x] `ev.config.ts` with `defineConfig()` for optional customization
+- [x] Config split: `ClientConfig` (entry, html, dev) + `ServerConfig` (endpoint, middleware, dev)
+- [x] webpack Node API — no temp config files, no subprocess spawning
+- [x] All examples migrated to zero-config
+- [x] E2E tests use `ev build` directly
+
 ## 🔲 Exploring
 
 Future directions under consideration. Nothing committed yet.
 
+- [ ] **MPA (Multi-Page Application)**
+  - [ ] `client.pages` field: `Record<string, { entry, html? }>`
+  - [ ] Multiple webpack entries + HtmlWebpackPlugin instances
+  - [ ] Takes precedence over `client.entry` / `client.html` when set
 - [ ] **Server context** _(next up)_
   - [ ] Provide request context (headers, cookies, auth) to server functions
   - [ ] Transparent to user code — no manual parameter passing

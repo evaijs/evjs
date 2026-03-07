@@ -40,16 +40,16 @@ test.describe("configured-server-fns", () => {
   test("displays correct heading", async ({ page, baseURL }) => {
     await page.goto(baseURL);
 
-    await expect(
-      page.getByText("Configured Server Functions"),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("Configured Server Functions")).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test("shows ev.config.ts notice", async ({ page, baseURL }) => {
     await page.goto(baseURL);
 
-    await expect(
-      page.getByText("ev.config.ts"),
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("ev.config.ts")).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });

@@ -26,10 +26,9 @@ export function createWebpackConfig(
   const HtmlWebpackPlugin = esmRequire("html-webpack-plugin");
   const { EvWebpackPlugin } = esmRequire("@evjs/webpack-plugin");
 
-  const pluginOptions =
-    server?.middleware?.length
-      ? { server: { middleware: server.middleware } }
-      : undefined;
+  const pluginOptions = server?.middleware?.length
+    ? { server: { middleware: server.middleware } }
+    : undefined;
 
   // Resolve loader paths from evf's dependency tree so they work
   // even when the user's project doesn't list them as direct deps.
@@ -81,9 +80,7 @@ export function createWebpackConfig(
               },
             },
             {
-              loader: resolveLoader(
-                "@evjs/webpack-plugin/server-fn-loader",
-              ),
+              loader: resolveLoader("@evjs/webpack-plugin/server-fn-loader"),
             },
           ],
         },

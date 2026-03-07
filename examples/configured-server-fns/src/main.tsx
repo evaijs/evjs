@@ -1,8 +1,8 @@
 import {
   createApp,
   createAppRootRoute,
-  createQueryProxy,
   createMutationProxy,
+  createQueryProxy,
   createRoute,
   Link,
   Outlet,
@@ -46,8 +46,7 @@ function UsersPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
-  const { data: users = [], isLoading } =
-    api.users.query.getUsers.useQuery([]);
+  const { data: users = [], isLoading } = api.users.query.getUsers.useQuery([]);
 
   const queryClient = useQueryClient();
   const { mutateAsync: doCreateUser } =

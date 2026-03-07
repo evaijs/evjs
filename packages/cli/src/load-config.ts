@@ -2,11 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { EvfConfig } from "./config.js";
 
-const CONFIG_FILES = [
-  "ev.config.ts",
-  "ev.config.js",
-  "ev.config.mjs",
-];
+const CONFIG_FILES = ["ev.config.ts", "ev.config.js", "ev.config.mjs"];
 
 /**
  * Load evf config from the project root.

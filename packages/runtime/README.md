@@ -19,7 +19,9 @@ npm install @evjs/runtime
 | `mutation(fn)` | Universal mutation proxy for server functions |
 | `createQueryProxy(module)` | Module-level query proxy |
 | `createMutationProxy(module)` | Module-level mutation proxy |
-| `configureTransport` | Set custom transport (fetch, axios, WebSocket) |
+| `initTransport` | One-time transport configuration (endpoint, custom transport, codec) |
+| `ServerFunctionError` | Structured error class for server function failures |
+| `jsonCodec` | Default JSON codec |
 | `createRootRoute`, `createRoute`, `Link`, `Outlet`, ... | Re-exports from `@tanstack/react-router` |
 | `useQuery`, `useMutation`, `useQueryClient`, ... | Re-exports from `@tanstack/react-query` |
 
@@ -27,10 +29,19 @@ npm install @evjs/runtime
 
 | Export | Description |
 |--------|-------------|
-| `createApp` | Create a Hono app with RPC middleware (`rpcEndpoint` option) |
+| `createApp` | Create a Hono app with server function handler |
+| `createHandler` | Standalone Hono sub-app for server function dispatch |
+| `dispatch` | Protocol-agnostic dispatcher for custom transports (WebSocket, IPC) |
+| `registerMiddleware` | Register middleware for all server function calls |
+| `registerServerFn` | Register a server function in the registry |
+| `ServerError` | Throwable error with structured data and custom status |
+| `jsonCodec` | Default JSON codec |
+
+### `@evjs/runtime/server/node`
+
+| Export | Description |
+|--------|-------------|
 | `runNodeServer` | Start the app on Node.js (default port 3001) |
-| `registerServerFn` | Register a server function in the RPC registry |
-| `createRpcMiddleware` | Standalone Hono sub-app for RPC dispatch |
 
 ### `@evjs/runtime/server/ecma`
 
@@ -47,8 +58,10 @@ import { createApp, createRootRoute, query, mutation } from "@evjs/runtime/clien
 import { getUsers, createUser } from "./api/users.server";
 
 function Users() {
-  const { data } = query(getUsers).useQuery([]);
-  const { mutate } = mutation(createUser).useMutation();
+  const { data } = query(getUsers).useQuery();
+  const { mutate } = mutation(createUser).useMutation({
+    invalidates: [getUsers],  // auto-invalidate on success
+  });
 }
 
 const rootRoute = createRootRoute({ component: Root });
@@ -58,58 +71,101 @@ app.render("#app");
 
 ### Server
 
-The server app is a runtime-agnostic Hono instance. Use a Runner to start it:
-
 ```ts
-import { createApp, runNodeServer } from "@evjs/runtime/server";
+import { createApp } from "@evjs/runtime/server";
+import { runNodeServer } from "@evjs/runtime/server/node";
 
 const app = createApp();
 runNodeServer(app, { port: 3001 });
 ```
 
-In development, `ev dev` with `runner` configured in `EvWebpackPlugin` handles this automatically.
-
-### Custom Endpoint
-
-```ts
-import { configureTransport } from "@evjs/runtime/client";
-
-configureTransport({
-  baseUrl: "https://api.example.com",
-  endpoint: "/server-function",  // default: "/api/rpc"
-});
-```
-
 ### Custom Transport
 
 ```ts
-import { configureTransport } from "@evjs/runtime/client";
+import { initTransport } from "@evjs/runtime/client";
 
-configureTransport({
+// Custom endpoint
+initTransport({
+  baseUrl: "https://api.example.com",
+  endpoint: "/server-function",  // default: "/api/fn"
+});
+
+// Custom protocol (e.g. WebSocket)
+initTransport({
   transport: {
-    send: async (fnId, args) => {
-      const { data } = await axios.post("/api/rpc", { fnId, args });
-      return data.result;
-    },
+    send: async (fnId, args) => { /* your protocol */ },
   },
 });
+
+// Custom serialization
+initTransport({
+  codec: { serialize: msgpack.encode, deserialize: msgpack.decode, contentType: "application/msgpack" },
+});
+```
+
+### Server Middleware
+
+```ts
+import { registerMiddleware } from "@evjs/runtime/server";
+
+registerMiddleware(async (ctx, next) => {
+  console.log(`Calling ${ctx.fnId}`);
+  const start = Date.now();
+  const result = await next();
+  console.log(`${ctx.fnId} took ${Date.now() - start}ms`);
+  return result;
+});
+```
+
+### Typed Errors
+
+```ts
+import { ServerError } from "@evjs/runtime/server";
+
+export async function getUser(id: string) {
+  const user = db.find(id);
+  if (!user) throw new ServerError("User not found", { status: 404, data: { id } });
+  return user;
+}
 ```
 
 ### Query Proxy Patterns
 
 ```tsx
-// A. Direct wrapper (single function)
-const { data } = query(getUsers).useQuery([]);
+// Direct wrapper
+const { data } = query(getUsers).useQuery();
 
-// B. Module proxy (feature-based API)
-import * as UsersAPI from "./api/users.server";
-const users = {
-  query: createQueryProxy(UsersAPI),
-  mutation: createMutationProxy(UsersAPI),
-};
-users.query.getUsers.useQuery([]);
+// With args
+const { data } = query(getUser).useQuery(userId);
 
-// C. queryOptions (for prefetching, etc.)
-const options = query(getUsers).queryOptions([id]);
+// Query invalidation
+query(getUsers).invalidate();
+
+// queryOptions (for prefetching)
+const options = query(getUsers).queryOptions();
 queryClient.prefetchQuery(options);
+
+// Module proxy
+import * as UsersAPI from "./api/users.server";
+const api = createQueryProxy(UsersAPI);
+const { data } = api.getUsers.useQuery();
 ```
+
+### Custom Transport (WebSocket)
+
+```ts
+import { initTransport } from "@evjs/runtime/client";
+
+initTransport({
+  transport: {
+    send: async (fnId, args) => {
+      return new Promise((resolve, reject) => {
+        ws.send(JSON.stringify({ id: ++reqId, fnId, args }));
+        pending.set(reqId, { resolve, reject });
+      });
+    },
+  },
+});
+```
+
+See [`examples/websocket-fns`](../../examples/websocket-fns) for a full working example.

@@ -14,8 +14,8 @@ See [ROADMAP.md](./ROADMAP.md) for the full, detailed roadmap.
 
 ### `@evjs/runtime`
 Core runtime providing isomorphic utilities.
-- `client`: `createApp`, `createRoute`, `Outlet`, `Link`, `configureTransport`, `ServerTransport`.
-- `server`: `createApp` (Hono, supports `rpcEndpoint` option), `runNodeServer` (Node runner), `registerServerFn`.
+- `client`: `createApp`, `createRoute`, `Outlet`, `Link`, `initTransport`, `ServerTransport`.
+- `server`: `createApp` (Hono, supports `endpoint` option), `runNodeServer` (Node runner), `registerServerFn`.
 - `server/ecma`: `createHandler` — ECMA-standard adapter for Deno, Bun, Cloudflare Workers.
 - Server powered by [Hono](https://hono.dev), runtime-agnostic (Node, Edge, Bun).
 
@@ -80,23 +80,23 @@ Imported from client as a standard async function. The `@evjs/webpack-plugin` ha
 
 ### Custom Endpoint
 ```tsx
-import { configureTransport } from "@evjs/runtime/client";
+import { initTransport } from "@evjs/runtime/client";
 
-// Point to a remote or custom-path RPC endpoint
-configureTransport({
+// Point to a remote or custom-path server function endpoint
+initTransport({
   baseUrl: "https://api.example.com",
-  endpoint: "/server-function",  // default: "/api/rpc"
+  endpoint: "/server-function",  // default: "/api/fn"
 });
 ```
 
 ### Custom Transport
 ```tsx
-import { configureTransport } from "@evjs/runtime/client";
+import { initTransport } from "@evjs/runtime/client";
 
-configureTransport({
+initTransport({
   transport: {
     send: async (fnId, args) => {
-      const { data } = await axios.post("/api/rpc", { fnId, args });
+      const { data } = await axios.post("/api/fn", { fnId, args });
       return data.result;
     },
   },
@@ -111,7 +111,7 @@ configureTransport({
 - **Client build**: `server-fn-loader` delegates to `transformServerFile()` → replaces bodies with `__ev_call(fnId, args)` stubs.
 - **Server build**: `server-fn-loader` keeps bodies and injects `registerServerFn(fnId, fn)`.
 - **Manifest**: Emitted to `dist/server/manifest.json`, mapping function IDs to build assets.
-- **RPC Path**: Configurable via `createApp({ rpcEndpoint })` on the server and `configureTransport({ endpoint })` on the client. Default: `/api/rpc`.
+- **Endpoint Path**: Configurable via `createApp({ endpoint })` on the server and `initTransport({ endpoint })` on the client. Default: `/api/fn`.
 - **Dev**: `ev dev` runs Webpack Dev Server (port 3000) and a watched Node process (port 3001).
 - **Communication**: Reverse-proxy in Dev Server routes `/api/*` (or custom path) to the Node API server.
 - **ECMA Adapter**: `server.entry.mjs` + `@evjs/runtime/server/ecma` enables deployment to Deno, Bun, Workers.

@@ -29,19 +29,19 @@ export interface TransformOptions {
  * that appear in codegen output. They must stay in sync with the `@evjs/runtime`
  * package exports.
  *
- * Note: `DEFAULT_RPC_ENDPOINT` (the default HTTP path for RPC) is a runtime
+ * Note: `DEFAULT_ENDPOINT` (the default HTTP path for server functions) is a runtime
  * concern and lives in `@evjs/runtime/src/constants.ts`, not here.
  */
 export const RUNTIME = {
   /** Module path for server-side function registration (no Hono dependency). */
   serverModule: "@evjs/runtime/server/register",
-  /** Module path for the server app factory (Hono app + RPC middleware). */
+  /** Module path for the server app factory (Hono app + server function handler). */
   appModule: "@evjs/runtime/server",
   /** Module path for client-side transport stubs. */
   clientTransportModule: "@evjs/runtime/client/transport",
   /** Server function registration call name. */
   registerServerFn: "registerServerFn",
-  /** Client-side RPC call name. */
+  /** Client-side server function call name. */
   clientCall: "__ev_call",
   /** Client-side function registration call name. */
   clientRegister: "__ev_register",

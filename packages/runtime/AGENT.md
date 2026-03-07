@@ -51,24 +51,24 @@ const usersRoute = createRoute({
 
 ### Transport
 ```tsx
-import { configureTransport } from "@evjs/runtime/client";
+import { initTransport } from "@evjs/runtime/client";
 
 // Simple: custom base URL and endpoint path
-configureTransport({
+initTransport({
   baseUrl: "https://api.example.com",
-  endpoint: "/server-function",  // default: "/api/rpc"
+  endpoint: "/server-function",  // default: "/api/fn"
 });
 
 // Advanced: fully custom transport
-configureTransport({ transport: { send: async (fnId, args) => { /* custom */ } } });
+initTransport({ transport: { send: async (fnId, args) => { /* custom */ } } });
 ```
 
 ## Server API (`@evjs/runtime/server`)
 
-- `createApp(options?)` — Create Hono app with RPC middleware. Options: `{ rpcEndpoint?: string, port?: number }`. Default RPC path: `/api/rpc`.
+- `createApp(options?)` — Create Hono app with server function handler. Options: `{ endpoint?: string, port?: number }`. Default endpoint path: `/api/fn`.
 - `runNodeServer(app, { port?, host? })` — Start on Node.js (default port 3001).
 - `registerServerFn(fnId, fn)` — Register server function (called by build-tools).
-- `createRpcMiddleware()` — Standalone Hono RPC sub-app.
+- `createHandler()` — Standalone Hono server function handler.
 
 ## ECMA Adapter (`@evjs/runtime/server/ecma`)
 

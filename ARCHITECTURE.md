@@ -27,7 +27,7 @@
 │   ────────────────          ──────────────────────   │
 │   TanStack Router           Hono App (createApp)     │
 │   TanStack Query            registerServerFn()       │
-│   __ev_call() stubs         createRpcMiddleware()    │
+│   __ev_call() stubs         createHandler()    │
 │   ServerTransport           Runner API (runNodeServer)│
 └──────────────────────────────────────────────────────┘
 ```
@@ -110,7 +110,7 @@ Browser ──▶ Webpack Dev Server (port 3000)
                └─ /api/* ──proxy──▶ Node Server (port 3001)
                                       │
                                       └─ Hono App
-                                           └─ POST /api/rpc (default, configurable via rpcEndpoint)
+                                           └─ POST /api/fn (default, configurable via endpoint)
                                                 └─ registry.get(fnId)(...args)
 ```
 

@@ -23,7 +23,7 @@ Call server-side logic from the browser as normal async functions.
 
 - [x] Build pipeline
   - [x] `"use server"` directive detection via SWC AST parsing
-  - [x] Client transform: function bodies → `__ev_call(fnId, args)` RPC stubs
+  - [x] Client transform: function bodies → `__ev_call(fnId, args)` server function stubs
   - [x] Server transform: original bodies kept + `registerServerFn(fnId, fn)` injected
   - [x] Stable function IDs derived from file path + export name (SHA-256)
   - [x] Bundler-agnostic transforms in `@evjs/build-tools`
@@ -36,12 +36,12 @@ Call server-side logic from the browser as normal async functions.
   - [x] `createQueryProxy` / `createMutationProxy` — module-level typed proxies
   - [x] `.queryOptions()`, `.queryKey()` for prefetching and cache invalidation
 - [x] Transport
-  - [x] JSON-based RPC wire format (`{ fnId, args }` → `{ result }`)
-  - [x] Configurable endpoint: `configureTransport({ baseUrl, endpoint })`
+  - [x] JSON-based server function wire format (`{ fnId, args }` → `{ result }`)
+  - [x] Configurable endpoint: `initTransport({ baseUrl, endpoint })`
   - [x] Pluggable `ServerTransport` interface for custom protocols
 - [x] Server runtime
-  - [x] Hono-based RPC handler with request validation
-  - [x] `createApp({ rpcEndpoint })` — configurable API path
+  - [x] Hono-based server function handler with request validation
+  - [x] `createApp({ endpoint })` — configurable API path
   - [x] Multi-runtime: Node.js, ECMA (Deno/Bun/Workers), Service Worker adapter
 - [x] Manifest
   - [x] Versioned schema (`manifest.json` v1)

@@ -16,7 +16,6 @@ for (const entry of fs.readdirSync(templatesDir)) {
 
   if (stat.isSymbolicLink()) {
     const realPath = fs.realpathSync(entryPath);
-    console.log(`Dereferencing symlink: ${entry} -> ${realPath}`);
 
     // Remove symlink
     fs.removeSync(entryPath);
@@ -30,5 +29,3 @@ for (const entry of fs.readdirSync(templatesDir)) {
     });
   }
 }
-
-console.log("Templates dereferenced for publishing.");

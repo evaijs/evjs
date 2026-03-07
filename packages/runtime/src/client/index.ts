@@ -34,8 +34,75 @@ export type { AppRouteContext } from "./context";
 export { createAppRootRoute } from "./context";
 export type { App, CreateAppOptions } from "./create-app";
 export { createApp } from "./create-app";
-export * from "./query";
-export * from "./route";
+export type {
+  MutationProxy,
+  MutationProxyHandler,
+  QueryProxy,
+  QueryProxyHandler,
+  ServerFunction,
+} from "./query";
+export {
+  createMutationProxy,
+  createQueryProxy,
+  mutation,
+  query,
+} from "./query";
+export type {
+  AnyRootRoute,
+  AnyRoute,
+  AnyRouteMatch,
+  AnyRouter,
+  ErrorComponentProps,
+  ErrorRouteComponent,
+  LinkOptions,
+  LinkProps,
+  NavigateOptions,
+  NotFoundError,
+  NotFoundRouteComponent,
+  NotFoundRouteProps,
+  RegisteredRouter,
+  RouteComponent,
+  RouteMatch,
+  RouterOptions,
+  RouterState,
+  SearchSchemaInput,
+} from "./route";
+export {
+  CatchBoundary,
+  CatchNotFound,
+  createLink,
+  createRootRoute,
+  createRootRouteWithContext,
+  createRoute,
+  createRouteMask,
+  createRouter,
+  DefaultGlobalNotFound,
+  ErrorComponent,
+  getRouteApi,
+  isNotFound,
+  isRedirect,
+  Link,
+  lazyRouteComponent,
+  linkOptions,
+  Navigate,
+  notFound,
+  Outlet,
+  RouterProvider,
+  redirect,
+  useBlocker,
+  useCanGoBack,
+  useLoaderData,
+  useLoaderDeps,
+  useLocation,
+  useMatch,
+  useMatchRoute,
+  useNavigate,
+  useParams,
+  useRouteContext,
+  useRouter,
+  useRouterState,
+  useSearch,
+} from "./route";
 export type {
   RequestContext,
   ServerTransport,

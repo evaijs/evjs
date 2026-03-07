@@ -12,9 +12,9 @@
  *   PORT         - port to listen on
  */
 
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
+const http = require("node:http");
+const fs = require("node:fs");
+const path = require("node:path");
 const { WebSocketServer } = require("ws");
 
 const serverEntryPath = process.env.SERVER_ENTRY;
@@ -74,5 +74,5 @@ wss.on("connection", (ws) => {
 });
 
 server.listen(port, () => {
-  console.log("E2E_WS_SERVER_READY:" + port);
+  console.log(`E2E_WS_SERVER_READY:${port}`);
 });

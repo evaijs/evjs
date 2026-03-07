@@ -20,10 +20,7 @@ for (const [name, target] of Object.entries(symlinkTargets)) {
   const stat = fs.lstatSync(entryPath, { throwIfNoEntry: false });
 
   if (stat && !stat.isSymbolicLink()) {
-    console.log(`Restoring symlink: ${name} -> ${target}`);
     fs.removeSync(entryPath);
     fs.symlinkSync(target, entryPath);
   }
 }
-
-console.log("Template symlinks restored.");

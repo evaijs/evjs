@@ -22,20 +22,51 @@
       "style": {
         "useBlockStatements": "off",
         "useImportType": "warn",
-        "noNamespace": "warn"
+        "noNamespace": "warn",
+        "useNodejsImportProtocol": "error",
+        "useConst": "error",
+        "useExportType": "warn",
+        "noNonNullAssertion": "warn",
+        "useEnumInitializers": "off"
       },
       "suspicious": {
         "noExplicitAny": "warn",
-        "noArrayIndexKey": "warn"
+        "noArrayIndexKey": "warn",
+        "noConsole": "warn",
+        "noDoubleEquals": "error"
       },
       "performance": {
-        "noBarrelFile": "off"
+        "noBarrelFile": "off",
+        "noReExportAll": "error"
       },
       "correctness": {
-        "noUnusedVariables": "warn"
+        "noUnusedVariables": "warn",
+        "noUnusedImports": "warn"
+      },
+      "complexity": {
+        "noForEach": "warn",
+        "useFlatMap": "warn"
       }
     }
   },
+  "overrides": [
+    {
+      "includes": [
+        "e2e/**",
+        "examples/**",
+        "scripts/**",
+        "packages/cli/scripts/**",
+        "packages/runtime/**"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "double",

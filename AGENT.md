@@ -82,12 +82,12 @@ export async function getUsers() {
 
 ```tsx
 import { createApp } from "@evjs/runtime/server";
-import { runNodeServer } from "@evjs/runtime/server";
+import { serve } from "@evjs/runtime/server";
 import { createHandler } from "@evjs/runtime/server/ecma";
 ```
 
 - `createApp({ endpoint })` — Hono app with server function handler
-- `runNodeServer(app, port)` — Node.js runner
+- `serve(app, port)` — Node.js runner
 - `createHandler(app)` — ECMA adapter (Deno, Bun, Workers)
 
 ## Build System

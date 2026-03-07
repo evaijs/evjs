@@ -43,7 +43,7 @@ module.exports = {
         appFactory: "@evjs/runtime/server#createApp",
         // Runner — bake into bundle for self-starting dev server
         runner: process.env.NODE_ENV === "development"
-          ? "@evjs/runtime/server#runNodeServer"
+          ? "@evjs/runtime/server#serve"
           : undefined,
         // Extra imports (middleware, config, etc.)
         setup: [],

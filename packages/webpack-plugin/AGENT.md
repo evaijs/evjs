@@ -13,7 +13,7 @@ new EvWebpackPlugin({
   server: {
     appFactory: "@evjs/runtime/server#createApp",       // default
     runner: process.env.NODE_ENV === "development"
-      ? "@evjs/runtime/server#runNodeServer" : undefined,
+      ? "@evjs/runtime/server#serve" : undefined,
     setup: [],                                           // extra imports
   },
 });

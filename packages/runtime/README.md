@@ -41,7 +41,7 @@ npm install @evjs/runtime
 
 | Export | Description |
 |--------|-------------|
-| `runNodeServer` | Start the app on Node.js (default port 3001) |
+| `serve` | Start the app on Node.js (default port 3001) |
 
 ### `@evjs/runtime/server/ecma`
 
@@ -73,10 +73,10 @@ app.render("#app");
 
 ```ts
 import { createApp } from "@evjs/runtime/server";
-import { runNodeServer } from "@evjs/runtime/server/node";
+import { serve } from "@evjs/runtime/server/node";
 
 const app = createApp();
-runNodeServer(app, { port: 3001 });
+serve(app, { port: 3001 });
 ```
 
 ### Custom Transport

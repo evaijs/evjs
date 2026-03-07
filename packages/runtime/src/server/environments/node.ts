@@ -1,4 +1,4 @@
-import { serve } from "@hono/node-server";
+import { serve as honoServe } from "@hono/node-server";
 import { getLogger } from "@logtape/logtape";
 import type { Hono } from "hono";
 
@@ -10,16 +10,15 @@ export interface NodeRunnerOptions {
 }
 
 /**
- * Runner plugin for Node.js environments.
- * Takes a compiled Hono app and starts a native Node HTTP server.
+ * Start a Node.js HTTP server for the given Hono app.
  *
  * Port resolution order: options.port → PORT env → 3001 default.
  * Registers SIGTERM/SIGINT handlers for graceful shutdown.
  */
-export function runNodeServer(app: Hono, options?: NodeRunnerOptions) {
+export function serve(app: Hono, options?: NodeRunnerOptions) {
   const port = options?.port || Number(process.env.PORT) || 3001;
   const hostname = options?.host;
-  const server = serve({ fetch: app.fetch, port, hostname }, (info) => {
+  const server = honoServe({ fetch: app.fetch, port, hostname }, (info) => {
     const address =
       info.address === "0.0.0.0" || info.address === "::"
         ? "localhost"

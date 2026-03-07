@@ -66,7 +66,7 @@ initTransport({ transport: { send: async (fnId, args) => { /* custom */ } } });
 ## Server API (`@evjs/runtime/server`)
 
 - `createApp(options?)` — Create Hono app with server function handler. Options: `{ endpoint?: string, port?: number }`. Default endpoint path: `/api/fn`.
-- `runNodeServer(app, { port?, host? })` — Start on Node.js (default port 3001).
+- `serve(app, { port?, host? })` — Start on Node.js (default port 3001).
 - `registerServerFn(fnId, fn)` — Register server function (called by build-tools).
 - `createHandler()` — Standalone Hono server function handler.
 

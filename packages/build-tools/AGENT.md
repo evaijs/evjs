@@ -24,7 +24,7 @@ interface TransformOptions {
 ```ts
 interface ServerEntryConfig {
   appFactory?: string;  // Default: "@evjs/runtime/server#createApp"
-  runner?: string;       // E.g. "@evjs/runtime/server#runNodeServer"
+  runner?: string;       // E.g. "@evjs/runtime/server#serve"
   setup?: string[];      // Extra imports for server entry
 }
 ```

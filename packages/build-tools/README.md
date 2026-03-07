@@ -56,7 +56,7 @@ const clientStub = await transformServerFile(source, {
 
 ### Entry Generation
 
-`generateServerEntry()` produces a self-contained server entry that imports all discovered `"use server"` modules, creates a Hono app via `createApp()`, and optionally invokes a runner (e.g., `runNodeServer`) for self-starting bundles.
+`generateServerEntry()` produces a self-contained server entry that imports all discovered `"use server"` modules, creates a Hono app via `createApp()`, and optionally invokes a runner (e.g., `serve`) for self-starting bundles.
 
 ### Code Emitter
 

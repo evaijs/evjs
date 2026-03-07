@@ -51,13 +51,13 @@
     "@types/prompts": "^2.4.9",
     "typescript": "^5.7.3"
   },
-  "homepage": "https://github.com/evaijs/evf#readme",
+  "homepage": "https://github.com/evaijs/evjs#readme",
   "bugs": {
-    "url": "https://github.com/evaijs/evf/issues"
+    "url": "https://github.com/evaijs/evjs/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/evaijs/evf.git"
+    "url": "git+https://github.com/evaijs/evjs.git"
   },
   "license": "MIT",
   "author": "xusd320"

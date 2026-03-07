@@ -2,7 +2,7 @@
 
 A React framework built for speed and simplicity, leveraging `@tanstack/react-router` for code-based routing and `@tanstack/react-query` for state management.
 
-- **Repository**: [evaijs/evf](https://github.com/evaijs/evf)
+- **Repository**: [evaijs/evjs](https://github.com/evaijs/evjs)
 - **Organization**: `@evjs`
 - **CLI**: `ev`
 

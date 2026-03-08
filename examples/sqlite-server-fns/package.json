@@ -1,0 +1,23 @@
+{
+  "name": "example-sqlite-server-fns",
+  "version": "0.0.1-rc.7",
+  "private": true,
+  "scripts": {
+    "dev": "ev dev",
+    "build": "ev build",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@evjs/runtime": "^0.0.1-rc.7",
+    "better-sqlite3": "^11.9.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@evjs/cli": "^0.0.1-rc.5",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.8",
+    "typescript": "^5.7.3"
+  }
+}

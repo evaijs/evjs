@@ -85,10 +85,10 @@ for (const template of templates) {
     modified = true;
   }
   if (
-    pkgJson.devDependencies?.["evf"] &&
-    pkgJson.devDependencies["evf"] !== expectedDep
+    pkgJson.devDependencies?.evf &&
+    pkgJson.devDependencies.evf !== expectedDep
   ) {
-    pkgJson.devDependencies["evf"] = expectedDep;
+    pkgJson.devDependencies.evf = expectedDep;
     modified = true;
   }
 

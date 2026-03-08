@@ -1,5 +1,5 @@
 /**
- * E2E test fixtures for evf framework.
+ * E2E test fixtures for evjs framework.
  *
  * Provides a custom test fixture that:
  * 1. Builds the example app with webpack

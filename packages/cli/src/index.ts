@@ -27,12 +27,12 @@ const program = new Command();
 
 program
   .name("ev")
-  .description("CLI for the evf framework")
+  .description("CLI for the evjs framework")
   .version(pkg.version);
 
 program
   .command("init")
-  .description("Initialize a new evf project")
+  .description("Initialize a new evjs project")
   .argument("[name]", "Project name")
   .option("-t, --template <template>", "Template to use")
   .action(async (name, options) => {
@@ -42,7 +42,7 @@ program
           type: name ? null : "text",
           name: "projectName",
           message: "Project name:",
-          initial: name || "my-evf-app",
+          initial: name || "my-evjs-app",
         },
         {
           type: options.template ? null : "select",
@@ -132,13 +132,13 @@ program
  */
 async function resolveWebpackConfig(cwd: string) {
   const { loadConfig } = await import("./load-config.js");
-  const evfConfig = await loadConfig(cwd);
+  const evjsConfig = await loadConfig(cwd);
 
   const { createWebpackConfig } = await import("./create-webpack-config.js");
-  logger.info`Using ${evfConfig ? "ev.config.ts" : "zero-config defaults"}`;
-  const webpackConfig = createWebpackConfig(evfConfig, cwd);
+  logger.info`Using ${evjsConfig ? "ev.config.ts" : "zero-config defaults"}`;
+  const webpackConfig = createWebpackConfig(evjsConfig, cwd);
 
-  return { evfConfig, webpackConfig };
+  return { evjsConfig, webpackConfig };
 }
 
 program
@@ -148,9 +148,9 @@ program
     const cwd = process.cwd();
     process.env.NODE_ENV ??= "development";
 
-    const { evfConfig, webpackConfig } = await resolveWebpackConfig(cwd);
+    const { evjsConfig, webpackConfig } = await resolveWebpackConfig(cwd);
     const serverPort =
-      evfConfig?.server?.dev?.port ?? CONFIG_DEFAULTS.serverPort;
+      evjsConfig?.server?.dev?.port ?? CONFIG_DEFAULTS.serverPort;
 
     logger.info`Starting development server...`;
     try {

@@ -51,7 +51,7 @@ export interface ClientConfig {
 }
 
 /**
- * evf framework configuration.
+ * evjs framework configuration.
  */
 export interface EvfConfig {
   server?: ServerConfig;
@@ -72,12 +72,12 @@ export const CONFIG_DEFAULTS = {
 } as const;
 
 /**
- * Define configuration for the evf framework.
+ * Define configuration for the evjs framework.
  *
  * @example
  * ```ts
  * // ev.config.ts
- * import { defineConfig } from "evf";
+ * import { defineConfig } from "evjs";
  *
  * export default defineConfig({
  *   client: {

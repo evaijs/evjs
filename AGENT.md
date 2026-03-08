@@ -242,7 +242,7 @@ initTransport({
 ### `ev build` Flow
 
 1. `resolveWebpackConfig(cwd)` — loads `ev.config.ts` or uses zero-config defaults
-2. `createWebpackConfig(evfConfig)` — generates webpack config object (no temp files)
+2. `createWebpackConfig(evjsConfig)` — generates webpack config object (no temp files)
 3. Calls `webpack()` Node API directly
 4. `@evjs/webpack-plugin` runs as a webpack plugin:
    - Discovers `*.server.ts` files via glob
@@ -340,7 +340,7 @@ export default defineConfig({
 6. **Server function files**: Must start with `"use server";`, use `.server.ts` or `src/api/`.
 7. **Server function exports**: Must be named async function exports (no default exports, no arrow functions).
 8. **Module type**: All packages are ESM (`"type": "module"`). Use `.js` extensions in relative imports within compiled output.
-9. **Config file**: Named `ev.config.ts` (not `evf.config.ts`, not `evjs.config.ts`).
+9. **Config file**: Named `ev.config.ts` (not `evjs.config.ts`, not `evjs.config.ts`).
 10. **Dependency resolution**: CLI uses `createRequire(import.meta.url)` for reliable webpack/loader resolution.
 
 ## Common Tasks

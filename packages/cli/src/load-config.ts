@@ -5,7 +5,7 @@ import type { EvfConfig } from "./config.js";
 const CONFIG_FILES = ["ev.config.ts", "ev.config.js", "ev.config.mjs"];
 
 /**
- * Load evf config from the project root.
+ * Load evjs config from the project root.
  *
  * Looks for `ev.config.ts`, `.js`, or `.mjs` in the given directory.
  * Returns undefined if no config file is found.

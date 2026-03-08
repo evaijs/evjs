@@ -30,7 +30,7 @@ for (const pkg of packages) {
     modified = true;
   }
 
-  // Sync internal @evjs/* and evf dependencies
+  // Sync internal @evjs/* and evjs dependencies
   for (const depType of [
     "dependencies",
     "devDependencies",
@@ -38,7 +38,7 @@ for (const pkg of packages) {
   ]) {
     if (pkgJson[depType]) {
       for (const depName of Object.keys(pkgJson[depType])) {
-        if (depName.startsWith("@evjs/") || depName === "evf") {
+        if (depName.startsWith("@evjs/") || depName === "evjs") {
           // preserve prefix exactly but bump version, or just hardcode exact version
           const expected = rootVersion; // exact pinning for alpha, or use ^
           if (pkgJson[depType][depName] !== expected) {
@@ -85,10 +85,10 @@ for (const template of templates) {
     modified = true;
   }
   if (
-    pkgJson.devDependencies?.evf &&
-    pkgJson.devDependencies.evf !== expectedDep
+    pkgJson.devDependencies?.evjs &&
+    pkgJson.devDependencies.evjs !== expectedDep
   ) {
-    pkgJson.devDependencies.evf = expectedDep;
+    pkgJson.devDependencies.evjs = expectedDep;
     modified = true;
   }
 

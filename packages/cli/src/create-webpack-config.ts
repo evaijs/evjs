@@ -30,7 +30,7 @@ export function createWebpackConfig(
     ? { server: { middleware: server.middleware } }
     : undefined;
 
-  // Resolve loader paths from evf's dependency tree so they work
+  // Resolve loader paths from evjs's dependency tree so they work
   // even when the user's project doesn't list them as direct deps.
   const resolveLoader = (id: string): string => {
     try {

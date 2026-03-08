@@ -1,7 +1,7 @@
 "use server";
 
 import path from "node:path";
-import { ServerError } from "@evjs/runtime";
+import { ServerError } from "@evjs/runtime/server";
 import Database from "better-sqlite3";
 
 /**

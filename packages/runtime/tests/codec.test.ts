@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { jsonCodec, type Codec } from "../src/codec.js";
+import { type Codec, jsonCodec } from "../src/codec.js";
 
 describe("jsonCodec", () => {
   it("serializes a plain object to JSON string", () => {

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { dispatch } from "../src/server/dispatch.js";
 import { ServerError } from "../src/errors.js";
-import { registry, registerServerFn } from "../src/server/register.js";
+import { dispatch } from "../src/server/dispatch.js";
+import { registerServerFn, registry } from "../src/server/register.js";
 
 describe("dispatch", () => {
   beforeEach(() => {

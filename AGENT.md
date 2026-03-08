@@ -227,11 +227,11 @@ initTransport({
 
 ```tsx
 // Default: JSON (built-in)
-// Custom: implement encode/decode
+// Custom: implement serialize/deserialize
 initTransport({
   codec: {
-    encode: (data) => msgpack.encode(data),
-    decode: (buffer) => msgpack.decode(buffer),
+    serialize: (data) => msgpack.encode(data),
+    deserialize: (buffer) => msgpack.decode(buffer),
     contentType: "application/msgpack",
   },
 });
@@ -286,14 +286,13 @@ const { data } = query(getUser).useQuery(userId);
 const opts = query(getUsers).queryOptions();
 queryClient.ensureQueryData(opts);
 
-// Cache invalidation — use stable queryKey
+// Cache invalidation via queryKey
 queryClient.invalidateQueries({ queryKey: query(getUsers).queryKey() });
 
-// Or by evId
-queryClient.invalidateQueries({ queryKey: [getUsers.evId] });
-
-// Mutation
-const { mutate } = mutation(createUser).useMutation();
+// Auto-invalidation on mutation success
+const { mutate } = mutation(createUser).useMutation({
+  invalidates: [getUsers],
+});
 mutate({ name: "Alice" });
 
 // Route loader pattern
@@ -308,16 +307,18 @@ const usersRoute = createRoute({
 
 ## Middleware
 
+Middleware wraps server function calls (not HTTP requests):
+
 ```ts
-// src/middleware/auth.ts
 import { registerMiddleware } from "@evjs/runtime/server";
 
-registerMiddleware(async (c, next) => {
-  const token = c.req.header("Authorization");
-  if (!token) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
-  await next();
+// ctx has { fnId: string, args: unknown[] }
+registerMiddleware(async (ctx, next) => {
+  console.log(`Calling ${ctx.fnId}`);
+  const start = Date.now();
+  const result = await next();
+  console.log(`${ctx.fnId} took ${Date.now() - start}ms`);
+  return result;
 });
 ```
 

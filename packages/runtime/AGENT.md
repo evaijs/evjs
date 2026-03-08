@@ -68,10 +68,14 @@ const opts = query(getUsers).queryOptions();
 queryClient.ensureQueryData(opts);
 queryClient.prefetchQuery(opts);
 
-// Cache invalidation
+// Cache invalidation via queryKey
 queryClient.invalidateQueries({ queryKey: query(getUsers).queryKey() });
-// or by evId
-queryClient.invalidateQueries({ queryKey: [getUsers.evId] });
+
+// Auto-invalidation on mutation success
+const { mutate } = mutation(createUser).useMutation({
+  invalidates: [getUsers],  // auto-invalidates getUsers queries on success
+});
+mutate({ name: "Alice", email: "alice@example.com" });
 
 // Module proxy (for grouping)
 import { createQueryProxy, createMutationProxy } from "@evjs/runtime/client";
@@ -181,8 +185,8 @@ initTransport({
 // Custom codec (e.g., MessagePack)
 initTransport({
   codec: {
-    encode: (data) => msgpack.encode(data),
-    decode: (buffer) => msgpack.decode(buffer),
+    serialize: (data) => msgpack.encode(data),
+    deserialize: (buffer) => msgpack.decode(buffer),
     contentType: "application/msgpack",
   },
 });
@@ -271,28 +275,33 @@ export async function getUser(id: string) {
 }
 
 // Client — catch typed errors
-import { ServerError } from "@evjs/runtime";
+import { ServerFunctionError } from "@evjs/runtime";
 
 try {
   await getUser("123");
 } catch (e) {
-  if (e instanceof ServerError) {
-    e.code;  // "NOT_FOUND"
-    e.data;  // { id: "123" }
+  if (e instanceof ServerFunctionError) {
+    e.message;  // "Server function \"getUser\" threw: User not found"
+    e.fnId;     // the function ID
+    e.status;   // 404
   }
 }
 ```
 
 ## Middleware
 
+Middleware wraps server function calls, not HTTP requests. Use for auth, logging, rate limiting:
+
 ```ts
-// src/middleware/auth.ts
 import { registerMiddleware } from "@evjs/runtime/server";
 
-registerMiddleware(async (c, next) => {
-  const token = c.req.header("Authorization");
-  if (!token) return c.json({ error: "Unauthorized" }, 401);
-  await next();
+// ctx has { fnId: string, args: unknown[] }
+registerMiddleware(async (ctx, next) => {
+  console.log(`Calling ${ctx.fnId} with`, ctx.args);
+  const start = Date.now();
+  const result = await next();
+  console.log(`${ctx.fnId} took ${Date.now() - start}ms`);
+  return result;
 });
 ```
 
@@ -302,6 +311,8 @@ registerMiddleware(async (c, next) => {
 2. **Arguments are spread, not wrapped** — `query(getUser).useQuery(id)` not `query(getUser).useQuery([id])`
 3. **Don't call server functions directly in components** — wrap with `query()` or `mutation()`
 4. **Don't forget `"use server";`** at the top of `.server.ts` files
-5. **Import `ServerError` from `@evjs/runtime`** — not from `/server` or `/client`
-6. **Always register the router type** — without `declare module "@tanstack/react-router" { interface Register { router: typeof app.router } }`, all route params/search will be `any`
+5. **Throw `ServerError`** on the server, catch `ServerFunctionError` on the client
+6. **Always register the router type** — without `declare module "@tanstack/react-router" { ... }`, all route params/search will be `any`
 7. **Use `route.useParams()`** not the global `useParams()` — the route-scoped version gives proper type inference
+8. **Middleware receives `(ctx, next)`** where `ctx = { fnId, args }` — not a Hono context object
+9. **Use `invalidates` on `useMutation()`** for auto cache invalidation — `invalidate()` was removed

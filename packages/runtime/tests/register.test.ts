@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  registry,
   registerServerFn,
+  registry,
   type ServerFn,
 } from "../src/server/register.js";
 

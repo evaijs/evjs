@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { CONFIG_DEFAULTS, defineConfig } from "../src/config.js";
 import type { EvConfig } from "../src/config.js";
+import { CONFIG_DEFAULTS, defineConfig } from "../src/config.js";
 
 describe("defineConfig", () => {
   it("returns the config object unchanged", () => {

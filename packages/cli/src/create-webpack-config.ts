@@ -1,6 +1,6 @@
 import { createRequire } from "node:module";
 import path from "node:path";
-import { CONFIG_DEFAULTS, type EvfConfig } from "./config.js";
+import { CONFIG_DEFAULTS, type EvConfig } from "./config.js";
 
 const esmRequire = createRequire(import.meta.url);
 
@@ -11,7 +11,7 @@ const esmRequire = createRequire(import.meta.url);
  * No temp files are generated.
  */
 export function createWebpackConfig(
-  config: EvfConfig | undefined,
+  config: EvConfig | undefined,
   cwd: string,
 ): Record<string, unknown> {
   const client = config?.client;

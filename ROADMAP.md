@@ -42,7 +42,7 @@ Call server-side logic from the browser as normal async functions.
 - [x] Server runtime
   - [x] Hono-based server function handler with request validation
   - [x] `createApp({ endpoint })` — configurable API path
-  - [x] Multi-runtime: Node.js, ECMA (Deno/Bun/Workers), Service Worker adapter
+  - [x] Multi-runtime: Node.js, ECMA (Deno/Bun/edge) adapters
 - [x] Manifest
   - [x] Versioned schema (`manifest.json` v1)
   - [x] Maps function IDs → module + export name

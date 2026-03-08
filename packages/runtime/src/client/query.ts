@@ -58,9 +58,6 @@ export interface QueryProxyHandler<TArgs extends unknown[], TResponse> {
 
   /** Returns the query key for this function and arguments. */
   queryKey(...args: TArgs): unknown[];
-
-  /** Invalidate cached queries for this function. */
-  invalidate(...args: TArgs): void;
 }
 
 /**
@@ -202,12 +199,6 @@ function createHandler(fn: ServerFunction<unknown[], unknown>, path: string[]) {
     },
     queryKey: (...args: unknown[]) => {
       return [fnId || path.join("."), ...args];
-    },
-    invalidate: (...args: unknown[]) => {
-      const queryClient = useQueryClient();
-      queryClient.invalidateQueries({
-        queryKey: [fnId || path.join("."), ...args],
-      });
     },
     path: path.join("."),
   };

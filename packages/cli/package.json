@@ -1,7 +1,7 @@
 {
   "name": "@evjs/cli",
   "version": "0.0.1-rc.7",
-  "description": "The evjs meta-framework",
+  "description": "CLI and configuration layer for the evjs framework",
   "type": "module",
   "main": "./dist/config.js",
   "types": "./dist/config.d.ts",

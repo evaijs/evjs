@@ -211,7 +211,7 @@ export async function getUsers() {
 export async function getUser(id: string) {
   const user = await db.users.find(id);
   if (!user) {
-    throw new ServerError("NOT_FOUND", { message: "User not found", id });
+    throw new ServerError("User not found", { status: 404, data: { id } });
   }
   return user;
 }
@@ -266,7 +266,7 @@ import { ServerError } from "@evjs/runtime";
 // Server — throw structured errors
 export async function getUser(id: string) {
   const user = await db.users.find(id);
-  if (!user) throw new ServerError("NOT_FOUND", { id });
+  if (!user) throw new ServerError("User not found", { status: 404, data: { id } });
   return user;
 }
 

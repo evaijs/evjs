@@ -69,7 +69,7 @@ export interface DispatchError {
 export type DispatchResult = DispatchSuccess | DispatchError;
 
 /**
- * Dispatch an server function call to a registered server function.
+ * Dispatch a server function call to a registered server function.
  *
  * @param fnId - The unique function ID.
  * @param args - The arguments to pass to the function.

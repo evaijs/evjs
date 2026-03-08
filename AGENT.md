@@ -181,7 +181,7 @@ import { ServerError } from "@evjs/runtime";
 export async function getUser(id: string) {
   const user = await db.users.find(id);
   if (!user) {
-    throw new ServerError("NOT_FOUND", { message: "User not found", id });
+    throw new ServerError("User not found", { status: 404, data: { id } });
   }
   return user;
 }
@@ -191,8 +191,8 @@ try {
   const user = await getUser("123");
 } catch (e) {
   if (e instanceof ServerError) {
-    console.log(e.code);  // "NOT_FOUND"
-    console.log(e.data);  // { message: "User not found", id: "123" }
+    console.log(e.message);  // "User not found"
+    console.log(e.data);  // { id: "123" }
   }
 }
 ```
@@ -292,7 +292,7 @@ queryClient.invalidateQueries({ queryKey: query(getUsers).queryKey() });
 // Or by evId
 queryClient.invalidateQueries({ queryKey: [getUsers.evId] });
 
-// Mutation — args as tuple
+// Mutation
 const { mutate } = mutation(createUser).useMutation();
 mutate({ name: "Alice" });
 

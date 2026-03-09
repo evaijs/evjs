@@ -202,18 +202,19 @@ program
               // node gets --watch flags; other runtimes use their own args as-is
               const runnerArgs =
                 runner === "node"
-                  ? ["--watch", "--watch-preserve-output", ...runnerExtraArgs, bootstrapPath]
+                  ? [
+                      "--watch",
+                      "--watch-preserve-output",
+                      ...runnerExtraArgs,
+                      bootstrapPath,
+                    ]
                   : [...runnerExtraArgs, bootstrapPath];
 
               try {
-                await execa(
-                  runner,
-                  runnerArgs,
-                  {
-                    stdio: "inherit",
-                    env: { ...process.env, NODE_ENV: "development" },
-                  },
-                );
+                await execa(runner, runnerArgs, {
+                  stdio: "inherit",
+                  env: { ...process.env, NODE_ENV: "development" },
+                });
               } catch (_e) {
                 started = false;
               }

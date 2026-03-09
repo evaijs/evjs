@@ -71,7 +71,8 @@ declare module "@tanstack/react-router" {
 
 // ── Type assertions: useParams ──
 
-function _PostComponent() {
+// biome-ignore lint/correctness/noUnusedVariables: type-level test component
+function PostComponent() {
   // ✅ Correct: postId is typed as string
   const { postId } = postRoute.useParams();
   const _check: string = postId;
@@ -83,7 +84,8 @@ function _PostComponent() {
   postRoute.useParams().username;
 }
 
-function _UserComponent() {
+// biome-ignore lint/correctness/noUnusedVariables: type-level test component
+function UserComponent() {
   // ✅ Correct: username is typed as string
   const { username } = userRoute.useParams();
   const _check: string = username;
@@ -94,7 +96,8 @@ function _UserComponent() {
 
 // ── Type assertions: useSearch ──
 
-function _SearchComponent() {
+// biome-ignore lint/correctness/noUnusedVariables: type-level test component
+function SearchComponent() {
   // ✅ Correct: q and page are typed
   const { q, page } = searchRoute.useSearch();
   const _q: string = q;
@@ -106,7 +109,8 @@ function _SearchComponent() {
 
 // ── Type assertions: Link params ──
 
-function _LinkTests() {
+// biome-ignore lint/correctness/noUnusedVariables: type-level test component
+function LinkTests() {
   // ✅ Correct: Link with required params
   <Link to="/posts/$postId" params={{ postId: "123" }} />;
 

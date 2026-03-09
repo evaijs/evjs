@@ -167,5 +167,3 @@ initTransport({
   },
 });
 ```
-
-See [`examples/websocket-fns`](../../examples/websocket-fns) for a full working example.

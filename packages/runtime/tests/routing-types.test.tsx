@@ -18,7 +18,6 @@ import {
   createAppRootRoute,
   createRoute,
   Link,
-  Outlet,
 } from "@evjs/runtime/client";
 
 // ── Setup route tree ──
@@ -72,7 +71,7 @@ declare module "@tanstack/react-router" {
 
 // ── Type assertions: useParams ──
 
-function PostComponent() {
+function _PostComponent() {
   // ✅ Correct: postId is typed as string
   const { postId } = postRoute.useParams();
   const _check: string = postId;
@@ -84,7 +83,7 @@ function PostComponent() {
   postRoute.useParams().username;
 }
 
-function UserComponent() {
+function _UserComponent() {
   // ✅ Correct: username is typed as string
   const { username } = userRoute.useParams();
   const _check: string = username;
@@ -95,7 +94,7 @@ function UserComponent() {
 
 // ── Type assertions: useSearch ──
 
-function SearchComponent() {
+function _SearchComponent() {
   // ✅ Correct: q and page are typed
   const { q, page } = searchRoute.useSearch();
   const _q: string = q;
@@ -107,7 +106,7 @@ function SearchComponent() {
 
 // ── Type assertions: Link params ──
 
-function LinkTests() {
+function _LinkTests() {
   // ✅ Correct: Link with required params
   <Link to="/posts/$postId" params={{ postId: "123" }} />;
 

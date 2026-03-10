@@ -165,11 +165,14 @@ async function resolveWebpackConfig(cwd: string) {
     }
 
     const endpoint = evjsConfig?.server?.endpoint ?? CONFIG_DEFAULTS.endpoint;
-    const middlewareConfig = evjsConfig?.server?.middleware?.length
-      ? { middleware: evjsConfig.server.middleware }
-      : undefined;
+    const serverRunner = evjsConfig?.server?.runner;
+    const serverMiddleware = evjsConfig?.server?.middleware;
+    const entryConfig =
+      serverRunner || serverMiddleware?.length
+        ? { runner: serverRunner, middleware: serverMiddleware }
+        : undefined;
     const faasEntryCode = generateServerEntry(
-      middlewareConfig,
+      entryConfig,
       serverModulePaths,
       endpoint,
     );

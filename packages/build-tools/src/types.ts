@@ -1,6 +1,11 @@
 /** Configuration for the generated server entry. */
 export interface ServerEntryConfig {
   /**
+   * Runtime adapter module that exports `createFetchHandler(app)`.
+   * Default: "@evjs/runtime/server/ecma"
+   */
+  runner?: string;
+  /**
    * Middleware module paths to auto-register in the server entry.
    */
   middleware?: string[];
@@ -47,6 +52,10 @@ export const RUNTIME = {
   serverModule: "@evjs/runtime/server/register",
   /** Module path for the server app factory (Hono app + server function handler). */
   appModule: "@evjs/runtime/server",
+  /** Module path for the ECMA server environment fetch handler. */
+  ecmaModule: "@evjs/runtime/server/ecma",
+  /** Module path for the Node server environment runner. */
+  nodeModule: "@evjs/runtime/server/node",
   /** Module path for client-side transport stubs. */
   clientTransportModule: "@evjs/runtime/client/transport",
   /** Server function registration call name. */

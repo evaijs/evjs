@@ -1,5 +1,6 @@
 import { emitCode } from "./codegen.js";
-import { RUNTIME, type ServerEntryConfig } from "./types.js";
+import { getServerEntryTemplate } from "./template.js";
+import type { ServerEntryConfig } from "./types.js";
 
 /**
  * Generate the server entry source code from discovered server modules.
@@ -9,11 +10,11 @@ import { RUNTIME, type ServerEntryConfig } from "./types.js";
  * 2. Re-exports them as named exports (_fns_0, _fns_1, ...)
  * 3. Re-exports `createApp` so the adapter can create a Hono app that
  *    shares the same function registry
- *
- * The adapter layer (node/ecma) handles server startup.
+ * 4. Exports a default fetch handler using the ECMA runtime adapter for FaaS platforms
  *
  * @param config - Server entry configuration (setup imports)
  * @param serverModulePaths - Absolute paths to discovered "use server" modules
+ * @param endpoint - Server function endpoint path
  * @returns The generated server entry source code string
  */
 export function generateServerEntry(
@@ -21,29 +22,12 @@ export function generateServerEntry(
   serverModulePaths: string[],
   endpoint?: string,
 ): string {
-  const moduleImports = serverModulePaths
-    .map((p, i) => `import * as _fns_${i} from ${JSON.stringify(p)};`)
-    .join("\n");
+  const source = getServerEntryTemplate({
+    middlewareImports: config?.middleware ?? [],
+    serverModulePaths,
+    endpoint,
+    runner: config?.runner,
+  });
 
-  const fnsExports = serverModulePaths.map((_p, i) => `_fns_${i}`);
-  const allExports = [...fnsExports];
-
-  const endpointArg = endpoint
-    ? `{ endpoint: ${JSON.stringify(endpoint)} }`
-    : "";
-
-  return emitCode(
-    [
-      `import { createApp } from "${RUNTIME.appModule}";`,
-      `import { createFetchHandler } from "@evjs/runtime/server/ecma";`,
-      ...(config?.middleware ?? []),
-      moduleImports,
-      allExports.length ? `export { ${allExports.join(", ")} };` : "",
-      `export { createApp };`,
-      `const app = createApp(${endpointArg});`,
-      `export default createFetchHandler(app);`,
-    ]
-      .filter(Boolean)
-      .join("\n"),
-  );
+  return emitCode(source);
 }

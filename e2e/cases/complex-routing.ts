@@ -47,7 +47,9 @@ test.describe("complex-routing", () => {
     await postLink.click();
 
     // Post detail renders with resolved params
-    await expect(page.getByRole("heading", { name: postTitle! })).toBeVisible({
+    await expect(
+      page.getByRole("heading", { name: postTitle as string }),
+    ).toBeVisible({
       timeout: 5_000,
     });
 

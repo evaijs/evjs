@@ -1,5 +1,3 @@
-"use server";
-
 /**
  * Example: Hello World server function.
  *

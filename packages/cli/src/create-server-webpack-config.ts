@@ -92,7 +92,7 @@ export function createServerWebpackConfig(
             },
             {
               loader: resolveLoader("@evjs/webpack-plugin/server-fn-loader"),
-              options: { readableIds: true },
+              options: { readableIds: true, ignoreDirective: true },
             },
           ],
         },

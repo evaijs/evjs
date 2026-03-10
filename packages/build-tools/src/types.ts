@@ -20,6 +20,11 @@ export interface TransformOptions {
    * client bundle and readable IDs aid debugging.
    */
   readableIds?: boolean;
+  /**
+   * If true, process the file even if it lacks the "use server" directive.
+   * Useful in FaaS mode.
+   */
+  ignoreDirective?: boolean;
   /** Callback to register a server function in the manifest. */
   onServerFn?: (
     fnId: string,

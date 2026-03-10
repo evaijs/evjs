@@ -16,7 +16,7 @@ export async function transformServerFile(
   source: string,
   options: TransformOptions,
 ): Promise<string> {
-  if (!detectUseServer(source)) {
+  if (!options.ignoreDirective && !detectUseServer(source)) {
     return source;
   }
 

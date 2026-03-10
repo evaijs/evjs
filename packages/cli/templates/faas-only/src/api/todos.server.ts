@@ -1,5 +1,3 @@
-"use server";
-
 /**
  * Example: CRUD-style server functions for a simple Todo API.
  *

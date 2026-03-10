@@ -2,7 +2,11 @@ import { transformServerFile } from "@evjs/build-tools";
 import type { Compiler } from "webpack";
 
 interface LoaderContext {
-  getOptions(): { isServer?: boolean; readableIds?: boolean };
+  getOptions(): {
+    isServer?: boolean;
+    readableIds?: boolean;
+    ignoreDirective?: boolean;
+  };
   resourcePath: string;
   rootContext: string;
   _compiler?: Compiler & {
@@ -35,6 +39,7 @@ export default async function serverFnLoader(
     rootContext: this.rootContext,
     isServer: !!isServer,
     readableIds: explicitOptions.readableIds,
+    ignoreDirective: explicitOptions.ignoreDirective,
     onServerFn: manifestCollector
       ? (fnId, meta) => manifestCollector.addServerFn(fnId, meta)
       : undefined,

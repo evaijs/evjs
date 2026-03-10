@@ -5,30 +5,25 @@ import { CONFIG_DEFAULTS, type EvConfig } from "./config.js";
 const esmRequire = createRequire(import.meta.url);
 
 /**
- * Create a webpack configuration object from EvfConfig.
+ * Create a webpack configuration object from EvConfig.
  *
  * Returns a plain object that can be passed directly to the webpack Node API.
- * No temp files are generated.
+ *
+ * - **fullstack** (default): Client build with React/TanStack, server functions
+ *   built via EvWebpackPlugin child compiler.
+ * - **serverOnly**: Node-targeted server build with no client bundle. Uses the
+ *   same EvWebpackPlugin and loader pipeline, producing isomorphic server output.
  */
 export function createWebpackConfig(
   config: EvConfig | undefined,
   cwd: string,
+  serverOnlyEntry?: string,
 ): Record<string, unknown> {
   const client = config?.client;
   const server = config?.server;
-  const entry = client?.entry ?? CONFIG_DEFAULTS.entry;
-  const html = client?.html ?? CONFIG_DEFAULTS.html;
-  const clientPort = client?.dev?.port ?? CONFIG_DEFAULTS.clientPort;
-  const serverPort = server?.dev?.port ?? CONFIG_DEFAULTS.serverPort;
-  const endpoint = server?.endpoint ?? CONFIG_DEFAULTS.endpoint;
   const isProduction = process.env.NODE_ENV === "production";
 
-  const HtmlWebpackPlugin = esmRequire("html-webpack-plugin");
   const { EvWebpackPlugin } = esmRequire("@evjs/webpack-plugin");
-
-  const pluginOptions = server?.middleware?.length
-    ? { server: { middleware: server.middleware } }
-    : undefined;
 
   // Resolve loader paths from evjs's dependency tree so they work
   // even when the user's project doesn't list them as direct deps.
@@ -39,6 +34,71 @@ export function createWebpackConfig(
       return id;
     }
   };
+
+  // Server-only (FaaS) mode
+  if (serverOnlyEntry) {
+    const pluginOptions = server?.middleware?.length
+      ? { server: { middleware: server.middleware } }
+      : undefined;
+
+    return {
+      name: "server",
+      target: "node",
+      mode: isProduction ? "production" : "development",
+      devtool: isProduction ? "hidden-source-map" : "source-map",
+      entry: serverOnlyEntry,
+      output: {
+        path: path.resolve(cwd, "dist/server"),
+        filename: isProduction ? "main.[contenthash:8].js" : "main.js",
+        library: { type: "commonjs2" },
+        clean: true,
+      },
+      resolve: {
+        extensions: [".tsx", ".ts", ".js"],
+      },
+      externalsPresets: { node: true },
+      module: {
+        rules: [
+          {
+            test: /\.m?js/,
+            resolve: { fullySpecified: false },
+          },
+          {
+            test: /\.tsx?$/,
+            exclude: /node_modules/,
+            use: [
+              {
+                loader: resolveLoader("swc-loader"),
+                options: {
+                  jsc: {
+                    parser: { syntax: "typescript", tsx: false },
+                  },
+                },
+              },
+              {
+                loader: resolveLoader("@evjs/webpack-plugin/server-fn-loader"),
+                options: { readableIds: true, ignoreDirective: true },
+              },
+            ],
+          },
+        ],
+      },
+      plugins: [new EvWebpackPlugin(pluginOptions)],
+    };
+  }
+
+  // Fullstack mode (default)
+  const entry = client?.entry ?? CONFIG_DEFAULTS.entry;
+  const html = client?.html ?? CONFIG_DEFAULTS.html;
+  const clientPort = client?.dev?.port ?? CONFIG_DEFAULTS.clientPort;
+  const serverPort = server?.dev?.port ?? CONFIG_DEFAULTS.serverPort;
+  const endpoint = server?.endpoint ?? CONFIG_DEFAULTS.endpoint;
+
+  const HtmlWebpackPlugin = esmRequire("html-webpack-plugin");
+
+  const pluginOptions = server?.middleware?.length
+    ? { server: { middleware: server.middleware } }
+    : undefined;
 
   // Derive the proxy base path from the configured endpoint.
   // e.g. "/api/fn" → "/api", "/rpc/v1" → "/rpc"

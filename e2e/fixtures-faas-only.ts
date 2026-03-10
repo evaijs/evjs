@@ -78,7 +78,7 @@ export function createFaasTest(exampleName: string) {
           bootstrapPath,
           [
             `const bundle = require(${JSON.stringify(entryPath)});`,
-            `const app = bundle.app || (bundle.default && bundle.default.fetch ? { fetch: bundle.default.fetch } : bundle);`,
+            `const app = bundle.createApp({ endpoint: "/api/fn" });`,
             `const { serve } = require("@hono/node-server");`,
             `serve({ fetch: app.fetch, port: ${apiPort} }, (info) => {`,
             `  console.log("E2E_FAAS_READY:" + info.port);`,

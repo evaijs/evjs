@@ -1,6 +1,5 @@
 import { emitCode } from "./codegen.js";
-import { getServerEntryTemplate } from "./template.js";
-import type { ServerEntryConfig } from "./types.js";
+import { RUNTIME, type ServerEntryConfig } from "./types.js";
 
 /**
  * Generate the server entry source code from discovered server modules.
@@ -10,24 +9,32 @@ import type { ServerEntryConfig } from "./types.js";
  * 2. Re-exports them as named exports (_fns_0, _fns_1, ...)
  * 3. Re-exports `createApp` so the adapter can create a Hono app that
  *    shares the same function registry
- * 4. Exports a default fetch handler using the ECMA runtime adapter for FaaS platforms
+ *
+ * The adapter layer (node/ecma) handles server startup.
  *
  * @param config - Server entry configuration (setup imports)
  * @param serverModulePaths - Absolute paths to discovered "use server" modules
- * @param endpoint - Server function endpoint path
  * @returns The generated server entry source code string
  */
 export function generateServerEntry(
   config: ServerEntryConfig | undefined,
   serverModulePaths: string[],
-  endpoint?: string,
 ): string {
-  const source = getServerEntryTemplate({
-    middlewareImports: config?.middleware ?? [],
-    serverModulePaths,
-    endpoint,
-    runner: config?.runner,
-  });
+  const moduleImports = serverModulePaths
+    .map((p, i) => `import * as _fns_${i} from ${JSON.stringify(p)};`)
+    .join("\n");
 
-  return emitCode(source);
+  const fnsExports = serverModulePaths.map((_p, i) => `_fns_${i}`);
+  const allExports = [...fnsExports];
+
+  return emitCode(
+    [
+      `export { createApp } from "${RUNTIME.appModule}";`,
+      ...(config?.middleware ?? []),
+      moduleImports,
+      allExports.length ? `export { ${allExports.join(", ")} };` : "",
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
 }

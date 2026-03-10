@@ -141,9 +141,10 @@ async function resolveWebpackConfig(cwd: string) {
   const { loadConfig } = await import("./load-config.js");
   const evjsConfig = await loadConfig(cwd);
   const mode = evjsConfig?.mode ?? CONFIG_DEFAULTS.mode;
+  const { createWebpackConfig } = await import("./create-webpack-config.js");
 
   if (mode === "serverOnly") {
-    // FaaS / server-only mode: discover server files and build a standalone entry
+    // Server-only mode: discover server files, generate entry, build via unified config
     const { glob } = await import("glob");
     const { generateServerEntry } = await import("@evjs/build-tools");
 
@@ -164,31 +165,21 @@ async function resolveWebpackConfig(cwd: string) {
       logger.info`Found ${String(serverModulePaths.length)} server function file(s)`;
     }
 
-    const endpoint = evjsConfig?.server?.endpoint ?? CONFIG_DEFAULTS.endpoint;
-    const serverRunner = evjsConfig?.server?.runner;
-    const serverMiddleware = evjsConfig?.server?.middleware;
-    const entryConfig =
-      serverRunner || serverMiddleware?.length
-        ? { runner: serverRunner, middleware: serverMiddleware }
-        : undefined;
-    const faasEntryCode = generateServerEntry(
-      entryConfig,
+    const middlewareConfig = evjsConfig?.server?.middleware?.length
+      ? { middleware: evjsConfig.server.middleware }
+      : undefined;
+    const serverEntryCode = generateServerEntry(
+      middlewareConfig,
       serverModulePaths,
-      endpoint,
     );
-    const entryPath = `data:text/javascript,${encodeURIComponent(faasEntryCode)}`;
+    const entryPath = `data:text/javascript,${encodeURIComponent(serverEntryCode)}`;
 
-    const { createServerWebpackConfig } = await import(
-      "./create-server-webpack-config.js"
-    );
     logger.info`Using server-only (FaaS) mode`;
-    const webpackConfig = createServerWebpackConfig(evjsConfig, cwd, entryPath);
-
+    const webpackConfig = createWebpackConfig(evjsConfig, cwd, entryPath);
     return { evjsConfig, webpackConfig, mode };
   }
 
   // Default fullstack mode
-  const { createWebpackConfig } = await import("./create-webpack-config.js");
   logger.info`Using ${evjsConfig ? "ev.config.ts" : "zero-config defaults"}`;
   const webpackConfig = createWebpackConfig(evjsConfig, cwd);
 
@@ -251,7 +242,7 @@ program
                 bootstrapPath,
                 [
                   `const bundle = require(${JSON.stringify(serverBundlePath)});`,
-                  `const app = bundle.app || bundle.default;`,
+                  `const app = bundle.createApp({ endpoint: ${JSON.stringify(evjsConfig?.server?.endpoint ?? CONFIG_DEFAULTS.endpoint)} });`,
                   `const { serve } = require("@evjs/runtime/server/node");`,
                   `serve(app, { port: ${serverPort} });`,
                 ].join("\n"),

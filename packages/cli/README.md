@@ -37,11 +37,15 @@ Uses webpack Node API directly (no temp config files):
 1. **WebpackDevServer** (port 3000) — client bundle with HMR.
 2. **Node API Server** (port 3001) — auto-starts when server bundle is emitted, uses `node --watch`.
 
+Option: `-c, --config <path>` to load a config file from a custom path.
+
 ### `ev build`
 
 Runs webpack via Node API with `NODE_ENV=production`:
 - `dist/client/` — optimized client assets with content hashes.
 - `dist/server/main.[hash].js` — server bundle (entry discovered via `dist/server/manifest.json`).
+
+Option: `-c, --config <path>` to load a config file from a custom path.
 
 ## Configuration
 
@@ -65,3 +69,12 @@ export default defineConfig({
 ```
 
 The `client.dev` and `server.dev` fields accept extra options that are merged with defaults.
+
+You can also point the CLI at any config file path:
+
+```bash
+ev dev --config ./configs/ev.dev.mjs
+ev build -c /absolute/path/to/ev.config.ts
+```
+
+Relative config paths are resolved from the current working directory.

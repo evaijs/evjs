@@ -63,7 +63,7 @@ function UsersPage() {
   async function handleCreateUser(e: { preventDefault: () => void }) {
     e.preventDefault();
     if (!name || !email) return;
-    await createUserMutation([{ name, email }]);
+    await createUserMutation({ name, email });
     setName("");
     setEmail("");
   }
@@ -87,7 +87,7 @@ function UsersPage() {
   async function handleCreatePost(e: { preventDefault: () => void }) {
     e.preventDefault();
     if (!title || !content) return;
-    await createPostMutation([{ title, content }]);
+    await createPostMutation({ title, content });
     setTitle("");
     setContent("");
   }

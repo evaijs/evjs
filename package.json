@@ -28,6 +28,7 @@
     "format": "biome format --write .",
     "check-types": "turbo check-types",
     "release": "node scripts/release.js",
+    "version": "node scripts/sync-versions.js && git add .",
     "prepare": "husky"
   },
   "devDependencies": {

@@ -133,12 +133,16 @@ program
  * Uses ev.config.ts when present, otherwise falls back to zero-config defaults.
  * No webpack.config.cjs fallback — the meta-framework owns the build config.
  */
-async function resolveWebpackConfig(cwd: string) {
+async function resolveWebpackConfig(cwd: string, configPath?: string) {
   const { loadConfig } = await import("./load-config.js");
-  const evjsConfig = await loadConfig(cwd);
+  const evjsConfig = await loadConfig(cwd, configPath);
 
   const { createWebpackConfig } = await import("./create-webpack-config.js");
-  logger.info`Using ${evjsConfig ? "ev.config.ts" : "zero-config defaults"}`;
+  if (configPath) {
+    logger.info`Using config: ${path.relative(cwd, path.resolve(cwd, configPath))}`;
+  } else {
+    logger.info`Using ${evjsConfig ? "ev.config.ts" : "zero-config defaults"}`;
+  }
   const webpackConfig = createWebpackConfig(evjsConfig, cwd);
 
   return { evjsConfig, webpackConfig };
@@ -147,11 +151,15 @@ async function resolveWebpackConfig(cwd: string) {
 program
   .command("dev")
   .description("Start development server")
-  .action(async () => {
+  .option("-c, --config <path>", "Path to config file")
+  .action(async (options: { config?: string }) => {
     const cwd = process.cwd();
     process.env.NODE_ENV ??= "development";
 
-    const { evjsConfig, webpackConfig } = await resolveWebpackConfig(cwd);
+    const { evjsConfig, webpackConfig } = await resolveWebpackConfig(
+      cwd,
+      options.config,
+    );
     const serverPort =
       evjsConfig?.server?.dev?.port ?? CONFIG_DEFAULTS.serverPort;
 
@@ -235,10 +243,11 @@ program
 program
   .command("build")
   .description("Build project for production")
-  .action(async () => {
+  .option("-c, --config <path>", "Path to config file")
+  .action(async (options: { config?: string }) => {
     const cwd = process.cwd();
     process.env.NODE_ENV ??= "production";
-    const { webpackConfig } = await resolveWebpackConfig(cwd);
+    const { webpackConfig } = await resolveWebpackConfig(cwd, options.config);
 
     logger.info`Building for production...`;
     const webpack = esmRequire("webpack");

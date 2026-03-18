@@ -385,10 +385,9 @@ export default defineConfig({
 
 ### Release a new version
 
-1. Bump version: `npm version <version> --workspaces --no-git-tag-version && npm version <version> --no-git-tag-version`
-2. Build all packages: `npm run build`
-3. Commit, tag, and push: `git add -A && git commit -m "chore: release <version>" && git tag v<version> && git push && git push --tags`
-4. Create a GitHub release for the tag — the CI workflow auto-publishes to npm
+1. Create a GitHub release with tag `v<version>` (e.g. `v0.0.1-rc.15`)
+2. The CI workflow automatically: bumps all package versions, builds, tests, and publishes to npm
+3. **Do NOT bump versions locally** — the codebase keeps `"*"` for internal `@evjs/*` deps; version pinning happens only in CI
 
 For prerelease (RC) tags, use `--prerelease` flag on the GitHub release.
 

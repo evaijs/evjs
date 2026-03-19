@@ -1,19 +1,19 @@
 "use server";
 
 import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 import { ServerError } from "@evjs/runtime/server";
-import Database from "better-sqlite3";
 
 /**
- * SQLite database connection.
+ * SQLite database connection using Node.js built-in sqlite module.
  *
  * Creates a `data.db` file in the project root.
  * In production, configure the path via environment variables.
  */
-const db = new Database(path.resolve(process.cwd(), "data.db"));
+const db = new DatabaseSync(path.resolve(process.cwd(), "data.db"));
 
 // Enable WAL mode for better concurrent read performance
-db.pragma("journal_mode = WAL");
+db.exec("PRAGMA journal_mode = WAL");
 
 // Create tables on first run
 db.exec(`
@@ -34,10 +34,10 @@ db.exec(`
 `);
 
 // Seed with sample data if empty
-const count = db.prepare("SELECT COUNT(*) as count FROM users").get() as {
+const countRow = db.prepare("SELECT COUNT(*) as count FROM users").get() as {
   count: number;
 };
-if (count.count === 0) {
+if (countRow.count === 0) {
   const insertUser = db.prepare(
     "INSERT INTO users (name, email) VALUES (?, ?)",
   );
@@ -45,19 +45,15 @@ if (count.count === 0) {
     "INSERT INTO todos (user_id, title, completed) VALUES (?, ?, ?)",
   );
 
-  const seedData = db.transaction(() => {
-    insertUser.run("Alice", "alice@example.com");
-    insertUser.run("Bob", "bob@example.com");
-    insertUser.run("Charlie", "charlie@example.com");
+  insertUser.run("Alice", "alice@example.com");
+  insertUser.run("Bob", "bob@example.com");
+  insertUser.run("Charlie", "charlie@example.com");
 
-    insertTodo.run(1, "Write documentation", 1);
-    insertTodo.run(1, "Review pull request", 0);
-    insertTodo.run(2, "Fix bug #42", 0);
-    insertTodo.run(3, "Deploy to staging", 1);
-    insertTodo.run(3, "Update dependencies", 0);
-  });
-
-  seedData();
+  insertTodo.run(1, "Write documentation", 1);
+  insertTodo.run(1, "Review pull request", 0);
+  insertTodo.run(2, "Fix bug #42", 0);
+  insertTodo.run(3, "Deploy to staging", 1);
+  insertTodo.run(3, "Update dependencies", 0);
 }
 
 // ── User queries ──
@@ -71,7 +67,9 @@ export interface User {
 
 /** Get all users. */
 export async function getUsers(): Promise<User[]> {
-  return db.prepare("SELECT * FROM users ORDER BY id").all() as User[];
+  return db
+    .prepare("SELECT * FROM users ORDER BY id")
+    .all() as unknown as User[];
 }
 
 /** Get a single user by ID. */
@@ -91,10 +89,14 @@ export async function createUser(data: {
   email: string;
 }): Promise<User> {
   try {
-    const result = db
-      .prepare("INSERT INTO users (name, email) VALUES (?, ?)")
-      .run(data.name, data.email);
-    return (await getUser(Number(result.lastInsertRowid))) as User;
+    db.prepare("INSERT INTO users (name, email) VALUES (?, ?)").run(
+      data.name,
+      data.email,
+    );
+    const lastId = (
+      db.prepare("SELECT last_insert_rowid() as id").get() as { id: number }
+    ).id;
+    return (await getUser(lastId)) as User;
   } catch (e: unknown) {
     if (e instanceof Error && e.message.includes("UNIQUE")) {
       throw new ServerError("Email already exists", {
@@ -128,7 +130,7 @@ export interface Todo {
 export async function getTodos(userId: number): Promise<Todo[]> {
   return db
     .prepare("SELECT * FROM todos WHERE user_id = ? ORDER BY id")
-    .all(userId) as Todo[];
+    .all(userId) as unknown as Todo[];
 }
 
 /** Create a todo for a user. */
@@ -136,16 +138,19 @@ export async function createTodo(data: {
   userId: number;
   title: string;
 }): Promise<Todo> {
-  // Verify user exists
   await getUser(data.userId);
 
-  const result = db
-    .prepare("INSERT INTO todos (user_id, title) VALUES (?, ?)")
-    .run(data.userId, data.title);
+  db.prepare("INSERT INTO todos (user_id, title) VALUES (?, ?)").run(
+    data.userId,
+    data.title,
+  );
+  const lastId = (
+    db.prepare("SELECT last_insert_rowid() as id").get() as { id: number }
+  ).id;
 
   return db
     .prepare("SELECT * FROM todos WHERE id = ?")
-    .get(result.lastInsertRowid) as Todo;
+    .get(lastId) as unknown as Todo;
 }
 
 /** Toggle a todo's completed status. */

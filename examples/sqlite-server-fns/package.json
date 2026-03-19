@@ -9,13 +9,11 @@
   },
   "dependencies": {
     "@evjs/runtime": "*",
-    "better-sqlite3": "^11.9.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@evjs/cli": "*",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.8",
     "typescript": "^5.7.3"

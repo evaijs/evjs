@@ -32,6 +32,8 @@ For detailed guides on specific topics, see the `references/` directory:
 - [dev.md](references/dev.md) — Development server and configuration
 - [build.md](references/build.md) — Production builds and deployment
 - [server-fns.md](references/server-fns.md) — Server functions, queries, mutations, error handling
+- [routing.md](references/routing.md) — Route definitions, layouts, params, loaders, navigation
+- [config.md](references/config.md) — `ev.config.ts` options, defaults, client/server settings
 
 ## Key Rules
 

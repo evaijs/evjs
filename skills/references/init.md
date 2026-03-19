@@ -1,9 +1,11 @@
-# Init (`ev init`)
+# Init Reference
 
-## Command
+## Scaffolding
 
 ```bash
-npx @evjs/cli init [name] [-t, --template <template>]
+npx @evjs/cli init my-app
+cd my-app
+npm install  # or tnpm install
 ```
 
 Both arguments are optional — if omitted, the CLI prompts interactively.
@@ -17,31 +19,74 @@ Both arguments are optional — if omitted, the CLI prompts interactively.
 | `configured-server-fns` | Server functions with `ev.config.ts` + Query proxy |
 | `complex-routing` | Params, search, layouts, loaders, nested routes |
 
-## After Scaffolding
-
-```bash
-cd <project-name>
-npm install
-npm run dev     # http://localhost:3000
-```
-
 ## Project Structure
 
 ```
 my-app/
-├── ev.config.ts          # optional config
-├── index.html            # HTML template
+├── index.html              # HTML template (must have <div id="app">)
+├── ev.config.ts            # optional config
+├── src/
+│   ├── main.tsx            # app bootstrap (keep minimal)
+│   ├── global.ts           # global typings & transport init
+│   ├── routes.tsx          # route tree + components
+│   └── api/                # server function files
+│       └── *.server.ts
 ├── package.json
-├── tsconfig.json
-└── src/
-    ├── main.tsx           # app bootstrap (keep minimal)
-    ├── routes.tsx         # route tree + components
-    └── api/               # server functions
-        └── users.server.ts
+└── tsconfig.json
 ```
 
-## Key Points
+## App Bootstrap (`src/main.tsx`)
 
-- `ev.config.ts` is optional — convention-based defaults are used
-- All `@evjs/*` dependencies are set to the correct version automatically
+Minimal bootstrap that imports global configuration:
+
+```tsx
+// src/main.tsx
+import { createApp } from "@evjs/runtime/client";
+import { routeTree } from "./routes";
+import "./global"; // Initialize transport & typings
+
+const app = createApp({ routeTree });
+app.render("#app");
+```
+
+```tsx
+// src/global.ts
+import { initTransport } from "@evjs/runtime/client";
+
+// Global TanStack Router registration
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: any; 
+  }
+}
+
+// Global transport configuration (optional here, see deploy.md)
+// initTransport({ ... });
+```
+
+## Required Dependencies
+
+```json
+{
+  "dependencies": {
+    "@evjs/runtime": "*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@evjs/cli": "*",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0"
+  }
+}
+```
+
+## Key Rules
+
+- Config file: `ev.config.ts` (not `evjs.config.ts`)
+- Import `defineConfig` from `@evjs/cli`, not `@evjs/runtime`
+- HTML must have `<div id="app">` for the render target
+- Do NOT add `"type": "module"` to `package.json` — the server bundle uses CommonJS
 - `src/main.tsx` should be kept minimal — define routes in `routes.tsx`
+- Global typings and transport init go in `src/global.ts`, imported by `main.tsx`

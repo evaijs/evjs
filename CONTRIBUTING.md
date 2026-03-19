@@ -102,6 +102,6 @@ npm run create-skill       # Scaffold a new agent skill
 
 ## Agent Skills
 
-The `packages/skills/` directory contains user-facing guides for building apps with evjs. If you change CLI commands, config options, or runtime APIs, please update the relevant skills.
+The `skills/` directory contains user-facing guides for building apps with evjs. If you change CLI commands, config options, or runtime APIs, please update the relevant skills.
 
 Available skills: `init`, `dev`, `build`, `server-functions`

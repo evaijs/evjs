@@ -2,7 +2,7 @@
   "name": "ev-react-framework",
   "type": "module",
   "version": "0.0.0",
-  "description": "Zero-config React meta-framework built on TanStack + Hono",
+  "description": "React meta-framework built on TanStack + Hono",
   "private": true,
   "packageManager": "npm@11.6.2",
   "workspaces": [
@@ -28,14 +28,12 @@
     "format": "biome format --write .",
 
     "check-types": "turbo check-types",
-    "create-skill": "plop",
     "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
     "@playwright/test": "^1.58.2",
     "husky": "^9.1.7",
-    "plop": "^4.0.5",
     "turbo": "^2.4.2",
     "vitest": "^4.0.18"
   }

@@ -8,7 +8,7 @@
 npm install -g @evjs/cli
 ```
 
-## Zero-Config
+## Convention over Configuration
 
 No configuration file is needed. `ev dev` and `ev build` work out of the box with sensible defaults:
 

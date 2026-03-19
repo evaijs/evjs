@@ -42,6 +42,6 @@ my-app/
 
 ## Key Points
 
-- Zero-config by default — `ev.config.ts` is optional
+- `ev.config.ts` is optional — convention-based defaults are used
 - All `@evjs/*` dependencies are set to the correct version automatically
 - `src/main.tsx` should be kept minimal — define routes in `routes.tsx`

@@ -12,7 +12,7 @@ React meta-framework, built on TanStack + Hono.
 
 ## ⚡ Features
 
-- **Zero Config** — `ev dev` / `ev build`, no boilerplate needed.
+- **Convention over Configuration** — `ev dev` / `ev build`, no boilerplate needed.
 - **Type-Safe Routing** — [TanStack Router](https://tanstack.com/router).
 - **Data Fetching** — [TanStack Query](https://tanstack.com/query) with built-in proxies.
 - **Server Functions** — `"use server"` directive, auto-discovered at build time.

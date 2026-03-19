@@ -1,6 +1,6 @@
 ---
 name: evjs
-description: Zero-config React meta-framework with type-safe routing, data fetching, and server functions.
+description: React meta-framework with type-safe routing, data fetching, and server functions.
 ---
 
 # evjs Agent Skill
@@ -9,12 +9,12 @@ Use this skill when developing applications with the evjs framework.
 
 ## Overview
 
-evjs is a zero-config React meta-framework built on TanStack Router, TanStack Query, and Hono. It provides:
+evjs is a React meta-framework built on TanStack Router, TanStack Query, and Hono. It provides:
 
 - **Server Functions** — write backend logic in `.server.ts` files, call from React as if local
 - **Query/Mutation Proxies** — automatic query keys, transport, and cache invalidation
 - **Type-safe Routing** — TanStack Router with file-based route generation
-- **Zero Config** — works out of the box, optionally configure via `ev.config.ts`
+- **Convention over Configuration** — works out of the box, optionally configure via `ev.config.ts`
 
 ## Quick Start
 

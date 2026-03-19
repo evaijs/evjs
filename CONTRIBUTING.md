@@ -37,7 +37,7 @@
 1. **Imports**: All imports at top of file. Use `import type` for type-only imports.
 2. **Linting**: Biome — no `any`, no `import * as` unless necessary.
 3. **No manual server entries**: The framework generates server entry dynamically.
-4. **No manual webpack configs**: Use `ev.config.ts` or zero-config defaults.
+4. **No manual webpack configs**: Use `ev.config.ts` or convention-based defaults.
 5. **Server function files**: Must start with `"use server";`, use `.server.ts` or `src/api/`.
 6. **Server function exports**: Must be named async function exports (no default exports).
 7. **Module type**: All packages are ESM (`"type": "module"`). Use `.js` extensions in relative imports within compiled output.
@@ -83,7 +83,7 @@ npm run create-skill       # Scaffold a new agent skill
 
 ### `ev build` Flow
 
-1. `resolveWebpackConfig(cwd)` — loads `ev.config.ts` or uses zero-config defaults
+1. `resolveWebpackConfig(cwd)` — loads `ev.config.ts` or uses convention-based defaults
 2. `createWebpackConfig(evjsConfig)` — generates webpack config object (no temp files)
 3. Calls `webpack()` Node API directly
 4. `@evjs/webpack-plugin` runs as a webpack plugin:

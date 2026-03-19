@@ -5,7 +5,7 @@ import { appRouter } from "../trpc";
 /**
  * A Server Function that acts as a tRPC handler.
  * This demonstrates how to combine tRPC's type-safety with
- * @evjs's zero-config RPC infrastructure.
+ * @evjs's RPC infrastructure.
  */
 // biome-ignore lint/suspicious/noExplicitAny: request body
 export async function trpcHandler(reqBody: any) {

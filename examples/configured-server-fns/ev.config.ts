@@ -4,7 +4,7 @@ import { defineConfig } from "@evjs/cli";
  * Advanced ev.config.ts example.
  *
  * This file demonstrates all available configuration options.
- * All fields are optional — evjs works zero-config out of the box.
+ * All fields are optional — evjs works out of the box.
  */
 export default defineConfig({
   client: {

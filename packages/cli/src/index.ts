@@ -130,7 +130,7 @@ program
 /**
  * Load config and create webpack configuration object.
  *
- * Uses ev.config.ts when present, otherwise falls back to zero-config defaults.
+ * Uses ev.config.ts when present, otherwise falls back to convention-based defaults.
  * No webpack.config.cjs fallback — the meta-framework owns the build config.
  */
 async function resolveWebpackConfig(cwd: string) {
@@ -138,7 +138,7 @@ async function resolveWebpackConfig(cwd: string) {
   const evjsConfig = await loadConfig(cwd);
 
   const { createWebpackConfig } = await import("./create-webpack-config.js");
-  logger.info`Using ${evjsConfig ? "ev.config.ts" : "zero-config defaults"}`;
+  logger.info`Using ${evjsConfig ? "ev.config.ts" : "convention-based defaults"}`;
   const webpackConfig = createWebpackConfig(evjsConfig, cwd);
 
   return { evjsConfig, webpackConfig };

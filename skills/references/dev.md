@@ -6,7 +6,7 @@
 ev dev
 ```
 
-No flags — configuration comes from `ev.config.ts` or zero-config defaults.
+No flags — configuration comes from `ev.config.ts` or convention-based defaults.
 
 ## What It Does
 

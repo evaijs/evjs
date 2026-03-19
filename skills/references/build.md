@@ -51,7 +51,7 @@ Files with `"use server"` are automatically processed:
 
 ## Key Points
 
-- No configuration needed — works zero-config out of the box
+- Works out of the box with convention-based defaults
 - Client bundles use content-hash filenames for cache busting
 - Server bundle externalizes `node_modules` (except `@evjs/*` packages)
 - `dist/manifest.json` maps function IDs to their module and export names

@@ -52,7 +52,7 @@ const { data } = useQuery({
 | **Transport** | Built-in (fetch, WebSocket, custom) | Manual fetch |
 | **Cache invalidation** | `invalidates: [getUsers]` | Manual queryKey matching |
 | **Type safety** | Inferred from server function | Manual typing |
-| **Custom options** | `.queryOptions({ staleTime: 5000 })` | Inline in `useQuery()` |
+| **Custom options** | `{ ...fn.queryOptions(), staleTime: 5000 }` | Inline in `useQuery()` |
 
 ### Examples
 
@@ -65,8 +65,8 @@ const { data } = query(getUsers).useQuery();
 // With arguments
 const { data } = query(getUser).useQuery(userId);
 
-// Custom query options (staleTime, refetchInterval, etc.)
-const opts = query(getUsers).queryOptions({ staleTime: 5000 });
+// Custom query options (just spread on top)
+const opts = { ...query(getUsers).queryOptions(), staleTime: 5000 };
 const { data } = useQuery(opts);
 
 // Prefetching in route loaders

@@ -62,6 +62,30 @@ describe("createQueryProxy", () => {
     expect(proxy.getUsers.queryKey()).toEqual(["mod:getUsers"]);
     expect(proxy.getUsers.queryKey("extra")).toEqual(["mod:getUsers", "extra"]);
   });
+
+  it("includes plain object args in queryKey without consuming them", () => {
+    const getUser = async (filter: { role: string }) => ({
+      role: filter.role,
+    });
+    __fn_register(getUser, "mod:getUser", "getUser");
+
+    const proxy = createQueryProxy({ getUser });
+    const opts = proxy.getUser.queryOptions({ role: "admin" });
+
+    // Plain object should be included as a server function arg in queryKey
+    expect(opts.queryKey).toEqual(["mod:getUser", { role: "admin" }]);
+  });
+
+  it("supports spreading custom options on top", () => {
+    const getUsers = async () => [{ id: 1 }];
+    __fn_register(getUsers, "mod:getUsers", "getUsers");
+
+    const proxy = createQueryProxy({ getUsers });
+    const opts = { ...proxy.getUsers.queryOptions(), staleTime: 5000 };
+
+    expect(opts.queryKey).toEqual(["mod:getUsers"]);
+    expect(opts.staleTime).toBe(5000);
+  });
 });
 
 describe("createMutationProxy", () => {

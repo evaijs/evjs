@@ -38,18 +38,17 @@ export interface QueryProxyHandler<TArgs extends unknown[], TResponse> {
   useSuspenseQuery(...args: TArgs): UseSuspenseQueryResult<TResponse, Error>;
 
   /**
-   * Returns standard TanStack Query options for use with `useQuery()`.
-   * Use this when you need to pass additional TanStack options like `staleTime`.
+   * Returns standard TanStack Query options (`queryKey` + `queryFn`).
+   * Spread additional TanStack options on top when needed.
    *
    * @example
-   * useQuery(query(getUser).queryOptions(userId, { staleTime: 5000 }));
+   * // Basic
+   * useQuery(query(getUsers).queryOptions());
+   *
+   * // With custom options
+   * useQuery({ ...query(getUser).queryOptions(userId), staleTime: 5000 });
    */
-  queryOptions(
-    ...args: [
-      ...args: TArgs,
-      options?: Omit<UseQueryOptions<TResponse, Error>, "queryKey" | "queryFn">,
-    ]
-  ): UseQueryOptions<TResponse, Error> & {
+  queryOptions(...args: TArgs): UseQueryOptions<TResponse, Error> & {
     queryKey: unknown[];
     queryFn: () => Promise<TResponse>;
   };
@@ -120,35 +119,6 @@ export type MutationProxy<TModule> = {
     : MutationProxy<TModule[K]>;
 };
 
-/**
- * Split a raw argument list into function args and TanStack Query options.
- *
- * **Heuristic**: if the last element is a plain object (its prototype is
- * `Object.prototype`), it is treated as the options bag. This is only used
- * by `queryOptions()` — `useQuery()` and `useSuspenseQuery()` pass all
- * arguments directly as server function args (no options support).
- */
-function splitArgsAndOptions(rawArgs: unknown[]): {
-  args: unknown[];
-  options?: Record<string, unknown>;
-} {
-  const last = rawArgs[rawArgs.length - 1];
-  if (
-    rawArgs.length > 0 &&
-    last != null &&
-    typeof last === "object" &&
-    !Array.isArray(last) &&
-    // Plain object check — rules out class instances, Dates, etc.
-    Object.getPrototypeOf(last) === Object.prototype
-  ) {
-    return {
-      args: rawArgs.slice(0, -1),
-      options: last as Record<string, unknown>,
-    };
-  }
-  return { args: rawArgs };
-}
-
 function createHandler(fn: ServerFunction<unknown[], unknown>, path: string[]) {
   const fnId = getFnId(fn);
   return {
@@ -194,10 +164,8 @@ function createHandler(fn: ServerFunction<unknown[], unknown>, path: string[]) {
         },
       });
     },
-    queryOptions: (...rawArgs: unknown[]) => {
-      const { args, options } = splitArgsAndOptions(rawArgs);
+    queryOptions: (...args: unknown[]) => {
       return {
-        ...options,
         queryKey: [fnId || path.join("."), ...args],
         queryFn: ({ signal }: { signal?: AbortSignal }) =>
           __fn_call(fnId || path.join("."), args, { signal }),

@@ -145,6 +145,9 @@ query(getUsers).invalidate();
 const options = query(getUsers).queryOptions();
 queryClient.prefetchQuery(options);
 
+// queryOptions with custom TanStack options (just spread on top)
+const options = { ...query(getUsers).queryOptions(), staleTime: 5000 };
+
 // Module proxy
 import * as UsersAPI from "./api/users.server";
 const api = createQueryProxy(UsersAPI);

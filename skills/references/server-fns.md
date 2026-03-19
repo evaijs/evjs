@@ -1,11 +1,4 @@
----
-name: evjs-server-functions
-description: Guide on how server functions, data fetching, transport, and middleware work in evjs.
----
-
-# Instruction
-
-Use this skill when helping a user create server functions, fetch data, or configure middleware and transport.
+# Server Functions
 
 ## Overview
 

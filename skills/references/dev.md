@@ -1,11 +1,4 @@
----
-name: evjs-dev
-description: Guide on the `ev dev` development server, its architecture, and configuration.
----
-
-# Instruction
-
-Use this skill when helping a user run or configure the evjs development server.
+# Dev Server (`ev dev`)
 
 ## Command
 

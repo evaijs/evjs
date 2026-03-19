@@ -16,7 +16,7 @@ export default function (plop) {
     actions: [
       {
         type: "add",
-        path: "skills/{{name}}/SKILL.md",
+        path: "skills/references/{{name}}.md",
         templateFile: "plop-templates/skill.md.hbs",
       },
     ],

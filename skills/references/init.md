@@ -1,11 +1,4 @@
----
-name: evjs-init
-description: Guide on scaffolding new evjs projects with `ev init`.
----
-
-# Instruction
-
-Use this skill when helping a user create a new evjs project.
+# Init (`ev init`)
 
 ## Command
 

@@ -1,0 +1,41 @@
+---
+name: evjs
+description: Zero-config React meta-framework with type-safe routing, data fetching, and server functions.
+---
+
+# evjs Agent Skill
+
+Use this skill when developing applications with the evjs framework.
+
+## Overview
+
+evjs is a zero-config React meta-framework built on TanStack Router, TanStack Query, and Hono. It provides:
+
+- **Server Functions** — write backend logic in `.server.ts` files, call from React as if local
+- **Query/Mutation Proxies** — automatic query keys, transport, and cache invalidation
+- **Type-safe Routing** — TanStack Router with file-based route generation
+- **Zero Config** — works out of the box, optionally configure via `ev.config.ts`
+
+## Quick Start
+
+```bash
+npx ev init my-app
+cd my-app
+npm run dev
+```
+
+## References
+
+For detailed guides on specific topics, see the `references/` directory:
+
+- [init.md](references/init.md) — Scaffolding projects with `ev init`
+- [dev.md](references/dev.md) — Development server and configuration
+- [build.md](references/build.md) — Production builds and deployment
+- [server-fns.md](references/server-fns.md) — Server functions, queries, mutations, error handling
+
+## Key Rules
+
+- Server function files must start with `"use server";` directive
+- Use `query()` / `mutation()` proxies, not raw `useQuery`
+- Arguments are spread: `useQuery(id)` not `useQuery([id])`
+- `ServerError` on server → `ServerFunctionError` on client

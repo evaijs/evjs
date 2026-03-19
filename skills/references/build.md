@@ -1,11 +1,4 @@
----
-name: evjs-build
-description: Guide on the `ev build` production build process and output structure.
----
-
-# Instruction
-
-Use this skill when helping a user build an evjs project for production or understand the output.
+# Build (`ev build`)
 
 ## Command
 

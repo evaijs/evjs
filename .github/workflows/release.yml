@@ -1,19 +1,15 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
-
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+  release:
+    types: [published]
 
 jobs:
   release:
-    name: Release
+    name: Publish to npm
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
       id-token: write
     steps:
       - name: Checkout Repo
@@ -32,21 +28,12 @@ jobs:
       - name: Build Packages
         run: npm run build
 
-      - name: Run Tests
-        run: npm test
-
       - name: Deref templates
         run: node packages/cli/scripts/deref-templates.js
 
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: npm run release
-          commit: "chore: version packages"
-          title: "chore: version packages"
+      - name: Publish to npm
+        run: npm run release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

@@ -1,6 +1,6 @@
 # sqlite-server-fns
 
-Full CRUD application with SQLite (better-sqlite3) — users and todos.
+Full CRUD application with SQLite (node:sqlite) — users and todos.
 
 ## Run
 
@@ -19,8 +19,8 @@ npm run dev -w example-sqlite-server-fns
 
 ## What It Demonstrates
 
-- Native addon (`better-sqlite3`) via webpack server externals
+- Node.js built-in `node:sqlite` module
 - Multi-table relationships (users → todos)
-- `useQuery(fn)` / `useMutation(fn)` with auto-generated query keys
+- `useQuery(getUsers)` / `useMutation({ mutationFn })` with auto-generated query keys
 - Direct mutation args: `mutate(id)`, `mutate({ name, email })`
-- `invalidates` for auto cache invalidation
+- `serverFn(getUsers).queryKey` for cache invalidation

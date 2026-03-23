@@ -19,6 +19,6 @@ npm run dev -w example-configured-server-fns
 ## What It Demonstrates
 
 - `ev.config.ts` with `defineConfig` for custom ports
-- `useQuery(fn)` for fetching data with auto-generated keys
-- `useMutation(fn, { invalidates })` for mutations with auto cache invalidation
+- `useQuery(getUsers)` for fetching data with auto-generated keys
+- `useMutation({ mutationFn })` with `serverFn().queryKey` for cache invalidation
 - Direct mutation args: `mutate({ name, email })` (not array-wrapped)

@@ -1,6 +1,6 @@
 # basic-server-fns
 
-Basic server functions with `query()` / `mutation()` wrappers.
+Basic server functions with type-safe `useQuery()` / `useMutation()`.
 
 ## Run
 
@@ -19,6 +19,6 @@ npm run dev -w example-basic-server-fns
 ## What It Demonstrates
 
 - `"use server"` directive for auto-discovered server functions
-- `query(fn).useQuery()` for data fetching
-- `mutation(fn).useMutation()` for mutations
-- `invalidates` for auto cache invalidation on mutation success
+- `useQuery(getUsers)` for type-safe data fetching
+- `useMutation({ mutationFn: createUser })` for mutations
+- `serverFn(getUsers).queryKey` for cache invalidation

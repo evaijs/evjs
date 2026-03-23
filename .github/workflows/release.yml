@@ -25,22 +25,7 @@ jobs:
         run: npm install
 
       - name: Sync version from release tag
-        run: |
-          node -e "
-            const fs = require('fs'), path = require('path');
-            const version = '${GITHUB_REF_NAME}'.replace(/^v/, '');
-            for (const dir of ['.', 'packages', 'examples']) {
-              const entries = dir === '.' ? ['.'] : fs.readdirSync(dir).map(e => path.join(dir, e));
-              for (const entry of entries) {
-                const p = path.join(entry, 'package.json');
-                if (!fs.existsSync(p)) continue;
-                const pkg = JSON.parse(fs.readFileSync(p, 'utf8'));
-                pkg.version = version;
-                fs.writeFileSync(p, JSON.stringify(pkg, null, 2) + '\n');
-              }
-            }
-            console.log('Synced all packages to v' + version);
-          "
+        run: npm version "${GITHUB_REF_NAME#v}" --workspaces --no-git-tag-version
 
       - name: Build Packages
         run: npm run build

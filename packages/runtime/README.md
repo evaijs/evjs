@@ -15,8 +15,9 @@ npm install @evjs/runtime
 | Export | Description |
 |--------|-------------|
 | `createApp` | Bootstrap TanStack Router + Query + DOM |
-| `serverFn(fn, ...args)` | Convert a server function into `{ queryKey, queryFn }` for any TanStack hook |
-| `useQuery`, `useMutation`, ... | Re-exports from `@tanstack/react-query` |
+| `useQuery(fn, ...args)` | Type-safe query hook — accepts server functions directly |
+| `useSuspenseQuery(fn, ...args)` | Type-safe suspense query hook |
+| `serverFn(fn, ...args)` | Convert server function → `{ queryKey, queryFn }` for loaders, prefetch, invalidation |
 | `initTransport` | One-time transport configuration (endpoint, custom transport, codec) |
 | `getFnName` | Get the original name of a server function stub |
 | `ServerFunctionError` | Structured error class for server function failures |
@@ -53,11 +54,11 @@ npm install @evjs/runtime
 ### Client
 
 ```tsx
-import { createApp, createRootRoute, serverFn, useQuery, useMutation, useQueryClient } from "@evjs/runtime/client";
+import { createApp, createRootRoute, useQuery, useMutation, useQueryClient, serverFn } from "@evjs/runtime/client";
 import { getUsers, createUser } from "./api/users.server";
 
 function Users() {
-  const { data } = useQuery(serverFn(getUsers));
+  const { data } = useQuery(getUsers);  // data is typed!
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: createUser,
@@ -133,16 +134,18 @@ export async function getUser(id: string) {
 ### Query Patterns
 
 ```tsx
-// Use serverFn() to convert server functions for any TanStack hook
-const { data } = useQuery(serverFn(getUsers));
-
-// With args
-const { data } = useQuery(serverFn(getUser, userId));
+// Server functions — direct, type-safe
+const { data } = useQuery(getUsers);           // data: User[]
+const { data } = useQuery(getUser, userId);    // data: User
+const { data } = useSuspenseQuery(getUsers);   // data: User[] (guaranteed)
 
 // Mutations (raw TanStack API)
 const { mutate } = useMutation({ mutationFn: createUser });
 
-// Standard TanStack options also work for non-server functions
+// For loaders/prefetch, use serverFn():
+loader: ({ context }) => context.queryClient.ensureQueryData(serverFn(getUsers));
+
+// Standard TanStack options also work
 const { data } = useQuery({ queryKey: ["custom"], queryFn: fetchSomething });
 ```
 
@@ -165,9 +168,9 @@ initTransport({
 
 ## Common Mistakes
 
-1. **Arguments are spread, not wrapped** — `serverFn(getUser, id)` not `serverFn(getUser, [id])`
+1. **Arguments are spread, not wrapped** — `useQuery(getUser, id)` not `useQuery(getUser, [id])`
 2. **Mutation args are passed directly** — `mutate({ name, email })` not `mutate([{ name, email }])`
-3. **Don't call server functions directly in components** — wrap with `serverFn()` + `useQuery()`
+3. **Don't call server functions directly in components** — use `useQuery(fn)` or `useMutation({ mutationFn: fn })`
 4. **Don't forget `"use server";`** at the top of `.server.ts` files
 5. **Throw `ServerError`** on the server, catch `ServerFunctionError` on the client
 6. **Always register the router type** — without `declare module "@tanstack/react-router" { ... }`, all route params/search will be `any`

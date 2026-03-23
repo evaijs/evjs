@@ -92,7 +92,7 @@ import { rootRoute } from "./__root";
 
 function UserProfile() {
   const { username } = userRoute.useParams(); // { username: string }
-  const { data } = useQuery(serverFn(getUser, username));
+  const { data } = useQuery(getUser, username);
   return <h2>{data?.name}</h2>;
 }
 
@@ -113,7 +113,7 @@ Parent routes render `<Outlet />` to display child routes. Wire children via `ad
 
 ```tsx
 // pages/posts/index.tsx
-import { createRoute, Link, Outlet, query } from "@evjs/runtime/client";
+import { createRoute, Link, Outlet, serverFn, useQuery } from "@evjs/runtime/client";
 import { getPosts, getPost } from "../../api/data.server";
 import { rootRoute } from "../__root";
 

@@ -12,7 +12,7 @@ Use this skill when developing applications with the evjs framework.
 evjs is a React meta-framework built on TanStack Router, TanStack Query, and Hono. It provides:
 
 - **Server Functions** — write backend logic in `.server.ts` files, call from React as if local
-- **Query/Mutation Proxies** — automatic query keys, transport, and cache invalidation
+- **Query Integration** — type-safe `useQuery(getUsers)` with auto query keys and transport
 - **Type-safe Routing** — TanStack Router with file-based route generation
 - **Plugin System** — extend builds with custom loaders (e.g. Tailwind, SVG)
 - **Convention over Configuration** — works out of the box, optionally configure via `ev.config.ts`
@@ -40,7 +40,8 @@ For detailed guides on specific topics, see the `references/` directory:
 ## Key Rules
 
 - Server function files must start with `"use server";` directive
-- Use `serverFn()` to convert server functions for TanStack hooks: `useQuery(serverFn(getUsers))`
-- Arguments are spread: `serverFn(getUser, id)` not `serverFn(getUser, [id])`
+- Use `useQuery(getUsers)` to query server functions directly — type-safe args & data
+- Use `serverFn()` for loaders, prefetch, and invalidation: `serverFn(getUsers).queryKey`
+- Arguments are spread: `useQuery(getUser, id)` not `useQuery(getUser, [id])`
 - `ServerError` on server → `ServerFunctionError` on client
 - Use `client.plugins` to add custom loaders (Tailwind, CSS modules, etc.)

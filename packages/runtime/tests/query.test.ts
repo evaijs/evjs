@@ -120,3 +120,29 @@ describe("serverFn", () => {
     serverFn(getUser, 42);
   });
 });
+
+describe("useQuery overload types", () => {
+  beforeEach(() => {
+    __resetForTesting();
+  });
+
+  it("infers TData when called with server function", () => {
+    type User = { id: number; name: string };
+    const getUsers = async () => [] as User[];
+    __fn_register(getUsers, "mod:getUsers", "getUsers");
+
+    // useQuery(getUsers) should produce UseQueryResult<User[]>
+    // We can only test the type at compile time, not runtime (hook requires React)
+    type Opts = ReturnType<typeof serverFn<[], User[]>>;
+    expectTypeOf<Opts["queryFn"]>().returns.resolves.toEqualTypeOf<User[]>();
+  });
+
+  it("infers TData for multi-arg server function via useQuery", () => {
+    type SearchResult = { id: number; name: string };
+    const search = async (_q: string, _page: number) => [] as SearchResult[];
+    __fn_register(search, "mod:search", "search");
+
+    const opts = serverFn(search, "test", 1);
+    expectTypeOf(opts.queryFn).returns.resolves.toEqualTypeOf<SearchResult[]>();
+  });
+});

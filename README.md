@@ -22,12 +22,12 @@ React meta-framework, built on TanStack + Hono.
 - **Middleware** — `registerMiddleware()` for cross-cutting concerns.
 - **Typed Errors** — `ServerError` flows structured data server → client.
 - **Multi-Runtime** — Hono-based server with Node, Deno, Bun, Edge adapters.
-- **CLI** — `ev init` · `ev dev` · `ev build`
+- **CLI** — `ev dev` · `ev build`
 
 ## 🚀 Quick Start
 
 ```bash
-npx @evjs/cli@latest init my-app
+npx @evjs/create-app my-app
 cd my-app && npm install
 ev dev
 ```
@@ -41,6 +41,7 @@ config needed.
 | Package | Purpose |
 |---------|---------|
 | [`@evjs/cli`](./packages/cli) | CLI + `defineConfig` |
+| [`@evjs/create-app`](./packages/create-app) | Project scaffolding (`npx @evjs/create-app`) |
 | [`@evjs/shared`](./packages/shared) | Shared codec, errors, constants |
 | [`@evjs/client`](./packages/client) | Client runtime (React + TanStack) |
 | [`@evjs/server`](./packages/server) | Server runtime (Hono) |

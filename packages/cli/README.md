@@ -22,14 +22,10 @@ No configuration file is needed. `ev dev` and `ev build` work out of the box wit
 
 | Command | Description |
 |---------|-------------|
-| `ev init [name]` | Scaffold a new project from a template |
 | `ev dev` | Start dev server (client HMR + API watch) |
 | `ev build` | Production build (client + server) |
 
-### `ev init [name]`
-
-Templates: `basic-csr`, `basic-server-fns`, `configured-server-fns`, `complex-routing`, `with-tailwind`.
-Option: `-t, --template <template>` to skip interactive selection.
+> **Scaffolding:** Use `npx @evjs/create-app` to scaffold a new project.
 
 ### `ev dev`
 

@@ -18,8 +18,7 @@
     "ev": "dist/index.js"
   },
   "files": [
-    "dist",
-    "templates"
+    "dist"
   ],
   "scripts": {
     "build": "tsc",
@@ -38,7 +37,6 @@
     "glob": "^13.0.6",
     "html-webpack-plugin": "^5.6.6",
     "picocolors": "^1.1.1",
-    "prompts": "^2.4.2",
     "swc-loader": "^0.2.7",
     "webpack": "^5.105.4",
     "webpack-cli": "^6.0.1",
@@ -47,7 +45,6 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.13.5",
-    "@types/prompts": "^2.4.9",
     "typescript": "^5.7.3"
   },
   "homepage": "https://github.com/evaijs/evjs#readme",

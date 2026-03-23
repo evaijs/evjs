@@ -14,7 +14,8 @@
 
 | Package | Path | Purpose |
 |---------|------|---------|
-| `@evjs/cli` | `packages/cli` | CLI (`ev init`, `ev dev`, `ev build`) + `defineConfig` |
+| `@evjs/cli` | `packages/cli` | CLI (`ev dev`, `ev build`) + `defineConfig` |
+| `@evjs/create-app` | `packages/create-app` | Project scaffolding (`npx @evjs/create-app`) |
 | `@evjs/shared` | `packages/shared` | Shared codec, errors, constants |
 | `@evjs/client` | `packages/client` | Client (React + TanStack) |
 | `@evjs/server` | `packages/server` | Server (Hono) |

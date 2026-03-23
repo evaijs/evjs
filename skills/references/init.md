@@ -3,7 +3,7 @@
 ## Scaffolding
 
 ```bash
-npx @evjs/cli init my-app
+npx @evjs/create-app my-app
 cd my-app
 npm install  # or tnpm install
 ```
@@ -12,7 +12,7 @@ Both arguments are optional — if omitted, the CLI prompts interactively.
 
 ## Available Templates
 
-Templates available via `ev init`:
+Templates available via `npx @evjs/create-app`:
 
 | Template | Description |
 |----------|-------------|
@@ -22,7 +22,7 @@ Templates available via `ev init`:
 | `complex-routing` | Params, search, layouts, loaders, nested routes |
 | `with-tailwind` | Tailwind CSS via plugin loaders (`ev.config.ts`) |
 
-Additional examples in the `examples/` directory (not in `ev init`):
+Additional examples in the `examples/` directory (not in `npx @evjs/create-app`):
 
 | Example | Description |
 |---------|-------------|

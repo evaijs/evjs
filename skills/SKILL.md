@@ -20,7 +20,7 @@ evjs is a React meta-framework built on TanStack Router, TanStack Query, and Hon
 ## Quick Start
 
 ```bash
-npx ev init my-app
+npx @evjs/create-app my-app
 cd my-app
 npm run dev
 ```
@@ -29,7 +29,7 @@ npm run dev
 
 For detailed guides on specific topics, see the `references/` directory:
 
-- [init.md](references/init.md) — Scaffolding projects with `ev init`
+- [init.md](references/init.md) — Scaffolding projects with `npx @evjs/create-app`
 - [dev.md](references/dev.md) — Development server and configuration
 - [build.md](references/build.md) — Production builds
 - [deploy.md](references/deploy.md) — Deploying to Node, Docker, Deno, and Edge environments

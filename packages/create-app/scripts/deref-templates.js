@@ -17,10 +17,7 @@ for (const entry of fs.readdirSync(templatesDir)) {
   if (stat.isSymbolicLink()) {
     const realPath = fs.realpathSync(entryPath);
 
-    // Remove symlink
     fs.removeSync(entryPath);
-
-    // Copy real contents, excluding build artifacts
     fs.copySync(realPath, entryPath, {
       filter: (src) => {
         const basename = path.basename(src);

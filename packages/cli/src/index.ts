@@ -6,7 +6,6 @@ import { configure, getConsoleSink, getLogger } from "@logtape/logtape";
 import { Command } from "commander";
 import { execa } from "execa";
 import fs from "fs-extra";
-import prompts from "prompts";
 import { CONFIG_DEFAULTS } from "./config.js";
 
 const esmRequire = createRequire(import.meta.url);
@@ -29,107 +28,6 @@ program
   .name("ev")
   .description("CLI for the evjs framework")
   .version(pkg.version);
-
-program
-  .command("init")
-  .description("Initialize a new evjs project")
-  .argument("[name]", "Project name")
-  .option("-t, --template <template>", "Template to use")
-  .action(async (name, options) => {
-    const response = await prompts(
-      [
-        {
-          type: name ? null : "text",
-          name: "projectName",
-          message: "Project name:",
-          initial: name || "my-evjs-app",
-        },
-        {
-          type: options.template ? null : "select",
-          name: "template",
-          message: "Select a template:",
-          choices: [
-            { title: "Basic CSR (Client-Side Rendering)", value: "basic-csr" },
-            { title: "Basic Server Functions", value: "basic-server-fns" },
-            {
-              title: "Configured Server Functions (ev.config.ts + Query)",
-              value: "configured-server-fns",
-            },
-            {
-              title: "Complex Routing (params, search, layouts, loaders)",
-              value: "complex-routing",
-            },
-            {
-              title: "With Tailwind CSS (plugin loaders example)",
-              value: "with-tailwind",
-            },
-          ],
-        },
-      ],
-      {
-        onCancel: () => {
-          process.exit(1);
-        },
-      },
-    );
-
-    const projectName = response.projectName || name;
-    const template = response.template || options.template;
-    const targetDir = path.resolve(process.cwd(), projectName);
-
-    if (fs.existsSync(targetDir)) {
-      logger.error`Directory ${projectName} already exists!`;
-      process.exit(1);
-    }
-
-    const templateDir = path.resolve(__dirname, "../templates", template);
-
-    if (!fs.existsSync(templateDir)) {
-      logger.error`Template ${template} not found!`;
-      process.exit(1);
-    }
-
-    logger.info`Scaffolding project in ${targetDir}...`;
-    await fs.copy(templateDir, targetDir, {
-      dereference: true,
-      filter: (src) => {
-        const basename = path.basename(src);
-        return !["node_modules", "dist", ".turbo"].includes(basename);
-      },
-    });
-
-    // Post-process package.json: sync @evjs/* versions and set project name
-    const pkgPath = path.join(targetDir, "package.json");
-    if (fs.existsSync(pkgPath)) {
-      const pkg = await fs.readJson(pkgPath);
-      pkg.name = projectName;
-      delete pkg.private; // Templates shouldn't be private by default
-
-      const updateDeps = (deps: Record<string, string> | undefined) => {
-        if (!deps) return;
-        for (const [name, val] of Object.entries(deps)) {
-          // Sync all @evjs/* packages to current CLI version
-          if (
-            name.startsWith("@evjs/") &&
-            (val === "*" ||
-              (typeof val === "string" && val.includes("workspace")))
-          ) {
-            deps[name] = `^${pkg.version}`;
-          }
-        }
-      };
-
-      updateDeps(pkg.dependencies);
-      updateDeps(pkg.devDependencies);
-
-      await fs.writeJson(pkgPath, pkg, { spaces: 2 });
-    }
-
-    logger.info`Done! Now run:`;
-    logger.info`  cd ${projectName}`;
-    logger.info`  npm install`;
-    logger.info`  npm run dev`;
-  });
 
 /**
  * Load config and create webpack configuration object.

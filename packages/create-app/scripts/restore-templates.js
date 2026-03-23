@@ -13,7 +13,8 @@ const symlinkTargets = {
   "basic-csr": "../../../examples/basic-csr",
   "basic-server-fns": "../../../examples/basic-server-fns",
   "configured-server-fns": "../../../examples/configured-server-fns",
-  "trpc-server-fns": "../../../examples/trpc-server-fns",
+  "complex-routing": "../../../examples/complex-routing",
+  "with-tailwind": "../../../examples/with-tailwind",
 };
 
 for (const [name, target] of Object.entries(symlinkTargets)) {

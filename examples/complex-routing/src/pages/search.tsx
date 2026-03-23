@@ -1,6 +1,14 @@
-import { createRoute, Link, query } from "@evjs/runtime/client";
+import { createRoute, Link, useQuery } from "@evjs/runtime/client";
 import { getPosts } from "../api/data.server";
 import { rootRoute } from "./__root";
+
+type Post = {
+  id: string;
+  title: string;
+  body: string;
+  author: string;
+  tags: string[];
+};
 
 const styles = {
   card: {
@@ -13,7 +21,7 @@ const styles = {
 
 function SearchPage() {
   const { q } = searchRoute.useSearch();
-  const { data: results } = query(getPosts).useQuery(q || undefined);
+  const { data: results } = useQuery<Post[]>(getPosts, q || undefined);
 
   return (
     <div>
@@ -40,7 +48,7 @@ function SearchPage() {
       </form>
       <div style={{ marginTop: "1rem" }}>
         {q && <p style={{ color: "#6b7280" }}>Results for "{q}":</p>}
-        {results?.map((post) => (
+        {results?.map((post: Post) => (
           <div key={post.id} style={styles.card}>
             <Link
               to="/posts/$postId"

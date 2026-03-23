@@ -1,6 +1,6 @@
 # configured-server-fns
 
-Server functions with `ev.config.ts` and module-level query/mutation proxies.
+Server functions with `ev.config.ts` and `useQuery` / `useMutation`.
 
 ## Run
 
@@ -13,12 +13,12 @@ npm run dev -w example-configured-server-fns
 | File | Purpose |
 |------|---------|
 | `ev.config.ts` | Custom ports and settings |
-| `src/routes.tsx` | Routes with `createQueryProxy` / `createMutationProxy` |
+| `src/routes.tsx` | Routes with `useQuery` / `useMutation` |
 | `src/api/users.server.ts` | User CRUD functions |
 
 ## What It Demonstrates
 
 - `ev.config.ts` with `defineConfig` for custom ports
-- `createQueryProxy(module)` for grouped queries
-- `createMutationProxy(module)` for grouped mutations
+- `useQuery(fn)` for fetching data with auto-generated keys
+- `useMutation(fn, { invalidates })` for mutations with auto cache invalidation
 - Direct mutation args: `mutate({ name, email })` (not array-wrapped)

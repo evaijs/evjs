@@ -1,22 +1,23 @@
 import {
   createAppRootRoute,
-  createMutationProxy,
-  createQueryProxy,
   createRoute,
   Link,
   Outlet,
+  useMutation,
+  useQuery,
   useQueryClient,
 } from "@evjs/runtime/client";
 import { useState } from "react";
 import type { Todo, User } from "./api/db.server";
-import * as dbApi from "./api/db.server";
-
-// ── API Proxy ──
-
-const api = {
-  query: createQueryProxy(dbApi),
-  mutation: createMutationProxy(dbApi),
-};
+import {
+  createTodo,
+  createUser,
+  deleteTodo,
+  deleteUser,
+  getTodos,
+  getUsers,
+  toggleTodo,
+} from "./api/db.server";
 
 // ── Root Route ──
 
@@ -62,23 +63,19 @@ function UsersPage() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
-  const { data: users = [], isLoading } = api.query.getUsers.useQuery();
+  const { data: users = [], isLoading } = useQuery<User[]>(getUsers);
 
   const queryClient = useQueryClient();
-  const { mutateAsync: doCreateUser, isPending: isCreating } =
-    api.mutation.createUser.useMutation({
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: api.query.getUsers.queryKey(),
-        });
-      },
-    });
+  const { mutateAsync: doCreateUser, isPending: isCreating } = useMutation(
+    createUser,
+    {
+      invalidates: [getUsers],
+    },
+  );
 
-  const { mutateAsync: doDeleteUser } = api.mutation.deleteUser.useMutation({
+  const { mutateAsync: doDeleteUser } = useMutation(deleteUser, {
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: api.query.getUsers.queryKey(),
-      });
+      queryClient.invalidateQueries({ queryKey: ["getUsers"] });
       if (selectedUserId) setSelectedUserId(null);
     },
   });
@@ -199,30 +196,24 @@ function UsersPage() {
 function TodosSection({ userId }: { userId: number }) {
   const [title, setTitle] = useState("");
 
-  const { data: todos = [], isLoading } = api.query.getTodos.useQuery(userId);
+  const { data: todos = [], isLoading } = useQuery<Todo[]>(getTodos, userId);
 
   const queryClient = useQueryClient();
-  const { mutateAsync: doCreateTodo } = api.mutation.createTodo.useMutation({
+  const { mutateAsync: doCreateTodo } = useMutation(createTodo, {
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: api.query.getTodos.queryKey(userId),
-      });
+      queryClient.invalidateQueries({ queryKey: ["getTodos"] });
     },
   });
 
-  const { mutateAsync: doToggleTodo } = api.mutation.toggleTodo.useMutation({
+  const { mutateAsync: doToggleTodo } = useMutation(toggleTodo, {
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: api.query.getTodos.queryKey(userId),
-      });
+      queryClient.invalidateQueries({ queryKey: ["getTodos"] });
     },
   });
 
-  const { mutateAsync: doDeleteTodo } = api.mutation.deleteTodo.useMutation({
+  const { mutateAsync: doDeleteTodo } = useMutation(deleteTodo, {
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: api.query.getTodos.queryKey(userId),
-      });
+      queryClient.invalidateQueries({ queryKey: ["getTodos"] });
     },
   });
 
@@ -306,8 +297,6 @@ const usersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: UsersPage,
-  loader: ({ context }) =>
-    context.queryClient.ensureQueryData(api.query.getUsers.queryOptions()),
 });
 
 export const routeTree = rootRoute.addChildren([usersRoute]);

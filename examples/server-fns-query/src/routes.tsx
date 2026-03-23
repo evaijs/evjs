@@ -1,31 +1,15 @@
 import {
   createAppRootRoute,
-  createMutationProxy,
-  createQueryProxy,
   createRoute,
   Link,
   Outlet,
-  query,
   ServerFunctionError,
-  useQueryClient,
+  useMutation,
+  useQuery,
 } from "@evjs/runtime/client";
 import { useState } from "react";
-import * as postsApi from "./api/posts.server";
-import * as usersApi from "./api/users.server";
-import { getUser, searchUsers } from "./api/users.server";
-
-// ── API Proxy ──
-
-const api = {
-  users: {
-    query: createQueryProxy(usersApi),
-    mutation: createMutationProxy(usersApi),
-  },
-  posts: {
-    query: createQueryProxy(postsApi),
-    mutation: createMutationProxy(postsApi),
-  },
-};
+import { createPost, getPosts } from "./api/posts.server";
+import { createUser, getUser, getUsers, searchUsers } from "./api/users.server";
 
 // ── Root Route ──
 
@@ -57,17 +41,11 @@ function UsersPage() {
   const [email, setEmail] = useState("");
 
   const { data: users = [], isLoading: isLoadingUsers } =
-    api.users.query.getUsers.useQuery();
+    useQuery<{ id: string; name: string; email: string }[]>(getUsers);
 
-  const queryClient = useQueryClient();
-  const { mutateAsync: createUserMutation } =
-    api.users.mutation.createUser.useMutation({
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: api.users.query.getUsers.queryKey(),
-        });
-      },
-    });
+  const { mutateAsync: createUserMutation } = useMutation(createUser, {
+    invalidates: [getUsers],
+  });
 
   async function handleCreateUser(e: { preventDefault: () => void }) {
     e.preventDefault();
@@ -82,16 +60,11 @@ function UsersPage() {
   const [content, setContent] = useState("");
 
   const { data: posts = [], isLoading: isLoadingPosts } =
-    api.posts.query.getPosts.useQuery();
+    useQuery<{ id: string; title: string; content: string }[]>(getPosts);
 
-  const { mutateAsync: createPostMutation } =
-    api.posts.mutation.createPost.useMutation({
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: api.posts.query.getPosts.queryKey(),
-        });
-      },
-    });
+  const { mutateAsync: createPostMutation } = useMutation(createPost, {
+    invalidates: [getPosts],
+  });
 
   async function handleCreatePost(e: { preventDefault: () => void }) {
     e.preventDefault();
@@ -105,7 +78,7 @@ function UsersPage() {
 
   return (
     <div>
-      <h2>Users (fetched via Query Proxy)</h2>
+      <h2>Users</h2>
       <ul id="user-list">
         {users.map((u: { id: string; name: string; email: string }) => (
           <li key={u.id}>
@@ -168,15 +141,6 @@ const usersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: UsersPage,
-  loader: ({ context }) =>
-    Promise.all([
-      context.queryClient.ensureQueryData(
-        api.users.query.getUsers.queryOptions(),
-      ),
-      context.queryClient.ensureQueryData(
-        api.posts.query.getPosts.queryOptions(),
-      ),
-    ]),
 });
 
 // ── Search Route (multi-arg server function) ──
@@ -185,10 +149,9 @@ function SearchPage() {
   const [searchName, setSearchName] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
 
-  const { data: results, isLoading } = query(searchUsers).useQuery(
-    searchName || "",
-    searchEmail || "",
-  );
+  const { data: results, isLoading } = useQuery<
+    { id: string; name: string; email: string }[]
+  >(searchUsers, searchName || "", searchEmail || "");
 
   function handleSearch(e: { preventDefault: () => void }) {
     e.preventDefault();
@@ -244,7 +207,15 @@ const searchRoute = createRoute({
 
 function UserDetailPage() {
   const { userId } = userDetailRoute.useParams();
-  const { data: user, error, isLoading } = query(getUser).useQuery(userId);
+  const {
+    data: user,
+    error,
+    isLoading,
+  } = useQuery<{
+    id: string;
+    name: string;
+    email: string;
+  }>(getUser, userId);
 
   if (isLoading) return <p>Loading user…</p>;
 

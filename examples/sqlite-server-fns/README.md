@@ -21,6 +21,6 @@ npm run dev -w example-sqlite-server-fns
 
 - Native addon (`better-sqlite3`) via webpack server externals
 - Multi-table relationships (users → todos)
-- `createQueryProxy` + `createMutationProxy` for grouped API
+- `useQuery(fn)` / `useMutation(fn)` with auto-generated query keys
 - Direct mutation args: `mutate(id)`, `mutate({ name, email })`
 - `invalidates` for auto cache invalidation

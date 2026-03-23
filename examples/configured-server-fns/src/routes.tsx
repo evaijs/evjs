@@ -1,23 +1,13 @@
 import {
   createAppRootRoute,
-  createMutationProxy,
-  createQueryProxy,
   createRoute,
   Link,
   Outlet,
-  useQueryClient,
+  useMutation,
+  useQuery,
 } from "@evjs/runtime/client";
 import { useState } from "react";
-import * as usersApi from "./api/users.server";
-
-// ── API Proxy ──
-
-const api = {
-  users: {
-    query: createQueryProxy(usersApi),
-    mutation: createMutationProxy(usersApi),
-  },
-};
+import { createUser, getUsers } from "./api/users.server";
 
 // ── Root Route ──
 
@@ -45,17 +35,12 @@ function UsersPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
-  const { data: users = [], isLoading } = api.users.query.getUsers.useQuery();
+  const { data: users = [], isLoading } =
+    useQuery<{ id: string; name: string; email: string }[]>(getUsers);
 
-  const queryClient = useQueryClient();
-  const { mutateAsync: doCreateUser } =
-    api.users.mutation.createUser.useMutation({
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: api.users.query.getUsers.queryKey(),
-        });
-      },
-    });
+  const { mutateAsync: doCreateUser } = useMutation(createUser, {
+    invalidates: [getUsers],
+  });
 
   async function handleCreate(e: { preventDefault: () => void }) {
     e.preventDefault();
@@ -69,7 +54,7 @@ function UsersPage() {
 
   return (
     <div>
-      <h2>Users (via Query Proxy)</h2>
+      <h2>Users</h2>
       <ul>
         {users.map((u: { id: string; name: string; email: string }) => (
           <li key={u.id}>
@@ -100,10 +85,6 @@ const usersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: UsersPage,
-  loader: ({ context }) =>
-    context.queryClient.ensureQueryData(
-      api.users.query.getUsers.queryOptions(),
-    ),
 });
 
 // ── Route Tree ──

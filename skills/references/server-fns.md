@@ -47,40 +47,15 @@ const { mutate } = useMutation(createUser, {
 });
 ```
 
-### Raw fetch functions (isomorphic)
+### Raw fetch / non-server functions
 
-The same API works with any async function — not just server functions:
-
-```tsx
-async function fetchGithubUser(username: string) {
-  return fetch(`https://api.github.com/users/${username}`).then(r => r.json());
-}
-
-// Same API — key derived from fn.name
-const { data } = useQuery(fetchGithubUser, "evaijs");
-```
-
-### Standard TanStack options (passthrough)
-
-You can still pass a standard TanStack options object:
+For non-server functions, use the standard TanStack Query API directly:
 
 ```tsx
-const { data } = useQuery({ queryKey: ["custom"], queryFn: fetchSomething });
-```
-
-### Proxy API (advanced)
-
-The `query()` / `mutation()` proxies provide additional helpers like `queryOptions()` and `queryKey()`:
-
-```tsx
-import { query, mutation } from "@evjs/runtime/client";
-
-// queryOptions() for route loaders / prefetching
-const opts = query(getUsers).queryOptions();
-queryClient.ensureQueryData(opts);
-
-// queryKey() for manual cache invalidation
-queryClient.invalidateQueries({ queryKey: query(getUsers).queryKey() });
+const { data } = useQuery({
+  queryKey: ["github-user", username],
+  queryFn: () => fetch(`https://api.github.com/users/${username}`).then(r => r.json()),
+});
 ```
 
 ## Configuration
@@ -136,7 +111,8 @@ if (e instanceof ServerFunctionError) {
 
 ## Key Points
 
-- Always use `query()` / `mutation()` proxies instead of raw `useQuery`
-- Arguments are spread, not wrapped: `useQuery(id)` not `useQuery([id])`
+- Use `useQuery(fn, ...args)` / `useMutation(fn, options?)` for server functions
+- Arguments are spread, not wrapped: `useQuery(getUser, id)` not `useQuery(getUser, [id])`
 - `ServerError` on server → `ServerFunctionError` on client (with status + data)
 - Middleware receives `(ctx, next)` where `ctx = { fnId, args }` — not a Hono context
+

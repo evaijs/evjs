@@ -1,6 +1,14 @@
-import { createRoute, Link, Outlet, query } from "@evjs/runtime/client";
+import { createRoute, Link, Outlet, useQuery } from "@evjs/runtime/client";
 import { getPost, getPosts } from "../../api/data.server";
 import { rootRoute } from "../__root";
+
+type Post = {
+  id: string;
+  title: string;
+  body: string;
+  author: string;
+  tags: string[];
+};
 
 const styles = {
   sidebar: { display: "flex", gap: "1.5rem" },
@@ -22,13 +30,13 @@ const styles = {
 // ── Posts layout (/posts) ──
 
 function PostsLayout() {
-  const { data: posts } = query(getPosts).useQuery();
+  const { data: posts } = useQuery<Post[]>(getPosts);
   return (
     <div style={styles.sidebar}>
       <div style={styles.nav}>
         <h3 style={{ marginTop: 0 }}>Posts</h3>
         <ul style={{ listStyle: "none", padding: 0 }}>
-          {posts?.map((p) => (
+          {posts?.map((p: Post) => (
             <li key={p.id} style={{ marginBottom: "0.25rem" }}>
               <Link
                 to="/posts/$postId"
@@ -69,7 +77,7 @@ export const postsIndexRoute = createRoute({
 
 function PostDetail() {
   const { postId } = postDetailRoute.useParams();
-  const { data: post } = query(getPost).useQuery(postId);
+  const { data: post } = useQuery<Post>(getPost, postId);
 
   if (!post) return <p>Loading...</p>;
   return (
@@ -83,7 +91,7 @@ function PostDetail() {
       </p>
       <p>{post.body}</p>
       <div>
-        {post.tags.map((tag) => (
+        {post.tags.map((tag: string) => (
           <span key={tag} style={styles.tag}>
             {tag}
           </span>
@@ -96,9 +104,5 @@ function PostDetail() {
 export const postDetailRoute = createRoute({
   getParentRoute: () => postsRoute,
   path: "$postId",
-  loader: ({ params, context }) =>
-    context.queryClient.ensureQueryData(
-      query(getPost).queryOptions(params.postId),
-    ),
   component: PostDetail,
 });

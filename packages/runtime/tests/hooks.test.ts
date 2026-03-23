@@ -32,7 +32,7 @@ describe("getBaseKey", () => {
     const fn = async () => {};
     // Assign empty name to simulate minified arrow function
     Object.defineProperty(fn, "name", { value: "" });
-    expect(getBaseKey(fn)).toBe("query");
+    expect(getBaseKey(fn)).toBe("unknown");
   });
 });
 

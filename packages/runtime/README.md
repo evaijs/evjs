@@ -15,16 +15,15 @@ npm install @evjs/runtime
 | Export | Description |
 |--------|-------------|
 | `createApp` | Bootstrap TanStack Router + Query + DOM |
-| `query(fn)` | Universal query proxy for server functions |
-| `mutation(fn)` | Universal mutation proxy for server functions |
-| `createQueryProxy(module)` | Module-level query proxy |
-| `createMutationProxy(module)` | Module-level mutation proxy |
+| `useQuery(fn, ...args)` | Smart query hook — accepts server functions directly |
+| `useMutation(fn, options?)` | Smart mutation hook — accepts server functions directly |
+| `useSuspenseQuery(fn, ...args)` | Smart suspense query hook |
 | `initTransport` | One-time transport configuration (endpoint, custom transport, codec) |
 | `getFnName` | Get the original name of a server function stub |
 | `ServerFunctionError` | Structured error class for server function failures |
 | `jsonCodec` | Default JSON codec |
 | `createRootRoute`, `createRoute`, `Link`, `Outlet`, ... | Re-exports from `@tanstack/react-router` |
-| `useQuery`, `useMutation`, `useQueryClient`, ... | Re-exports from `@tanstack/react-query` |
+| `useQueryClient`, `QueryClient`, ... | Re-exports from `@tanstack/react-query` |
 
 ### `@evjs/runtime/server`
 
@@ -55,12 +54,12 @@ npm install @evjs/runtime
 ### Client
 
 ```tsx
-import { createApp, createRootRoute, query, mutation } from "@evjs/runtime/client";
+import { createApp, createRootRoute, useQuery, useMutation } from "@evjs/runtime/client";
 import { getUsers, createUser } from "./api/users.server";
 
 function Users() {
-  const { data } = query(getUsers).useQuery();
-  const { mutate } = mutation(createUser).useMutation({
+  const { data } = useQuery(getUsers);
+  const { mutate } = useMutation(createUser, {
     invalidates: [getUsers],  // auto-invalidate on success
   });
 }
@@ -130,29 +129,22 @@ export async function getUser(id: string) {
 }
 ```
 
-### Query Proxy Patterns
+### Query Patterns
 
 ```tsx
-// Direct wrapper
-const { data } = query(getUsers).useQuery();
+// Pass server functions directly — auto-generated key + transport
+const { data } = useQuery(getUsers);
 
 // With args
-const { data } = query(getUser).useQuery(userId);
+const { data } = useQuery(getUser, userId);
 
-// Query invalidation (via TanStack QueryClient)
-queryClient.invalidateQueries({ queryKey: query(getUsers).queryKey() });
+// Mutations with auto-invalidation
+const { mutate } = useMutation(createUser, {
+  invalidates: [getUsers],
+});
 
-// queryOptions (for prefetching)
-const options = query(getUsers).queryOptions();
-queryClient.prefetchQuery(options);
-
-// queryOptions with custom TanStack options (just spread on top)
-const options = { ...query(getUsers).queryOptions(), staleTime: 5000 };
-
-// Module proxy
-import * as UsersAPI from "./api/users.server";
-const api = createQueryProxy(UsersAPI);
-const { data } = api.getUsers.useQuery();
+// Standard TanStack options also work
+const { data } = useQuery({ queryKey: ["custom"], queryFn: fetchSomething });
 ```
 
 ### Custom Transport (WebSocket)
@@ -172,27 +164,12 @@ initTransport({
 });
 ```
 
-### Route Loader Pattern
-
-Prefetch data before route renders — no loading spinners:
-
-```tsx
-const usersRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/users",
-  loader: ({ context }) =>
-    context.queryClient.ensureQueryData(query(getUsers).queryOptions()),
-  component: UsersPage,
-});
-```
-
 ## Common Mistakes
 
-1. **Don't use raw `useQuery`** for server functions — use `query(fn).useQuery(args)`
-2. **Arguments are spread, not wrapped** — `query(getUser).useQuery(id)` not `query(getUser).useQuery([id])`
-3. **Mutation args are passed directly** — `mutate({ name, email })` not `mutate([{ name, email }])`
-4. **Don't call server functions directly in components** — wrap with `query()` or `mutation()`
-5. **Don't forget `"use server";`** at the top of `.server.ts` files
-6. **Throw `ServerError`** on the server, catch `ServerFunctionError` on the client
-7. **Always register the router type** — without `declare module "@tanstack/react-router" { ... }`, all route params/search will be `any`
-8. **Use `route.useParams()`** not the global `useParams()` — the route-scoped version gives proper type inference
+1. **Arguments are spread, not wrapped** — `useQuery(getUser, id)` not `useQuery(getUser, [id])`
+2. **Mutation args are passed directly** — `mutate({ name, email })` not `mutate([{ name, email }])`
+3. **Don't call server functions directly in components** — wrap with `useQuery()` or `useMutation()`
+4. **Don't forget `"use server";`** at the top of `.server.ts` files
+5. **Throw `ServerError`** on the server, catch `ServerFunctionError` on the client
+6. **Always register the router type** — without `declare module "@tanstack/react-router" { ... }`, all route params/search will be `any`
+7. **Use `route.useParams()`** not the global `useParams()` — the route-scoped version gives proper type inference

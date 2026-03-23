@@ -1,6 +1,6 @@
 # server-fns-query
 
-Query + mutation proxies with multiple API modules (users + posts).
+Query + mutation patterns with multiple API modules (users + posts).
 
 ## Run
 
@@ -12,13 +12,13 @@ npm run dev -w example-server-fns-query
 
 | File | Purpose |
 |------|---------|
-| `src/routes.tsx` | Multi-resource page with proxy API |
+| `src/routes.tsx` | Multi-resource page with `useQuery` / `useMutation` |
 | `src/api/users.server.ts` | User CRUD |
 | `src/api/posts.server.ts` | Post CRUD |
 
 ## What It Demonstrates
 
-- Multiple `createQueryProxy` / `createMutationProxy` namespaces (`api.users`, `api.posts`)
-- `queryKey()` for manual cache invalidation
-- `queryOptions()` for route loaders with `ensureQueryData`
-- `Promise.all` in loader for parallel data fetching
+- `useQuery(fn)` / `useMutation(fn)` with auto-generated query keys
+- `invalidates` for auto cache invalidation on mutation success
+- Multi-arg server functions: `useQuery(searchUsers, name, email)`
+- Error handling with `ServerFunctionError`

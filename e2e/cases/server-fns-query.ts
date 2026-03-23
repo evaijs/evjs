@@ -151,11 +151,9 @@ test.describe("server-fns-query", () => {
 
     // The loader uses queryOptions() to prefetch — users should render
     // immediately without showing "Loading data from server…"
-    await expect(page.getByText("Users (fetched via Query Proxy)")).toBeVisible(
-      {
-        timeout: 10_000,
-      },
-    );
+    await expect(page.getByRole("heading", { name: "Users" })).toBeVisible({
+      timeout: 10_000,
+    });
     await expect(page.getByText("Loading data from server")).not.toBeVisible();
   });
 });

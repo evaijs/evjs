@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Server-side runtime for the evjs framework",
   "dependencies": {
-    "@evjs/shared": "0.0.0",
+    "@evjs/shared": "*",
     "@hono/node-server": "^1.19.11",
     "@logtape/logtape": "^2.0.4",
     "hono": "^4.12.5"

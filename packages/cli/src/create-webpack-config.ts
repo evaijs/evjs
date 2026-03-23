@@ -84,6 +84,24 @@ export function createWebpackConfig(
             },
           ],
         },
+        // Plugin-declared loaders
+        ...(client?.plugins ?? []).flatMap((plugin) =>
+          (plugin.loaders ?? []).map((rule) => {
+            const entries = Array.isArray(rule.use) ? rule.use : [rule.use];
+            return {
+              test: rule.test,
+              ...(rule.exclude ? { exclude: rule.exclude } : {}),
+              use: entries.map((entry) =>
+                typeof entry === "string"
+                  ? { loader: resolveLoader(entry) }
+                  : {
+                      loader: resolveLoader(entry.loader),
+                      ...(entry.options ? { options: entry.options } : {}),
+                    },
+              ),
+            };
+          }),
+        ),
       ],
     },
     plugins: [

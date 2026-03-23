@@ -59,6 +59,10 @@ program
               title: "Complex Routing (params, search, layouts, loaders)",
               value: "complex-routing",
             },
+            {
+              title: "With Tailwind CSS (plugin loaders example)",
+              value: "with-tailwind",
+            },
           ],
         },
       ],
@@ -175,13 +179,15 @@ program
         const bootstrapPath = path.resolve(cwd, "dist/server/_dev_start.cjs");
 
         if (fs.existsSync(manifestPath)) {
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+          // Only start API server if there are actual server functions
+          if (Object.keys(manifest.server?.fns ?? {}).length === 0) return;
           apiStarted = true;
           const backendConfig = evjsConfig?.server?.backend ?? "node";
           const [backend, ...backendExtraArgs] = backendConfig.split(/\s+/);
           logger.info`Server bundle detected, starting ${backend} API...`;
 
           try {
-            const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
             const serverBundlePath = path.resolve(
               cwd,
               "dist/server",

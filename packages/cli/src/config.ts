@@ -10,6 +10,8 @@ export interface ServerConfig {
   endpoint?: string;
   /** Middleware module paths to auto-register in server entry. */
   middleware?: string[];
+  /** Build plugins for the server bundle. */
+  plugins?: EvPlugin[];
   /** Dev server options. */
   dev?: {
     /** API server port (dev mode). Default: 3001. */
@@ -30,6 +32,8 @@ export interface ClientConfig {
   // TODO: MPA support — add `pages` field as Record<string, { entry, html? }>
   // When `pages` is set it takes precedence over `entry`/`html` and generates
   // multiple webpack entries + HtmlWebpackPlugin instances.
+  /** Build plugins for the client bundle. */
+  plugins?: EvPlugin[];
   /** Dev server options. */
   dev?: {
     /** Dev server port. Default: 3000. */
@@ -48,6 +52,39 @@ export interface ClientConfig {
     /** Path prefix for the server function endpoint. */
     endpoint?: string;
   };
+}
+
+/**
+ * A single loader entry.
+ *
+ * Can be a plain package name or an object with per-loader options.
+ *
+ * @example
+ * ```ts
+ * "css-loader"
+ * { loader: "css-loader", options: { modules: true } }
+ * ```
+ */
+export type EvLoaderEntry =
+  | string
+  | { loader: string; options?: Record<string, unknown> };
+
+/** A loader rule declared by a plugin. */
+export interface EvPluginLoader {
+  /** File matching pattern (e.g. /\.css$/, /\.svg$/). */
+  test: RegExp;
+  /** Pattern to exclude (e.g. /node_modules/). */
+  exclude?: RegExp;
+  /** Loader(s) to apply. */
+  use: EvLoaderEntry | EvLoaderEntry[];
+}
+
+/** An evjs build plugin. */
+export interface EvPlugin {
+  /** Plugin name for debugging and logging. */
+  name: string;
+  /** Loaders to add to the build pipeline. */
+  loaders?: EvPluginLoader[];
 }
 
 /**

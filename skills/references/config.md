@@ -32,6 +32,16 @@ export default defineConfig({
     entry: "./src/main.tsx",
     html: "./index.html",
 
+    // ── Plugins ──
+    plugins: [
+      {
+        name: "tailwind",
+        loaders: [
+          { test: /\.css$/, use: ["style-loader", "css-loader", "postcss-loader"] },
+        ],
+      },
+    ],
+
     // ── Dev server ──
     dev: {
       port: 3000,
@@ -53,6 +63,11 @@ export default defineConfig({
     backend: "node",                       // "node" | "bun" | "deno run --allow-net"
     middleware: ["./src/middleware/auth.ts"], // Applied in order
 
+    // ── Plugins ──
+    plugins: [
+      // Server-side plugins (same interface as client plugins)
+    ],
+
     // ── Dev server ──
     dev: {
       port: 3001,
@@ -68,6 +83,59 @@ Path to the client entry point. Must export the `createApp()` call.
 
 ### `client.html`
 Path to the HTML template. Must contain a mount element (e.g. `<div id="app">`).
+
+### `client.plugins`
+
+Array of `EvPlugin` objects that extend the build pipeline. Each plugin can declare loaders.
+
+#### Plugin Interface
+
+```ts
+interface EvPlugin {
+  name: string;
+  loaders?: EvPluginLoader[];
+}
+
+interface EvPluginLoader {
+  test: RegExp;          // File matching pattern
+  exclude?: RegExp;      // Pattern to exclude
+  use: EvLoaderEntry | EvLoaderEntry[];
+}
+
+// A loader entry: string or object with options
+type EvLoaderEntry =
+  | string
+  | { loader: string; options?: Record<string, unknown> };
+```
+
+#### Examples
+
+```ts
+// Simple loader
+{ name: "css", loaders: [{ test: /\.css$/, use: "css-loader" }] }
+
+// Loader chain
+{ name: "tailwind", loaders: [{
+  test: /\.css$/,
+  use: ["style-loader", "css-loader", "postcss-loader"],
+}]}
+
+// Per-loader options
+{ name: "css-modules", loaders: [{
+  test: /\.module\.css$/,
+  use: [
+    "style-loader",
+    { loader: "css-loader", options: { modules: true } },
+  ],
+}]}
+
+// With exclude
+{ name: "svg", loaders: [{
+  test: /\.svg$/,
+  exclude: /node_modules/,
+  use: "@svgr/webpack",
+}]}
+```
 
 ### `client.dev`
 
@@ -120,6 +188,10 @@ registerMiddleware(async (ctx, next) => {
 
 Middleware is imported and applied in array order.
 
+### `server.plugins`
+
+Same `EvPlugin` interface as `client.plugins`. Server-side plugin loaders are applied to the server bundle.
+
 ### `server.dev`
 
 | Option | Type | Default | Description |
@@ -136,6 +208,24 @@ import { defineConfig } from "@evjs/cli";
 export default defineConfig({
   client: { dev: { port: 4000 } },
   server: { dev: { port: 4001 } },
+});
+```
+
+### With Tailwind CSS
+
+```ts
+import { defineConfig } from "@evjs/cli";
+
+export default defineConfig({
+  client: {
+    plugins: [{
+      name: "tailwind",
+      loaders: [{
+        test: /\.css$/,
+        use: ["style-loader", "css-loader", "postcss-loader"],
+      }],
+    }],
+  },
 });
 ```
 

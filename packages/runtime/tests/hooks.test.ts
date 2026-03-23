@@ -82,4 +82,41 @@ describe("serverFn", () => {
     const opts = serverFn(searchUsers, "alice", "alice@test.com");
     expectTypeOf(opts.queryFn).returns.resolves.toEqualTypeOf<SearchResult[]>();
   });
+
+  it("is assignable to useQuery options (TData flows through)", () => {
+    type Post = { id: string; title: string };
+    const getPosts = async () => [] as Post[];
+    __fn_register(getPosts, "mod:getPosts", "getPosts");
+
+    // Simulate what useQuery sees: it receives { queryKey, queryFn }
+    // and infers TData from queryFn's return type
+    const opts = serverFn(getPosts);
+
+    // This is what useQuery internally resolves:
+    type InferredData = Awaited<ReturnType<typeof opts.queryFn>>;
+    expectTypeOf<InferredData>().toEqualTypeOf<Post[]>();
+
+    // Spread into useQuery options should preserve types
+    const extended = { ...opts, staleTime: 5000 };
+    type ExtendedData = Awaited<ReturnType<typeof extended.queryFn>>;
+    expectTypeOf<ExtendedData>().toEqualTypeOf<Post[]>();
+  });
+
+  it("enforces correct arg types from server function signature", () => {
+    const getUser = async (_id: number, _includeDeleted: boolean) =>
+      ({}) as { name: string };
+    __fn_register(getUser, "mod:getUser", "getUser");
+
+    // Correct args
+    const opts = serverFn(getUser, 42, true);
+    expectTypeOf(opts.queryFn).returns.resolves.toEqualTypeOf<{
+      name: string;
+    }>();
+
+    // @ts-expect-error — wrong arg type (string instead of number)
+    serverFn(getUser, "wrong", true);
+
+    // @ts-expect-error — missing second arg
+    serverFn(getUser, 42);
+  });
 });

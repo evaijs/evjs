@@ -34,7 +34,7 @@ function Root() {
     >
       <h1>📦 SQLite Server Functions</h1>
       <p style={{ color: "#666" }}>
-        Real database-backed server functions using <code>better-sqlite3</code>.
+        Real database-backed server functions using <code>node:sqlite</code>.
       </p>
       <nav
         style={{

@@ -21,11 +21,8 @@ export {
   QueryClientProvider,
   useInfiniteQuery,
   useIsFetching,
-  useMutation,
   usePrefetchQuery,
-  useQuery,
   useQueryClient,
-  useSuspenseQuery,
 } from "@tanstack/react-query";
 export type { Codec } from "../codec";
 export { jsonCodec } from "../codec";
@@ -34,6 +31,7 @@ export type { AppRouteContext } from "./context";
 export { createAppRootRoute } from "./context";
 export type { App, CreateAppOptions } from "./create-app";
 export { createApp } from "./create-app";
+export { useMutation, useQuery, useSuspenseQuery } from "./hooks";
 export type {
   MutationProxy,
   MutationProxyHandler,

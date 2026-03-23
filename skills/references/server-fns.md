@@ -28,58 +28,59 @@ export async function createUser(name: string, email: string) {
 
 ## Query Patterns
 
-Use `query` / `mutation` proxies — they handle query keys, transport, and cache invalidation automatically.
+evjs's `useQuery` and `useMutation` accept server functions directly — auto-generating query keys and transport.
 
-### evjs proxy vs raw TanStack Query
+### Direct usage (recommended)
 
 ```tsx
-// ✅ evjs — automatic queryKey, transport, and type safety
-const { data } = query(getUser).useQuery(userId);
+import { useQuery, useMutation } from "@evjs/runtime/client";
+import { getUsers, getUser, createUser } from "../api/users.server";
 
-// ❌ raw TanStack — manual everything
-const { data } = useQuery({
-  queryKey: ["getUser", userId],
-  queryFn: () => fetch(`/api/fn`, {
-    method: "POST",
-    body: JSON.stringify({ fnId: "hash:getUser", args: [userId] }),
-  }).then(r => r.json()).then(r => r.result),
+// Pass server functions directly — key + transport auto-generated
+const { data: users } = useQuery(getUsers);
+const { data: user } = useQuery(getUser, userId);
+
+// Mutations
+const { mutate } = useMutation(createUser);
+const { mutate } = useMutation(createUser, {
+  invalidates: [getUsers],
 });
 ```
 
-| | evjs proxy | Raw TanStack |
-|--|-----------|-------------|
-| **Query key** | Auto-generated from function ID | Manual, error-prone strings |
-| **Transport** | Built-in (fetch, WebSocket, custom) | Manual fetch |
-| **Cache invalidation** | `invalidates: [getUsers]` | Manual queryKey matching |
-| **Type safety** | Inferred from server function | Manual typing |
-| **Custom options** | `{ ...fn.queryOptions(), staleTime: 5000 }` | Inline in `useQuery()` |
+### Raw fetch functions (isomorphic)
 
-### Examples
+The same API works with any async function — not just server functions:
 
 ```tsx
-import { query, mutation, useQuery } from "@evjs/runtime/client";
+async function fetchGithubUser(username: string) {
+  return fetch(`https://api.github.com/users/${username}`).then(r => r.json());
+}
 
-// Basic usage
-const { data } = query(getUsers).useQuery();
+// Same API — key derived from fn.name
+const { data } = useQuery(fetchGithubUser, "evaijs");
+```
 
-// With arguments
-const { data } = query(getUser).useQuery(userId);
+### Standard TanStack options (passthrough)
 
-// Custom query options (just spread on top)
-const opts = { ...query(getUsers).queryOptions(), staleTime: 5000 };
-const { data } = useQuery(opts);
+You can still pass a standard TanStack options object:
 
-// Prefetching in route loaders
+```tsx
+const { data } = useQuery({ queryKey: ["custom"], queryFn: fetchSomething });
+```
+
+### Proxy API (advanced)
+
+The `query()` / `mutation()` proxies provide additional helpers like `queryOptions()` and `queryKey()`:
+
+```tsx
+import { query, mutation } from "@evjs/runtime/client";
+
+// queryOptions() for route loaders / prefetching
 const opts = query(getUsers).queryOptions();
 queryClient.ensureQueryData(opts);
 
-// Cache invalidation
+// queryKey() for manual cache invalidation
 queryClient.invalidateQueries({ queryKey: query(getUsers).queryKey() });
-
-// Auto-invalidation on mutation success
-const { mutate } = mutation(createUser).useMutation({
-  invalidates: [getUsers],
-});
 ```
 
 ## Configuration

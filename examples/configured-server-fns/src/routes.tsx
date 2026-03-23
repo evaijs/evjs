@@ -38,7 +38,7 @@ function UsersPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
-  const { data: users = [], isLoading } = useQuery(serverFn(getUsers));
+  const { data: users = [], isLoading } = useQuery(getUsers);
 
   const queryClient = useQueryClient();
   const { mutateAsync: doCreateUser } = useMutation({

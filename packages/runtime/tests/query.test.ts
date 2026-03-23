@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, expectTypeOf, it, vi } from "vitest";
-import { serverFn } from "../src/client/hooks.js";
+import { serverFn } from "../src/client/query.js";
 import {
   __fn_register,
   __resetForTesting,

@@ -1,4 +1,4 @@
-import { createRoute, Link, serverFn, useQuery } from "@evjs/runtime/client";
+import { createRoute, Link, useQuery } from "@evjs/runtime/client";
 import { getPosts } from "../api/data.server";
 import { rootRoute } from "./__root";
 
@@ -13,7 +13,7 @@ const styles = {
 
 function SearchPage() {
   const { q } = searchRoute.useSearch();
-  const { data: results } = useQuery(serverFn(getPosts, q || undefined));
+  const { data: results } = useQuery(getPosts, q || undefined);
 
   return (
     <div>

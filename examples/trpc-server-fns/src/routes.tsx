@@ -2,7 +2,6 @@ import {
   createRootRoute,
   createRoute,
   Outlet,
-  serverFn,
   useQuery,
 } from "@evjs/runtime/client";
 import { createTRPCClient, type TRPCLink } from "@trpc/client";
@@ -72,9 +71,7 @@ const rootRoute = createRootRoute({ component: Root });
 
 function HomePage() {
   const [trpcData, setTrpcData] = useState<unknown>(null);
-  const { data: serverTime, refetch: refetchTime } = useQuery(
-    serverFn(getServerTime),
-  );
+  const { data: serverTime, refetch: refetchTime } = useQuery(getServerTime);
 
   const refreshAction = useCallback(async () => {
     // 1. Call via tRPC (proxied through Server Function)

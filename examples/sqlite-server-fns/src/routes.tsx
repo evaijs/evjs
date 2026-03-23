@@ -64,7 +64,7 @@ function UsersPage() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [error, setError] = useState("");
 
-  const { data: users = [], isLoading } = useQuery(serverFn(getUsers));
+  const { data: users = [], isLoading } = useQuery(getUsers);
 
   const queryClient = useQueryClient();
   const { mutateAsync: doCreateUser, isPending: isCreating } = useMutation({
@@ -198,7 +198,7 @@ function UsersPage() {
 function TodosSection({ userId }: { userId: number }) {
   const [title, setTitle] = useState("");
 
-  const { data: todos = [], isLoading } = useQuery(serverFn(getTodos, userId));
+  const { data: todos = [], isLoading } = useQuery(getTodos, userId);
 
   const queryClient = useQueryClient();
   const { mutateAsync: doCreateTodo } = useMutation({

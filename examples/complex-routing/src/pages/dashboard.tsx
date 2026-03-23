@@ -1,4 +1,4 @@
-import { createRoute, Outlet, serverFn, useQuery } from "@evjs/runtime/client";
+import { createRoute, Outlet, useQuery } from "@evjs/runtime/client";
 import { getStats } from "../api/data.server";
 import { rootRoute } from "./__root";
 
@@ -35,7 +35,7 @@ export const dashboardLayout = createRoute({
 // ── Dashboard page (/dashboard) ──
 
 function Dashboard() {
-  const { data: stats } = useQuery(serverFn(getStats));
+  const { data: stats } = useQuery(getStats);
   if (!stats) return <p>Loading...</p>;
   return (
     <div>

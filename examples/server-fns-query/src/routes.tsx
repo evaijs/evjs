@@ -42,9 +42,7 @@ function UsersPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
 
-  const { data: users = [], isLoading: isLoadingUsers } = useQuery(
-    serverFn(getUsers),
-  );
+  const { data: users = [], isLoading: isLoadingUsers } = useQuery(getUsers);
 
   const queryClient = useQueryClient();
   const { mutateAsync: createUserMutation } = useMutation({
@@ -66,9 +64,7 @@ function UsersPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const { data: posts = [], isLoading: isLoadingPosts } = useQuery(
-    serverFn(getPosts),
-  );
+  const { data: posts = [], isLoading: isLoadingPosts } = useQuery(getPosts);
 
   const { mutateAsync: createPostMutation } = useMutation({
     mutationFn: createPost,
@@ -161,7 +157,9 @@ function SearchPage() {
   const [searchEmail, setSearchEmail] = useState("");
 
   const { data: results, isLoading } = useQuery(
-    serverFn(searchUsers, searchName || "", searchEmail || ""),
+    searchUsers,
+    searchName || "",
+    searchEmail || "",
   );
 
   function handleSearch(e: { preventDefault: () => void }) {
@@ -218,7 +216,7 @@ const searchRoute = createRoute({
 
 function UserDetailPage() {
   const { userId } = userDetailRoute.useParams();
-  const { data: user, error, isLoading } = useQuery(serverFn(getUser, userId));
+  const { data: user, error, isLoading } = useQuery(getUser, userId);
 
   if (isLoading) return <p>Loading user…</p>;
 

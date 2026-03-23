@@ -1,10 +1,4 @@
-import {
-  createRoute,
-  Link,
-  Outlet,
-  serverFn,
-  useQuery,
-} from "@evjs/runtime/client";
+import { createRoute, Link, Outlet, useQuery } from "@evjs/runtime/client";
 import { getPost, getPosts } from "../../api/data.server";
 import { rootRoute } from "../__root";
 
@@ -28,7 +22,7 @@ const styles = {
 // ── Posts layout (/posts) ──
 
 function PostsLayout() {
-  const { data: posts } = useQuery(serverFn(getPosts));
+  const { data: posts } = useQuery(getPosts);
   return (
     <div style={styles.sidebar}>
       <div style={styles.nav}>
@@ -75,7 +69,7 @@ export const postsIndexRoute = createRoute({
 
 function PostDetail() {
   const { postId } = postDetailRoute.useParams();
-  const { data: post } = useQuery(serverFn(getPost, postId));
+  const { data: post } = useQuery(getPost, postId);
 
   if (!post) return <p>Loading...</p>;
   return (

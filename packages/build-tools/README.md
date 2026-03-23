@@ -33,7 +33,7 @@ import {
 
 // Generate server entry source
 const entrySource = generateServerEntry(
-  { appFactory: "@evjs/runtime/server#createApp" },
+  { appFactory: "@evjs/server#createApp" },
   ["/path/to/api/users.server.ts"],
 );
 
@@ -67,9 +67,9 @@ All generated code passes through `emitCode()` — a SWC `parseSync → printSyn
 All runtime identifiers (module paths, function names, property names) are centralized in a single `RUNTIME` constant — no hardcoded strings in templates:
 
 ```ts
-RUNTIME.serverModule          // "@evjs/runtime/server/register"
-RUNTIME.appModule             // "@evjs/runtime/server"
-RUNTIME.clientTransportModule // "@evjs/runtime/client/transport"
+RUNTIME.serverModule          // "@evjs/server/register"
+RUNTIME.appModule             // "@evjs/server"
+RUNTIME.clientTransportModule // "@evjs/client/transport"
 RUNTIME.registerServerFn      // "registerServerFn"
 RUNTIME.clientCall            // "__fn_call"
 RUNTIME.clientRegister        // "__fn_register"

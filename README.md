@@ -41,7 +41,9 @@ config needed.
 | Package | Purpose |
 |---------|---------|
 | [`@evjs/cli`](./packages/cli) | CLI + `defineConfig` |
-| [`@evjs/runtime`](./packages/runtime) | Client (React) + Server (Hono) |
+| [`@evjs/shared`](./packages/shared) | Shared codec, errors, constants |
+| [`@evjs/client`](./packages/client) | Client runtime (React + TanStack) |
+| [`@evjs/server`](./packages/server) | Server runtime (Hono) |
 | [`@evjs/build-tools`](./packages/build-tools) | Server function transforms |
 | [`@evjs/webpack-plugin`](./packages/webpack-plugin) | Webpack adapter |
 | [`@evjs/manifest`](./packages/manifest) | Shared manifest schema types |

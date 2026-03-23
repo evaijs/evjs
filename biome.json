@@ -56,7 +56,9 @@
         "examples/**",
         "scripts/**",
         "packages/cli/**",
-        "packages/runtime/**"
+        "packages/shared/**",
+        "packages/client/**",
+        "packages/server/**"
       ],
       "linter": {
         "rules": {

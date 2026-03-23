@@ -1,5 +1,5 @@
 /**
- * Type-safety tests for @evjs/runtime routing.
+ * Type-safety tests for @evjs/client routing.
  *
  * These tests are validated at compile time — `tsc --noEmit` on this file
  * verifies that the type system correctly enforces:

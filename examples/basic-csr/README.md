@@ -17,7 +17,7 @@ npm run dev -w example-basic-csr
 
 ## What It Demonstrates
 
-- `createApp` + `createRoute` from `@evjs/runtime`
+- `createApp` + `createRoute` from `@evjs/client`
 - Client-side routing with TanStack Router
 - Dynamic route params (`$postId`)
 - No server functions — pure CSR

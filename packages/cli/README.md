@@ -90,7 +90,7 @@ my-app/
 1. **Don't create `webpack.config.cjs`** — use `ev.config.ts` instead
 2. **Don't install webpack manually** — it's a dependency of `@evjs/cli`
 3. **Config file must be `ev.config.ts`** — not `evjs.config.ts`
-4. **Import `defineConfig` from `@evjs/cli`** — not from `@evjs/runtime`
+4. **Import `defineConfig` from `@evjs/cli`** — not from `@evjs/server`
 
 ## Bundled Dependencies
 

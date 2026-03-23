@@ -39,11 +39,11 @@ module.exports = {
   plugins: [
     new EvWebpackPlugin({
       server: {
-        // App factory (default: "@evjs/runtime/server#createApp")
-        appFactory: "@evjs/runtime/server#createApp",
+        // App factory (default: "@evjs/server#createApp")
+        appFactory: "@evjs/server#createApp",
         // Backend — bake into bundle for self-starting dev server
         backend: process.env.NODE_ENV === "development"
-          ? "@evjs/runtime/server#serve"
+          ? "@evjs/server/node#serve"
           : undefined,
         // Extra imports (middleware, config, etc.)
         setup: [],
@@ -69,6 +69,6 @@ module.exports = {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `server.appFactory` | `string` | `"@evjs/runtime/server#createApp"` | Module ref for app factory |
+| `server.appFactory` | `string` | `"@evjs/server#createApp"` | Module ref for app factory |
 | `server.backend` | `string?` | `undefined` | Module ref for auto-starting the server |
 | `server.setup` | `string[]` | `[]` | Extra imports to prepend to server entry |

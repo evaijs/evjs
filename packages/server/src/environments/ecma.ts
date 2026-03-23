@@ -10,7 +10,7 @@ import type { Hono } from "hono";
  * Usage:
  * ```ts
  * import app from "./dist/server/index.js";
- * import { createHandler } from "@evjs/runtime/server/ecma";
+ * import { createHandler } from "@evjs/server/ecma";
  * export default createHandler(app);
  * ```
  */

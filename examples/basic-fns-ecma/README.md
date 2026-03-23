@@ -19,10 +19,10 @@ npm run start -w example-basic-fns-ecma
 | `src/main.tsx` | App bootstrap |
 | `src/routes.tsx` | Routes + components |
 | `src/api/messages.server.ts` | Server functions |
-| `ev.config.ts` | Uses `@evjs/runtime/server/ecma` backend |
+| `ev.config.ts` | Uses `@evjs/server/ecma` backend |
 
 ## What It Demonstrates
 
-- `createFetchHandler` from `@evjs/runtime/server/ecma`
+- `createFetchHandler` from `@evjs/server/ecma`
 - Portable server bundle (no Node.js-specific APIs)
 - Custom backend configuration via `ev.config.ts`

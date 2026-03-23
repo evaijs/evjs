@@ -10,7 +10,7 @@ npm install @evjs/manifest
 
 ## Purpose
 
-Defines the structure of the unified manifest file emitted by `@evjs/webpack-plugin` and consumed by `@evjs/runtime`. A single `dist/manifest.json` contains both server and client build metadata:
+Defines the structure of the unified manifest file emitted by `@evjs/webpack-plugin` and consumed by `@evjs/client` and `@evjs/server`. A single `dist/manifest.json` contains both server and client build metadata:
 
 ## Manifest (v1)
 

@@ -82,7 +82,7 @@ declare module "@tanstack/react-router" {
 ```json
 {
   "dependencies": {
-    "@evjs/runtime": "*",
+    "@evjs/client": "0.0.0", "@evjs/server": "0.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -98,7 +98,7 @@ declare module "@tanstack/react-router" {
 ## Key Rules
 
 - Config file: `ev.config.ts` (not `evjs.config.ts`)
-- Import `defineConfig` from `@evjs/cli`, not `@evjs/runtime`
+- Import `defineConfig` from `@evjs/cli`, not from `@evjs/server`
 - HTML must have `<div id="app">` for the render target
 - Do NOT add `"type": "module"` to `package.json` — the server bundle uses CommonJS
 - `src/main.tsx` should be kept minimal — define routes in `routes.tsx`

@@ -33,9 +33,10 @@
     │
     └──► webpack (Node API)
 
-@evjs/runtime ──┬──► hono, @hono/node-server  (server)
-                ├──► @tanstack/react-router    (client)
-                └──► @tanstack/react-query     (client)
+@evjs/shared (standalone, no deps)
+
+@evjs/server ──► @evjs/shared, hono, @hono/node-server
+@evjs/client ──► @evjs/shared, @tanstack/react-router, @tanstack/react-query
 ```
 
 ## Configuration Flow
@@ -92,9 +93,9 @@ All runtime identifiers used in generated code are centralized in `types.ts`:
 
 ```ts
 export const RUNTIME = {
-  serverModule: "@evjs/runtime/server/register",
-  appModule: "@evjs/runtime/server",
-  clientTransportModule: "@evjs/runtime/client/transport",
+  serverModule: "@evjs/server/register",
+  appModule: "@evjs/server",
+  clientTransportModule: "@evjs/client/transport",
   registerServerFn: "registerServerFn",
   clientCall: "__fn_call",
   clientRegister: "__fn_register",

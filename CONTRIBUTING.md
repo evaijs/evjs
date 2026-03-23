@@ -15,7 +15,9 @@
 | Package | Path | Purpose |
 |---------|------|---------|
 | `@evjs/cli` | `packages/cli` | CLI (`ev init`, `ev dev`, `ev build`) + `defineConfig` |
-| `@evjs/runtime` | `packages/runtime` | Client (React + TanStack) + Server (Hono) |
+| `@evjs/shared` | `packages/shared` | Shared codec, errors, constants |
+| `@evjs/client` | `packages/client` | Client (React + TanStack) |
+| `@evjs/server` | `packages/server` | Server (Hono) |
 | `@evjs/build-tools` | `packages/build-tools` | Bundler-agnostic server function transforms (SWC) |
 | `@evjs/manifest` | `packages/manifest` | Shared manifest schema types (`ManifestV1`) |
 | `@evjs/webpack-plugin` | `packages/webpack-plugin` | Webpack adapter wrapping build-tools |
@@ -29,7 +31,9 @@
   │     └── @evjs/manifest
   └── webpack / webpack-dev-server / swc-loader / @swc/core
 
-@evjs/runtime (standalone, no internal deps)
+@evjs/shared (standalone, no internal deps)
+@evjs/client ──► @evjs/shared, @tanstack/react-router, @tanstack/react-query
+@evjs/server ──► @evjs/shared, hono, @hono/node-server
 ```
 
 ## Coding Rules
@@ -98,7 +102,7 @@ npm run create-skill       # Scaffold a new agent skill
 1. Same config resolution as `ev build`
 2. Starts `WebpackDevServer` for client
 3. Uses `compiler.hooks.done` to detect server bundle
-4. Auto-starts Node API server via `@evjs/runtime/server/node`
+4. Auto-starts Node API server via `@evjs/server/node`
 5. Sets up proxy: `devServer.proxy["/api/fn"] → localhost:3001`
 
 ## Agent Skills

@@ -64,7 +64,7 @@ RUN npm run build
 FROM node:22-alpine
 WORKDIR /app
 COPY package*.json ./
-# Install production dependencies only (often including @evjs/runtime and hono)
+# Install production dependencies only (often including @evjs/client, @evjs/server, and hono)
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist

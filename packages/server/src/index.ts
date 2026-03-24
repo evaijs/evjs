@@ -19,3 +19,11 @@ export type {
   ServerFn,
 } from "./functions";
 export { dispatch, registerServerFn } from "./functions";
+export type {
+  RouteHandler,
+  RouteHandlerContext,
+  RouteHandlerDefinition,
+  RouteHandlerFn,
+  RouteMiddleware,
+} from "./routes";
+export { route } from "./routes";

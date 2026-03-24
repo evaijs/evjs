@@ -4,12 +4,14 @@
  * Demonstrates a minimal single-method route handler.
  */
 
-import { Hono } from "hono";
+import { route } from "@evjs/server";
 
-export const healthApp = new Hono().get("/api/health", (c) => {
-  return c.json({
-    status: "ok",
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  });
+export const healthHandler = route("/api/health", {
+  GET: async () => {
+    return Response.json({
+      status: "ok",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+    });
+  },
 });

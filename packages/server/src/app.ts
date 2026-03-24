@@ -7,6 +7,7 @@
 
 import { DEFAULT_ENDPOINT } from "@evjs/shared";
 import { Hono } from "hono";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { dispatch } from "./functions/dispatch.js";
 import type { RouteHandler } from "./routes";
 
@@ -66,8 +67,7 @@ export function createApp(options?: CreateAppOptions): Hono {
           }
         : { result: response.result };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return c.json(payload, status as any);
+    return c.json(payload, status as ContentfulStatusCode);
   });
 
   return app;

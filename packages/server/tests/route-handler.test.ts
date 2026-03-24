@@ -139,7 +139,7 @@ describe("route", () => {
         Response.json({ action: "get", id: params.id }),
       PUT: async (_req, { params }) =>
         Response.json({ action: "update", id: params.id }),
-      DELETE: async (_req, { params }) => new Response(null, { status: 204 }),
+      DELETE: async () => new Response(null, { status: 204 }),
     });
 
     const getRes = await fetch(handler, "/api/items/1");

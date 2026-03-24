@@ -165,4 +165,62 @@ describe("route", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual(["a", "b"]);
   });
+
+  it("middleware can perform async work before proceeding", async () => {
+    const handler = route("/api/items", {
+      middleware: [
+        async (_req, _ctx, next) => {
+          // Simulate async work (e.g. DB lookup, auth check)
+          await new Promise((r) => setTimeout(r, 5));
+          return next();
+        },
+      ],
+      GET: async () => Response.json({ delayed: true }),
+    });
+
+    const res = await fetch(handler, "/api/items");
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ delayed: true });
+  });
+
+  it("exposes query params and headers in context", async () => {
+    const handler = route("/api/search", {
+      GET: async (_req, { query, headers }) => {
+        return Response.json({
+          q: query.get("q"),
+          auth: headers.get("Authorization"),
+        });
+      },
+    });
+
+    const res = await fetch(handler, "/api/search?q=hello", {
+      headers: { Authorization: "Bearer tok123" },
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      q: "hello",
+      auth: "Bearer tok123",
+    });
+  });
+
+  it("middleware runs independently per HTTP method", async () => {
+    let mwCount = 0;
+
+    const handler = route("/api/items", {
+      middleware: [
+        async (_req, _ctx, next) => {
+          mwCount++;
+          return next();
+        },
+      ],
+      GET: async () => Response.json({ ok: true }),
+      POST: async () => Response.json({ ok: true }, { status: 201 }),
+    });
+
+    await fetch(handler, "/api/items");
+    expect(mwCount).toBe(1);
+
+    await fetch(handler, "/api/items", { method: "POST" });
+    expect(mwCount).toBe(2);
+  });
 });

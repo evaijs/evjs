@@ -28,8 +28,12 @@ import { Hono } from "hono";
 export interface RouteHandlerContext {
   /** Resolved dynamic route params (e.g. `{ id: "123" }`). */
   params: Record<string, string>;
+  /** Parsed URL search params from the request. */
+  query: URLSearchParams;
+  /** Request headers. */
+  headers: Headers;
   /** The underlying Hono context, for advanced use cases. */
-  hono: HonoContext;
+  ctx: HonoContext;
 }
 
 /**
@@ -57,7 +61,13 @@ export type RouteMiddleware = (
 export type RouteHandlerDefinition = Partial<
   Record<HttpMethod, RouteHandlerFn>
 > & {
-  /** Optional per-route middleware stack. Runs before any handler. */
+  /**
+   * Optional per-route middleware stack. Runs before any handler.
+   *
+   * **Note:** Middleware executes independently for each HTTP method.
+   * If a route defines GET and POST with middleware, the middleware
+   * chain runs separately for GET requests and POST requests.
+   */
   middleware?: RouteMiddleware[];
 };
 
@@ -136,7 +146,13 @@ export function route(
 
     app.on(method.toUpperCase(), path, async (c: HonoContext) => {
       const params = c.req.param() as Record<string, string>;
-      const ctx: RouteHandlerContext = { params, hono: c };
+      const query = new URL(c.req.url).searchParams;
+      const ctx: RouteHandlerContext = {
+        params,
+        query,
+        headers: c.req.raw.headers,
+        ctx: c,
+      };
 
       // Build middleware chain.
       let idx = 0;

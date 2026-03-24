@@ -124,7 +124,11 @@ export function createExampleTest(exampleName: string) {
                 proxyRes.pipe(res);
               },
             );
-            proxyReq.on("error", () => {
+            proxyReq.on("error", (err) => {
+              console.error(
+                `[E2E proxy] ${req.method} ${url} failed:`,
+                err.message,
+              );
               res.writeHead(502);
               res.end("Bad Gateway");
             });

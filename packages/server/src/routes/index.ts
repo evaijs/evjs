@@ -1,6 +1,5 @@
 export type {
   RouteHandler,
-  RouteHandlerContext,
   RouteHandlerDefinition,
   RouteHandlerFn,
   RouteMiddleware,

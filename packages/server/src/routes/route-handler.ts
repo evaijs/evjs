@@ -23,26 +23,13 @@ import type { Context as HonoContext } from "hono";
 import { Hono } from "hono";
 
 /**
- * Context passed to route handler functions.
- */
-export interface RouteHandlerContext {
-  /** Resolved dynamic route params (e.g. `{ id: "123" }`). */
-  params: Record<string, string>;
-  /** Parsed URL search params from the request. */
-  query: URLSearchParams;
-  /** Request headers. */
-  headers: Headers;
-  /** The underlying Hono context, for advanced use cases. */
-  ctx: HonoContext;
-}
-
-/**
  * A route handler function.
- * Receives a standard Web `Request` and returns a `Response`.
+ * Receives a standard Web `Request` and the Hono `Context`.
+ * Access route params via `ctx.req.param()`.
  */
 export type RouteHandlerFn = (
   request: Request,
-  context: RouteHandlerContext,
+  ctx: HonoContext,
 ) => Response | Promise<Response>;
 
 /**
@@ -51,8 +38,8 @@ export type RouteHandlerFn = (
  */
 export type RouteMiddleware = (
   request: Request,
-  context: RouteHandlerContext,
   next: () => Promise<Response>,
+  ctx: HonoContext,
 ) => Response | Promise<Response>;
 
 /**
@@ -92,12 +79,14 @@ export interface RouteHandler {
  * ```ts
  * const handler = route("/api/users/:id", {
  *   middleware: [authMiddleware],
- *   GET: async (req, { params }) => {
- *     const user = await db.getUser(params.id);
+ *   GET: async (req, ctx) => {
+ *     const { id } = ctx.req.param();
+ *     const user = await db.getUser(id);
  *     return Response.json(user);
  *   },
- *   DELETE: async (req, { params }) => {
- *     await db.deleteUser(params.id);
+ *   DELETE: async (req, ctx) => {
+ *     const { id } = ctx.req.param();
+ *     await db.deleteUser(id);
  *     return new Response(null, { status: 204 });
  *   },
  * });
@@ -145,23 +134,14 @@ export function route(
     if (!handler || !isHttpMethod(method)) continue;
 
     app.on(method.toUpperCase(), path, async (c: HonoContext) => {
-      const params = c.req.param() as Record<string, string>;
-      const query = new URL(c.req.url).searchParams;
-      const ctx: RouteHandlerContext = {
-        params,
-        query,
-        headers: c.req.raw.headers,
-        ctx: c,
-      };
-
       // Build middleware chain.
       let idx = 0;
       const next = (): Promise<Response> => {
         if (idx < middleware.length) {
           const mw = middleware[idx++];
-          return Promise.resolve(mw(c.req.raw, ctx, next));
+          return Promise.resolve(mw(c.req.raw, next, c));
         }
-        return Promise.resolve(handler(c.req.raw, ctx));
+        return Promise.resolve(handler(c.req.raw, c));
       };
 
       return next();

@@ -13,8 +13,9 @@ Server routes are defined using the `route(path, definition)` factory from `@evj
 import { route } from "@evjs/server";
 
 export const postsRoute = route("/api/posts", {
-  GET: async (req, { query }) => {
-    const limit = Number(query.get("limit")) || 10;
+  GET: async (req) => {
+    const url = new URL(req.url);
+    const limit = Number(url.searchParams.get("limit")) || 10;
     return Response.json([{ id: 1, title: "Hello World" }]);
   },
   POST: async (req) => {
@@ -29,17 +30,18 @@ export const postsRoute = route("/api/posts", {
 Each handler receives two arguments:
 
 ```ts
-(request: Request, context: RouteHandlerContext) => Response | Promise<Response>
+(request: Request, ctx: HonoContext) => Response | Promise<Response>
 ```
 
-The `RouteHandlerContext` provides:
+The Hono `Context` (`ctx`) provides:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `params` | `Record<string, string>` | Resolved dynamic route params (e.g. `{ id: "123" }`) |
-| `query` | `URLSearchParams` | Parsed URL search params |
-| `headers` | `Headers` | Request headers |
-| `ctx` | `HonoContext` | Underlying Hono context, for advanced use |
+| API | Description |
+|-----|-------------|
+| `ctx.req.param()` | All resolved route params as an object (e.g. `{ id: "123" }`) |
+| `ctx.req.param("id")` | A single route param by name |
+| `ctx.req.raw` | The underlying Web `Request` (same as the first argument) |
+| `ctx.header()` | Set response headers |
+| `ctx.json()` | Send a JSON response (alternative to `Response.json()`) |
 
 ### Path Parameters & Dynamic Routes
 
@@ -47,11 +49,13 @@ Dynamic path parameters use Hono's `:param` syntax. Access them via `params`:
 
 ```ts
 export const postDetailsRoute = route("/api/posts/:id", {
-  GET: async (_req, { params }) => {
-    return Response.json({ id: params.id, title: "Post Details" });
+  GET: async (_req, ctx) => {
+    const id = ctx.req.param("id");
+    return Response.json({ id, title: "Post Details" });
   },
-  DELETE: async (_req, { params }) => {
-    await db.deletePost(params.id);
+  DELETE: async (_req, ctx) => {
+    const id = ctx.req.param("id");
+    await db.deletePost(id);
     return new Response(null, { status: 204 });
   },
 });
@@ -67,7 +71,7 @@ Use the `middleware` option to run logic before handlers. Middleware receives `(
 ```ts
 import { route } from "@evjs/server";
 
-const requireAuth = async (req, ctx, next) => {
+const requireAuth = async (req, next) => {
   const auth = req.headers.get("Authorization");
   if (!auth) return Response.json({ error: "Unauthorized" }, { status: 401 });
   return next();

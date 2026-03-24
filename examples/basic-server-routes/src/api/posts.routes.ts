@@ -71,16 +71,18 @@ export const postsHandler = route("/api/posts", {
 
 /** Get, Update, Delete a single post. */
 export const postHandler = route("/api/posts/:id", {
-  GET: async (_req, { params }) => {
-    const post = posts.find((p) => p.id === params.id);
+  GET: async (_req, ctx) => {
+    const id = ctx.req.param("id");
+    const post = posts.find((p) => p.id === id);
     if (!post) {
       return Response.json({ error: "Post not found" }, { status: 404 });
     }
     return Response.json(post);
   },
 
-  PUT: async (req, { params }) => {
-    const idx = posts.findIndex((p) => p.id === params.id);
+  PUT: async (req, ctx) => {
+    const id = ctx.req.param("id");
+    const idx = posts.findIndex((p) => p.id === id);
     if (idx === -1) {
       return Response.json({ error: "Post not found" }, { status: 404 });
     }
@@ -95,8 +97,9 @@ export const postHandler = route("/api/posts/:id", {
     return Response.json(posts[idx]);
   },
 
-  DELETE: async (_req, { params }) => {
-    const idx = posts.findIndex((p) => p.id === params.id);
+  DELETE: async (_req, ctx) => {
+    const id = ctx.req.param("id");
+    const idx = posts.findIndex((p) => p.id === id);
     if (idx === -1) {
       return Response.json({ error: "Post not found" }, { status: 404 });
     }

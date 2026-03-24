@@ -21,7 +21,6 @@ export type {
 export { dispatch, registerServerFn } from "./functions";
 export type {
   RouteHandler,
-  RouteHandlerContext,
   RouteHandlerDefinition,
   RouteHandlerFn,
   RouteMiddleware,

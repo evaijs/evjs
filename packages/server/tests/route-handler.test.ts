@@ -44,8 +44,8 @@ describe("route", () => {
 
   it("resolves dynamic params", async () => {
     const handler = route("/api/users/:id", {
-      GET: async (_req, { params }) => {
-        return Response.json({ id: params.id });
+      GET: async (_req, ctx) => {
+        return Response.json({ id: ctx.req.param("id") });
       },
     });
 
@@ -102,11 +102,11 @@ describe("route", () => {
 
     const handler = route("/api/items", {
       middleware: [
-        async (_req, _ctx, next) => {
+        async (_req, next) => {
           order.push("mw1");
           return next();
         },
-        async (_req, _ctx, next) => {
+        async (_req, next) => {
           order.push("mw2");
           return next();
         },
@@ -135,10 +135,10 @@ describe("route", () => {
 
   it("supports multiple method handlers on the same path", async () => {
     const handler = route("/api/items/:id", {
-      GET: async (_req, { params }) =>
-        Response.json({ action: "get", id: params.id }),
-      PUT: async (_req, { params }) =>
-        Response.json({ action: "update", id: params.id }),
+      GET: async (_req, ctx) =>
+        Response.json({ action: "get", id: ctx.req.param("id") }),
+      PUT: async (_req, ctx) =>
+        Response.json({ action: "update", id: ctx.req.param("id") }),
       DELETE: async () => new Response(null, { status: 204 }),
     });
 
@@ -169,7 +169,7 @@ describe("route", () => {
   it("middleware can perform async work before proceeding", async () => {
     const handler = route("/api/items", {
       middleware: [
-        async (_req, _ctx, next) => {
+        async (_req, next) => {
           // Simulate async work (e.g. DB lookup, auth check)
           await new Promise((r) => setTimeout(r, 5));
           return next();
@@ -183,12 +183,13 @@ describe("route", () => {
     expect(await res.json()).toEqual({ delayed: true });
   });
 
-  it("exposes query params and headers in context", async () => {
+  it("provides access to query params and headers via request", async () => {
     const handler = route("/api/search", {
-      GET: async (_req, { query, headers }) => {
+      GET: async (req) => {
+        const url = new URL(req.url);
         return Response.json({
-          q: query.get("q"),
-          auth: headers.get("Authorization"),
+          q: url.searchParams.get("q"),
+          auth: req.headers.get("Authorization"),
         });
       },
     });
@@ -208,7 +209,7 @@ describe("route", () => {
 
     const handler = route("/api/items", {
       middleware: [
-        async (_req, _ctx, next) => {
+        async (_req, next) => {
           mwCount++;
           return next();
         },

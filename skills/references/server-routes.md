@@ -13,57 +13,75 @@ Server routes are defined using the `route(path, definition)` factory from `@evj
 import { route } from "@evjs/server";
 
 export const postsRoute = route("/api/posts", {
-  GET: async (req, ctx) => {
-    return ctx.json([{ id: 1, title: "Hello World" }]);
+  GET: async (req, { query }) => {
+    const limit = Number(query.get("limit")) || 10;
+    return Response.json([{ id: 1, title: "Hello World" }]);
   },
-  POST: async (req, ctx) => {
+  POST: async (req) => {
     const data = await req.json();
-    return ctx.json({ success: true, data }, 201);
-  }
+    return Response.json({ success: true, data }, { status: 201 });
+  },
 });
 ```
+
+### Handler Signature
+
+Each handler receives two arguments:
+
+```ts
+(request: Request, context: RouteHandlerContext) => Response | Promise<Response>
+```
+
+The `RouteHandlerContext` provides:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `params` | `Record<string, string>` | Resolved dynamic route params (e.g. `{ id: "123" }`) |
+| `query` | `URLSearchParams` | Parsed URL search params |
+| `headers` | `Headers` | Request headers |
+| `ctx` | `HonoContext` | Underlying Hono context, for advanced use |
 
 ### Path Parameters & Dynamic Routes
 
-Dynamic path parameters are defined using the standard Hono syntax (e.g., `/:id`).
+Dynamic path parameters use Hono's `:param` syntax. Access them via `params`:
 
 ```ts
 export const postDetailsRoute = route("/api/posts/:id", {
-  GET: async (req, ctx) => {
-    const id = ctx.req.param("id");
-    return ctx.json({ id, title: "Post Details" });
-  }
+  GET: async (_req, { params }) => {
+    return Response.json({ id: params.id, title: "Post Details" });
+  },
+  DELETE: async (_req, { params }) => {
+    await db.deletePost(params.id);
+    return new Response(null, { status: 204 });
+  },
 });
 ```
 
-### Context & Middleware Chaining
+### Middleware
 
-Route handlers receive the standard Web `Request` and a `RouteContext` which implements Hono's Context API.
-You can chain middleware seamlessly using arrays of handlers. If a middleware handler returns `null`, the chain proceeds to the next handler.
+Use the `middleware` option to run logic before handlers. Middleware receives `(request, context, next)` — call `next()` to proceed or return a `Response` to short-circuit.
+
+> [!NOTE]
+> Middleware executes independently for each HTTP method. If a route defines GET and POST with middleware, the chain runs separately for each.
 
 ```ts
 import { route } from "@evjs/server";
 
-// Simple middleware
-const requireAuth = async (req, ctx) => {
+const requireAuth = async (req, ctx, next) => {
   const auth = req.headers.get("Authorization");
-  if (!auth) return ctx.json({ error: "Unauthorized" }, 401);
-  return null; // Return null to continue to the next handler
+  if (!auth) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  return next();
 };
 
 export const protectedRoute = route("/api/protected", {
-  GET: [
-    requireAuth,
-    async (req, ctx) => {
-      return ctx.json({ secret: "data" });
-    }
-  ]
+  middleware: [requireAuth],
+  GET: async () => Response.json({ secret: "data" }),
 });
 ```
 
 ## Configuration
 
-To serve your routes, you must provide a server entry point that explicitly exports your app.
+To serve your routes, provide a server entry point that exports the app.
 
 ### 1. Build the App Server
 
@@ -73,13 +91,11 @@ import { createApp } from "@evjs/server";
 import { postsRoute, postDetailsRoute } from "./api/posts.routes";
 
 export const app = createApp({
-  routeHandlers: [postsRoute, postDetailsRoute]
+  routeHandlers: [postsRoute, postDetailsRoute],
 });
 ```
 
 ### 2. Configure `ev.config.ts`
-
-Set the `server.entry` to tell the build tools about your custom server file.
 
 ```ts
 import { defineConfig } from "@evjs/cli";
@@ -87,10 +103,16 @@ import { defineConfig } from "@evjs/cli";
 export default defineConfig({
   server: {
     entry: "./src/server.ts",
-    dev: { port: 3001 }
-  }
+    dev: { port: 3001 },
+  },
 });
 ```
 
+## Built-in Behaviors
+
+- **Auto OPTIONS**: If not explicitly defined, an `OPTIONS` handler is generated with the `Allow` header listing all defined methods.
+- **Auto HEAD**: If `GET` is defined but `HEAD` is not, a `HEAD` handler is derived that returns headers only (no body).
+- **405 Method Not Allowed**: Any unregistered HTTP method returns `405` with an `Allow` header.
+
 > [!NOTE]
-> If you combine `routeHandlers` with `"use server"` Server Functions, `createApp()` will automatically handle **both**. The `routeHandlers` are mounted first, and the framework fallback handles your RPC POST requests at `/api/fn`.
+> If you combine `routeHandlers` with `"use server"` Server Functions, `createApp()` handles **both**. Route handlers are mounted first; the framework fallback handles RPC POST requests at `/api/fn`.

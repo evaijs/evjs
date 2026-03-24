@@ -45,7 +45,7 @@ The Hono `Context` (`ctx`) provides:
 
 ### Path Parameters & Dynamic Routes
 
-Dynamic path parameters use Hono's `:param` syntax. Access them via `params`:
+Dynamic path parameters use Hono's `:param` syntax. Access them via `ctx.req.param()`:
 
 ```ts
 export const postDetailsRoute = route("/api/posts/:id", {
@@ -63,7 +63,7 @@ export const postDetailsRoute = route("/api/posts/:id", {
 
 ### Middleware
 
-Use the `middleware` option to run logic before handlers. Middleware receives `(request, context, next)` — call `next()` to proceed or return a `Response` to short-circuit.
+Use the `middleware` option to run logic before handlers. Middleware receives `(request, next, ctx)` — call `next()` to proceed or return a `Response` to short-circuit.
 
 > [!NOTE]
 > Middleware executes independently for each HTTP method. If a route defines GET and POST with middleware, the chain runs separately for each.

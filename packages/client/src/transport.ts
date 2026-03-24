@@ -110,7 +110,6 @@ function createFetchTransport(
       }
 
       const payload = await res.json();
-
       if (payload.error) {
         const name = getFnName(fnId);
         throw new ServerFunctionError(

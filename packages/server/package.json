@@ -29,9 +29,9 @@
       "default": "./esm/index.js"
     },
     "./register": {
-      "types": "./esm/register.d.ts",
-      "import": "./esm/register.js",
-      "default": "./esm/register.js"
+      "types": "./esm/functions/register.d.ts",
+      "import": "./esm/functions/register.js",
+      "default": "./esm/functions/register.js"
     },
     "./node": {
       "types": "./esm/environments/node.d.ts",

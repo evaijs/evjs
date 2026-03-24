@@ -100,10 +100,6 @@ export function createExampleTest(exampleName: string) {
             }
           });
 
-          serverProcess.stderr?.on("data", (data) => {
-            console.error("[e2e-server]", data.toString());
-          });
-
           serverProcess.on("exit", (code) => {
             clearTimeout(timeout);
             if (code !== null && code !== 0) {

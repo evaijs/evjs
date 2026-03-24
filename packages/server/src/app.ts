@@ -7,7 +7,7 @@
 
 import { DEFAULT_ENDPOINT } from "@evjs/shared";
 import { Hono } from "hono";
-import { createHandler } from "./functions";
+import { dispatch } from "./functions/dispatch.js";
 import type { RouteHandler } from "./routes";
 
 /** Options for createApp. */
@@ -41,7 +41,33 @@ export function createApp(options?: CreateAppOptions): Hono {
   }
 
   // Mount server function endpoint
-  app.route(endpoint, createHandler());
+  app.post(endpoint, async (c) => {
+    let body: { fnId: string; args: unknown[] };
+
+    try {
+      body = await c.req.json();
+    } catch (err) {
+      return c.json(
+        { error: "Malformed request body", fnId: "", status: 400 },
+        400,
+      );
+    }
+
+    const response = await dispatch(body.fnId, body.args ?? []);
+
+    const status = "error" in response ? response.status : 200;
+    const payload =
+      "error" in response
+        ? {
+            error: response.error,
+            fnId: response.fnId,
+            status: response.status,
+            data: response.data,
+          }
+        : { result: response.result };
+
+    return c.json(payload, status as any);
+  });
 
   return app;
 }

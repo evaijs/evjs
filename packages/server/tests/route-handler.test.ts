@@ -81,9 +81,12 @@ describe("route", () => {
   it("auto-derives HEAD from GET", async () => {
     const handler = route("/api/items", {
       GET: async () =>
-        Response.json({ data: "hello" }, {
-          headers: { "X-Custom": "test" },
-        }),
+        Response.json(
+          { data: "hello" },
+          {
+            headers: { "X-Custom": "test" },
+          },
+        ),
     });
 
     const res = await fetch(handler, "/api/items", { method: "HEAD" });
@@ -121,9 +124,7 @@ describe("route", () => {
 
   it("middleware can short-circuit the request", async () => {
     const handler = route("/api/items", {
-      middleware: [
-        async () => new Response("Unauthorized", { status: 401 }),
-      ],
+      middleware: [async () => new Response("Unauthorized", { status: 401 })],
       GET: async () => Response.json({ ok: true }),
     });
 
@@ -138,8 +139,7 @@ describe("route", () => {
         Response.json({ action: "get", id: params.id }),
       PUT: async (_req, { params }) =>
         Response.json({ action: "update", id: params.id }),
-      DELETE: async (_req, { params }) =>
-        new Response(null, { status: 204 }),
+      DELETE: async (_req, { params }) => new Response(null, { status: 204 }),
     });
 
     const getRes = await fetch(handler, "/api/items/1");

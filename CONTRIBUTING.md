@@ -82,7 +82,6 @@ npm run test               # Unit tests (vitest)
 npm run test:e2e           # E2E tests (playwright)
 npm run dev                # Dev mode (turborepo)
 npx biome check --write    # Fix lint/format
-npm run create-skill       # Scaffold a new agent skill
 ```
 
 ## Build System Internals
@@ -110,4 +109,4 @@ npm run create-skill       # Scaffold a new agent skill
 
 The `skills/` directory contains user-facing guides for building apps with evjs. If you change CLI commands, config options, or runtime APIs, please update the relevant skills.
 
-Available skill references: `init`, `dev`, `build`, `routing`, `server-fns`, `config`
+Available skill references: `init`, `dev`, `build`, `routing`, `server-fns`, `server-routes`, `config`

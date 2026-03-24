@@ -18,10 +18,7 @@
  * ```
  */
 
-import {
-  type HttpMethod,
-  isHttpMethod,
-} from "@evjs/shared";
+import { type HttpMethod, isHttpMethod } from "@evjs/shared";
 import type { Context as HonoContext } from "hono";
 import { Hono } from "hono";
 

@@ -1,8 +1,4 @@
-import {
-  createRootRoute,
-  createRoute,
-  Outlet,
-} from "@evjs/client";
+import { createRootRoute, createRoute, Outlet } from "@evjs/client";
 import { useState } from "react";
 
 // ── Types ──
@@ -99,12 +95,12 @@ function PostsPage() {
     <div>
       <h2>Posts</h2>
 
-      {error && (
-        <p style={{ color: "red" }}>Error: {error}</p>
-      )}
+      {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
       {isLoading ? (
-        <p>Loading posts from <code>GET /api/posts</code>…</p>
+        <p>
+          Loading posts from <code>GET /api/posts</code>…
+        </p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0 }}>
           {posts.map((post) => (
@@ -143,14 +139,21 @@ function PostsPage() {
               </button>
             </li>
           ))}
-          {posts.length === 0 && <li style={{ color: "#999" }}>No posts yet.</li>}
+          {posts.length === 0 && (
+            <li style={{ color: "#999" }}>No posts yet.</li>
+          )}
         </ul>
       )}
 
       <h3>Create Post</h3>
       <form
         onSubmit={handleCreate}
-        style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxWidth: 400 }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+          maxWidth: 400,
+        }}
       >
         <input
           placeholder="Title"
@@ -192,11 +195,17 @@ function HealthCheck() {
 
   return (
     <div>
-      <button type="button" onClick={checkHealth} style={{ padding: "0.5rem", cursor: "pointer" }}>
+      <button
+        type="button"
+        onClick={checkHealth}
+        style={{ padding: "0.5rem", cursor: "pointer" }}
+      >
         GET /api/health
       </button>
       {health && (
-        <pre style={{ background: "#f5f5f5", padding: "0.75rem", borderRadius: 4 }}>
+        <pre
+          style={{ background: "#f5f5f5", padding: "0.75rem", borderRadius: 4 }}
+        >
           {JSON.stringify(health, null, 2)}
         </pre>
       )}

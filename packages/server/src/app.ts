@@ -31,10 +31,7 @@ export interface CreateAppOptions {
  * @returns A runtime-agnostic Hono app instance.
  */
 export function createApp(options?: CreateAppOptions): Hono {
-  const {
-    endpoint = DEFAULT_ENDPOINT,
-    routeHandlers = [],
-  } = options ?? {};
+  const { endpoint = DEFAULT_ENDPOINT, routeHandlers = [] } = options ?? {};
 
   const app = new Hono();
 

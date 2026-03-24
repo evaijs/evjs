@@ -25,8 +25,6 @@ describe("generateServerEntry", () => {
     expect(result).toContain("export { _fns_0, _fns_1, _fns_2 }");
   });
 
-
-
   it("handles empty server modules array", () => {
     const result = generateServerEntry(undefined, []);
 

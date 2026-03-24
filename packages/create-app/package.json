@@ -22,15 +22,15 @@
   },
   "dependencies": {
     "commander": "^12.1.0",
-    "fs-extra": "^11.3.0",
+    "fs-extra": "^11.3.4",
     "picocolors": "^1.1.1",
     "prompts": "^2.4.2"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.13.5",
+    "@types/node": "^22.19.15",
     "@types/prompts": "^2.4.9",
-    "typescript": "^5.7.3"
+    "typescript": "^5.9.3"
   },
   "homepage": "https://github.com/evaijs/evjs#readme",
   "bugs": {

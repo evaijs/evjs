@@ -6,7 +6,7 @@
     "@evjs/shared": "*",
     "@hono/node-server": "^1.19.11",
     "@logtape/logtape": "^2.0.4",
-    "hono": "^4.12.5"
+    "hono": "^4.12.9"
   },
   "homepage": "https://github.com/evaijs/evjs#readme",
   "bugs": {
@@ -53,7 +53,7 @@
     "esm"
   ],
   "devDependencies": {
-    "typescript": "^5.7.3"
+    "typescript": "^5.9.3"
   },
   "keywords": [
     "evjs",

@@ -4,17 +4,17 @@
   "description": "Client-side runtime for the evjs framework",
   "dependencies": {
     "@evjs/shared": "*",
-    "@tanstack/react-query": "^5.90.21",
-    "@tanstack/react-router": "^1.163.3"
+    "@tanstack/react-query": "^5.95.2",
+    "@tanstack/react-router": "^1.168.3"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
   },
   "devDependencies": {
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "typescript": "^5.7.3"
+    "@types/react": ">=18.0.0",
+    "@types/react-dom": ">=18.0.0",
+    "typescript": "^5.9.3"
   },
   "homepage": "https://github.com/evaijs/evjs#readme",
   "bugs": {

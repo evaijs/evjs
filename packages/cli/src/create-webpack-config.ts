@@ -20,7 +20,7 @@ export function createWebpackConfig(
   const html = client?.html ?? CONFIG_DEFAULTS.html;
   const clientPort = client?.dev?.port ?? CONFIG_DEFAULTS.clientPort;
   const serverPort = server?.dev?.port ?? CONFIG_DEFAULTS.serverPort;
-  const endpoint = server?.endpoint ?? CONFIG_DEFAULTS.endpoint;
+  const endpoint = server?.functions?.endpoint ?? CONFIG_DEFAULTS.endpoint;
   const isProduction = process.env.NODE_ENV === "production";
 
   const HtmlWebpackPlugin = esmRequire("html-webpack-plugin");
@@ -84,23 +84,24 @@ export function createWebpackConfig(
             },
           ],
         },
-        // Plugin-declared loaders
-        ...(client?.plugins ?? []).flatMap((plugin) =>
-          (plugin.loaders ?? []).map((rule) => {
-            const entries = Array.isArray(rule.use) ? rule.use : [rule.use];
-            return {
-              test: rule.test,
-              ...(rule.exclude ? { exclude: rule.exclude } : {}),
-              use: entries.map((entry) =>
-                typeof entry === "string"
-                  ? { loader: resolveLoader(entry) }
-                  : {
-                      loader: resolveLoader(entry.loader),
-                      ...(entry.options ? { options: entry.options } : {}),
-                    },
-              ),
-            };
-          }),
+        // Plugin-declared loaders (client + server)
+        ...[...(client?.plugins ?? []), ...(server?.plugins ?? [])].flatMap(
+          (plugin) =>
+            (plugin.loaders ?? []).map((rule) => {
+              const entries = Array.isArray(rule.use) ? rule.use : [rule.use];
+              return {
+                test: rule.test,
+                ...(rule.exclude ? { exclude: rule.exclude } : {}),
+                use: entries.map((entry) =>
+                  typeof entry === "string"
+                    ? { loader: resolveLoader(entry) }
+                    : {
+                        loader: resolveLoader(entry.loader),
+                        ...(entry.options ? { options: entry.options } : {}),
+                      },
+                ),
+              };
+            }),
         ),
       ],
     },

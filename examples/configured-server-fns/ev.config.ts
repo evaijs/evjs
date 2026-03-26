@@ -21,31 +21,19 @@ export default defineConfig({
 
       // Any dev server options can be added here:
       // https: true,
-      // open: true,
-      // historyApiFallback: true,
-    },
-
-    // Transport configuration for server function calls
-    transport: {
-      // Base URL for server function endpoint (default: same origin)
-      // baseUrl: "https://api.example.com",
-
-      // Server function endpoint path (default: "/api/fn")
-      endpoint: "/api/fn",
     },
   },
 
   server: {
-    // Server function endpoint path (default: "/api/fn")
-    endpoint: "/api/fn",
+    // Server function configuration
+    functions: {
+      // Server function endpoint path (default: "/api/fn")
+      endpoint: "/api/fn",
+    },
 
     // Server backend command (default: "node")
     // Supports: "node", "bun", "deno run --allow-net", etc.
     backend: "node",
-
-    // Middleware module paths to auto-register in server entry
-    // These are imported and applied in order
-    // middleware: ["./src/middleware/auth.ts", "./src/middleware/cors.ts"],
 
     // Dev server options
     dev: {

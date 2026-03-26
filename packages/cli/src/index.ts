@@ -6,15 +6,15 @@ import fs from "fs-extra";
 import type { EvConfig } from "./config.js";
 import { CONFIG_DEFAULTS } from "./config.js";
 
-export { defineConfig, CONFIG_DEFAULTS } from "./config.js";
 export type {
-  EvConfig,
-  ServerConfig,
   ClientConfig,
+  EvConfig,
+  EvLoaderEntry,
   EvPlugin,
   EvPluginLoader,
-  EvLoaderEntry,
+  ServerConfig,
 } from "./config.js";
+export { CONFIG_DEFAULTS, defineConfig } from "./config.js";
 
 const esmRequire = createRequire(import.meta.url);
 const logger = getLogger(["evjs", "cli"]);
@@ -22,10 +22,7 @@ const logger = getLogger(["evjs", "cli"]);
 /**
  * Create webpack configuration from an EvConfig object.
  */
-async function resolveWebpackConfig(
-  config: EvConfig | undefined,
-  cwd: string,
-) {
+async function resolveWebpackConfig(config: EvConfig | undefined, cwd: string) {
   const { createWebpackConfig } = await import("./create-webpack-config.js");
   return createWebpackConfig(config, cwd);
 }
@@ -89,9 +86,9 @@ export async function dev(
           bootstrapPath,
           [
             `const bundle = require(${JSON.stringify(serverBundlePath)});`,
-            `const app = bundle.app || bundle.createApp({ endpoint: ${JSON.stringify(config?.server?.endpoint ?? CONFIG_DEFAULTS.endpoint)} });`,
+            `const app = bundle.app || bundle.createApp({ endpoint: ${JSON.stringify(config?.server?.functions?.endpoint ?? CONFIG_DEFAULTS.endpoint)} });`,
             `const { serve } = require("@evjs/server/node");`,
-            `serve(app, { port: ${serverPort} });`,
+            `serve(app, { port: ${serverPort}, https: ${Boolean(config?.server?.dev?.https)} });`,
           ].join("\n"),
         );
 

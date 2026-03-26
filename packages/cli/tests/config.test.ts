@@ -5,7 +5,7 @@ import { CONFIG_DEFAULTS, defineConfig } from "../src/config.js";
 describe("defineConfig", () => {
   it("returns the config object unchanged", () => {
     const config: EvConfig = {
-      server: { endpoint: "/rpc" },
+      server: { functions: { endpoint: "/rpc" } },
       client: { entry: "./src/app.tsx" },
     };
     expect(defineConfig(config)).toBe(config);
@@ -20,7 +20,7 @@ describe("defineConfig", () => {
     const config: EvConfig = {
       server: {
         backend: "./custom-backend.ts",
-        endpoint: "/api/v2",
+        functions: { endpoint: "/api/v2" },
         dev: { port: 4000 },
       },
       client: {
@@ -29,12 +29,6 @@ describe("defineConfig", () => {
         dev: {
           port: 5000,
           https: true,
-          open: false,
-          historyApiFallback: true,
-        },
-        transport: {
-          baseUrl: "https://api.example.com",
-          endpoint: "/api/v2",
         },
       },
     };

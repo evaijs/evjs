@@ -19,7 +19,7 @@ All fields are optional. These are the built-in defaults:
 | `client.html` | `./index.html` |
 | `client.dev.port` | `3000` |
 | `server.dev.port` | `3001` |
-| `server.endpoint` | `/api/fn` |
+| `server.functions.endpoint` | `/api/fn` |
 
 ## Full Reference
 
@@ -45,22 +45,21 @@ export default defineConfig({
     // ── Dev server ──
     dev: {
       port: 3000,
-      open: true,                // Open browser on start
       https: false,              // Enable HTTPS
-      historyApiFallback: true,  // SPA routing (rewrites to index.html)
-    },
-
-    // ── Transport (how client calls server functions) ──
-    transport: {
-      baseUrl: "http://localhost:3001", // Override server origin
-      endpoint: "/api/fn",             // Must match server.endpoint
     },
   },
 
   server: {
-    // ── Server functions ──
-    endpoint: "/api/fn",
+    // ── Entry ──
+    entry: "./src/server.ts",              // Explicit server entry (optional)
+
+    // ── Backend ──
     backend: "node",                       // "node" | "bun" | "deno run --allow-net"
+
+    // ── Server functions ──
+    functions: {
+      endpoint: "/api/fn",                 // Server function RPC endpoint
+    },
 
     // ── Plugins ──
     plugins: [
@@ -70,6 +69,7 @@ export default defineConfig({
     // ── Dev server ──
     dev: {
       port: 3001,
+      https: false,                        // Enable HTTPS for API server
     },
   },
 });
@@ -141,24 +141,12 @@ type EvLoaderEntry =
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `port` | `number` | `3000` | Webpack Dev Server port |
-| `open` | `boolean` | — | Open browser on start |
 | `https` | `boolean` | — | Enable HTTPS |
-| `historyApiFallback` | `boolean` | — | Rewrite 404s to `index.html` for SPA routing |
-
-### `client.transport`
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `baseUrl` | `string` | — | Override server origin (useful for cross-origin setups) |
-| `endpoint` | `string` | `/api/fn` | Path prefix for server function RPC calls |
-
-> [!NOTE]
-> In dev mode, the client dev server proxies `/api/*` to the API server automatically, so `baseUrl` is usually not needed.
 
 ## Server Options
 
-### `server.endpoint`
-The path at which the server handles function RPC calls. Must match `client.transport.endpoint`.
+### `server.entry`
+Explicit server entry file. If provided, overrides the auto-generated entry.
 
 ### `server.backend`
 The runtime command used to start the server. Supports:
@@ -172,6 +160,11 @@ The runtime command used to start the server. Supports:
 > [!WARNING]
 > The ECMA adapter (`@evjs/server/ecma`) only exports a `{ fetch }` handler — it does **not** start a listening server. For `ev dev`, always use `"node"` as the backend. Use ECMA adapters only for production targets like Deno or Bun.
 
+### `server.functions`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `endpoint` | `string` | `/api/fn` | Path at which the server handles function RPC calls |
 
 ### `server.plugins`
 
@@ -182,6 +175,7 @@ Same `EvPlugin` interface as `client.plugins`. Server-side plugin loaders are ap
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `port` | `number` | `3001` | API server port in dev mode |
+| `https` | `boolean` | — | Enable HTTPS for the API server |
 
 ## Examples
 
@@ -213,4 +207,3 @@ export default defineConfig({
   },
 });
 ```
-

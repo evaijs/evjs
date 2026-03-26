@@ -1,21 +1,26 @@
 /**
  * Server configuration.
  *
- * Controls server function endpoint, backend, middleware, codec, and dev options.
+ * Controls server backend, entry, plugins, and dev options.
  */
 export interface ServerConfig {
-  /** Server backend command. Default: "node". */
-  backend?: string;
   /** Explicit server entry file. If provided, overrides auto-generated entry. */
   entry?: string;
-  /** Server function endpoint path. Default: "/api/fn". */
-  endpoint?: string;
+  /** Server backend command. Default: "node". */
+  backend?: string;
+  /** Server function configuration. */
+  functions?: {
+    /** Server function endpoint path. Default: "/api/fn". */
+    endpoint?: string;
+  };
   /** Build plugins for the server bundle. */
   plugins?: EvPlugin[];
   /** Dev server options. */
   dev?: {
     /** API server port (dev mode). Default: 3001. */
     port?: number;
+    /** Enable HTTPS. */
+    https?: boolean;
   };
 }
 
@@ -40,17 +45,6 @@ export interface ClientConfig {
     port?: number;
     /** Enable HTTPS. */
     https?: boolean;
-    /** Open browser on start. */
-    open?: boolean;
-    /** Enable history API fallback for SPA routing. */
-    historyApiFallback?: boolean;
-  };
-  /** Transport options for server function calls. */
-  transport?: {
-    /** Base URL for the server function endpoint. */
-    baseUrl?: string;
-    /** Path prefix for the server function endpoint. */
-    endpoint?: string;
   };
 }
 
@@ -122,7 +116,7 @@ export const CONFIG_DEFAULTS = {
  *     dev: { port: 3000 },
  *   },
  *   server: {
- *     endpoint: "/api/fn",
+ *     functions: { endpoint: "/api/fn" },
  *     dev: { port: 3001 },
  *   },
  * });

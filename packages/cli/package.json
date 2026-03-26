@@ -3,19 +3,19 @@
   "version": "0.0.0",
   "description": "CLI and configuration layer for the evjs framework",
   "type": "module",
-  "main": "./dist/config.js",
-  "types": "./dist/config.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/config.d.ts",
-      "import": "./dist/config.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
   "publishConfig": {
     "access": "public"
   },
   "bin": {
-    "ev": "dist/index.js"
+    "ev": "dist/cli.js"
   },
   "files": [
     "dist"

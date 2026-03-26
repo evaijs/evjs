@@ -52,4 +52,15 @@ test.describe("configured-server-fns", () => {
       timeout: 10_000,
     });
   });
+
+  test("loads txt file via custom EvPlugin", async ({ page, baseURL }) => {
+    await page.goto(baseURL);
+
+    await expect(page.locator("#plugin-test")).toHaveText(
+      "Hello from EvPlugin!",
+      {
+        timeout: 10_000,
+      },
+    );
+  });
 });

@@ -14,6 +14,19 @@ export default defineConfig({
     // HTML template (default: "./index.html")
     html: "./index.html",
 
+    // Build plugins
+    plugins: [
+      {
+        name: "example-txt-plugin",
+        loaders: [
+          {
+            test: /\.txt$/,
+            use: "raw-loader",
+          },
+        ],
+      },
+    ],
+
     // Dev server options (merged with built-in defaults)
     dev: {
       // Dev server port (default: 3000)

@@ -10,6 +10,7 @@ import {
 } from "@evjs/client";
 import { useState } from "react";
 import { createUser, getUsers } from "./api/users.server";
+import messagePluginText from "./message.txt";
 
 // ── Root Route ──
 
@@ -25,6 +26,12 @@ function Root() {
           Users
         </Link>
       </nav>
+      <div
+        id="plugin-test"
+        style={{ padding: "1rem", background: "#f0f0f0", marginBottom: "1rem" }}
+      >
+        {messagePluginText}
+      </div>
       <Outlet />
     </div>
   );

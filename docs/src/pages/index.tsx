@@ -63,7 +63,15 @@ function HomepageHeader() {
   );
 }
 
-function Feature({ icon, title, description }) {
+function Feature({
+  icon,
+  title,
+  description,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+}) {
   return (
     <div className={clsx("col col--4")}>
       <div className="text--center" style={{ fontSize: "2.5rem" }}>
@@ -91,7 +99,7 @@ function HomepageFeatures() {
   );
 }
 
-export default function Home(): JSX.Element {
+export default function Home() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout title={siteConfig.title} description={siteConfig.tagline}>

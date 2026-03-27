@@ -35,7 +35,7 @@ For detailed guides on specific topics, see the `references/` directory:
 - [build.md](references/build.md) — Production builds
 - [deploy.md](references/deploy.md) — Deploying to Node, Docker, Deno, and Edge environments
 - [routing.md](references/routing.md) — Route definitions, layouts, params, loaders, navigation
-- [server-fns.md](references/server-fns.md) — Server functions, queries, mutations, error handling
+- [server-functions.md](references/server-functions.md) — Server functions, queries, mutations, error handling
 - [server-routes.md](references/server-routes.md) — Creating REST API endpoints using programmatic `route()`
 - [config.md](references/config.md) — `ev.config.ts` options, defaults, client/server settings
 

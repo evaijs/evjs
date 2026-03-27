@@ -10,3 +10,7 @@ esm
 .evjs
 test-results
 evjs-dev
+
+# Docusaurus
+docs/build
+docs/.docusaurus

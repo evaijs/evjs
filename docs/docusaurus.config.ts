@@ -86,7 +86,8 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} xusd320. Built with Docusaurus.`,
+      copyright:
+        "Copyright (c) 2015-present Ant UED, https://xtech.antfin.com/",
     },
     prism: {
       theme: prismThemes.github,

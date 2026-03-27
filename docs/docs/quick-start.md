@@ -7,13 +7,25 @@ npx @evjs/create-app my-app
 cd my-app && npm install
 ```
 
+Both arguments are optional — if omitted, the CLI prompts interactively.
+
+### Available Templates
+
+| Template | Description |
+|----------|-------------|
+| `basic-csr` | Client-side rendering only, no server functions |
+| `basic-server-fns` | Minimal server functions with `"use server"` |
+| `configured-server-fns` | Server functions with `ev.config.ts` + Query proxy |
+| `complex-routing` | Params, search, layouts, loaders, nested routes |
+| `with-tailwind` | Tailwind CSS via plugin loaders |
+
 ## Development
 
 ```bash
 ev dev
 ```
 
-Your browser opens to `http://localhost:3000` with hot module replacement. Server functions in `*.server.ts` files are auto-discovered — no config needed.
+Your browser opens to `http://localhost:3000` with Hot Module Replacement. Server functions in `*.server.ts` files are auto-discovered — no config needed.
 
 ## Production Build
 
@@ -23,18 +35,41 @@ ev build
 
 ## Project Structure
 
-A new evjs project looks like this:
-
 ```
 my-app/
+├── index.html              # HTML template (must have <div id="app">)
+├── ev.config.ts            # Optional config
 ├── src/
-│   ├── main.tsx          # App entry point
-│   ├── routes.tsx        # Route definitions
-│   └── api/
-│       └── *.server.ts   # Server functions
-├── index.html            # HTML template
-├── ev.config.ts          # Optional config
-└── package.json
+│   ├── main.tsx            # App bootstrap
+│   ├── global.ts           # Global typings & transport init
+│   ├── routes.tsx          # Route tree + components
+│   └── api/                # Server function files
+│       └── *.server.ts
+├── package.json
+└── tsconfig.json
+```
+
+## App Bootstrap
+
+```tsx
+// src/main.tsx
+import { createApp } from "@evjs/client";
+import { routeTree } from "./routes";
+import "./global";
+
+const app = createApp({ routeTree });
+app.render("#app");
+```
+
+```ts
+// src/global.ts
+import { initTransport } from "@evjs/client";
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: any;
+  }
+}
 ```
 
 ## Packages
@@ -49,22 +84,29 @@ my-app/
 | [`@evjs/webpack-plugin`](https://github.com/evaijs/evjs/tree/main/packages/webpack-plugin) | Webpack adapter |
 | [`@evjs/manifest`](https://github.com/evaijs/evjs/tree/main/packages/manifest) | Shared manifest schema |
 
-## Configuration
+## Required Dependencies
 
-evjs works out of the box with zero config. For customization, create an `ev.config.ts`:
-
-```ts
-import { defineConfig } from "@evjs/cli";
-
-export default defineConfig({
-  client: {
-    entry: "./src/main.tsx",
-    html: "./index.html",
-    dev: { port: 3000 },
+```json
+{
+  "dependencies": {
+    "@evjs/client": "0.0.0",
+    "@evjs/server": "0.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
-  server: {
-    functions: { endpoint: "/api/fn" },
-    dev: { port: 3001 },
-  },
-});
+  "devDependencies": {
+    "@evjs/cli": "*",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^6.0.2"
+  }
+}
 ```
+
+## Key Rules
+
+- Config file: `ev.config.ts` (not `evjs.config.ts`)
+- Import `defineConfig` from `@evjs/cli`, not from `@evjs/server`
+- HTML must have `<div id="app">` for the render target
+- Do NOT add `"type": "module"` to `package.json` — server bundle uses CJS
+- `src/main.tsx` should be minimal — define routes in `routes.tsx`

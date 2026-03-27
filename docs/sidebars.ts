@@ -14,6 +14,11 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
+      label: "Reference",
+      items: ["config", "dev", "build", "deploy"],
+    },
+    {
+      type: "category",
       label: "Community",
       items: ["contributing", "roadmap"],
     },

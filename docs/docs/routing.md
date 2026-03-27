@@ -1,117 +1,261 @@
 # Routing
 
-evjs uses [TanStack Router](https://tanstack.com/router) for type-safe, code-based routing with full TypeScript inference.
+evjs routing is built on [TanStack Router](https://tanstack.com/router). All routing APIs are re-exported from `@evjs/client` — never import from `@tanstack/react-router` directly.
 
-## Defining Routes
+## Project Structure
+
+```
+src/
+├── main.tsx              ← Entry: build route tree, createApp, register types
+├── api/*.server.ts       ← Server functions
+└── pages/
+    ├── __root.tsx         ← Root layout (nav + <Outlet />)
+    ├── home.tsx           ← Static route
+    ├── user.tsx           ← Dynamic route (/users/$username)
+    ├── posts/index.tsx    ← Nested routes with layout
+    ├── dashboard.tsx      ← Pathless layout
+    ├── search.tsx         ← Search param validation
+    └── catch.tsx          ← Redirects & 404 catch-all
+```
+
+## Entry Point Setup
 
 ```tsx
-import {
-  createAppRootRoute,
-  createRoute,
-  Outlet,
-  Link,
-} from "@evjs/client";
+// src/main.tsx
+import { createApp } from "@evjs/client";
+import { rootRoute } from "./pages/__root";
+import { homeRoute } from "./pages/home";
+import { postsRoute, postsIndexRoute, postDetailRoute } from "./pages/posts";
 
-// Root layout
-const rootRoute = createAppRootRoute({
-  component: () => (
+const routeTree = rootRoute.addChildren([
+  homeRoute,
+  postsRoute.addChildren([postsIndexRoute, postDetailRoute]),
+]);
+
+const app = createApp({ routeTree });
+
+// Required for full type-safety on useParams, useSearch, Link, etc.
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof app.router;
+  }
+}
+
+app.render("#app");
+```
+
+## Root Layout
+
+Every app needs a root route with `<Outlet />` to render child routes:
+
+```tsx
+import { createAppRootRoute, Link, Outlet } from "@evjs/client";
+
+function RootLayout() {
+  return (
     <div>
       <nav>
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
+        <Link to="/" activeProps={{ style: { fontWeight: 600 } }}>Home</Link>
+        <Link to="/posts" activeProps={{ style: { fontWeight: 600 } }}>Posts</Link>
       </nav>
+      <Outlet />
+    </div>
+  );
+}
+
+export const rootRoute = createAppRootRoute({ component: RootLayout });
+```
+
+## Static Routes
+
+```tsx
+import { createRoute } from "@evjs/client";
+import { rootRoute } from "./__root";
+
+export const homeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: () => <h1>Home</h1>,
+});
+```
+
+## Dynamic Routes (`$param`)
+
+Use `$name` syntax for path parameters. Access them type-safely via `route.useParams()`:
+
+```tsx
+import { createRoute, useQuery } from "@evjs/client";
+import { getUser } from "../api/data.server";
+import { rootRoute } from "./__root";
+
+function UserProfile() {
+  const { username } = userRoute.useParams(); // { username: string }
+  const { data } = useQuery(getUser, username);
+  return <h2>{data?.name}</h2>;
+}
+
+export const userRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/users/$username",
+  loader: ({ params, context }) =>
+    context.queryClient.ensureQueryData(
+      serverFn(getUser, params.username),
+    ),
+  component: UserProfile,
+});
+```
+
+## Nested Routes (Layout + Children)
+
+Parent routes render `<Outlet />` to display child routes. Wire children via `addChildren()` in `main.tsx`:
+
+```tsx
+// pages/posts/index.tsx
+import { createRoute, Link, Outlet } from "@evjs/client";
+import { rootRoute } from "../__root";
+
+// Layout route: /posts
+export const postsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/posts",
+  component: () => (
+    <div style={{ display: "flex" }}>
+      <nav>{ /* sidebar */ }</nav>
       <Outlet />
     </div>
   ),
 });
 
-// Pages
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
+// Index route: /posts/ (shown when no child matches)
+export const postsIndexRoute = createRoute({
+  getParentRoute: () => postsRoute,
   path: "/",
-  component: () => <h1>Home</h1>,
+  component: () => <p>Select a post</p>,
 });
 
-const aboutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/about",
-  component: () => <h1>About</h1>,
+// Detail route: /posts/$postId
+export const postDetailRoute = createRoute({
+  getParentRoute: () => postsRoute,
+  path: "$postId",
+  loader: ({ params, context }) =>
+    context.queryClient.ensureQueryData(
+      serverFn(getPost, params.postId),
+    ),
+  component: PostDetail,
 });
-
-// Route tree
-export const routeTree = rootRoute.addChildren([indexRoute, aboutRoute]);
 ```
 
-## Nested Layouts
+## Pathless Layouts
 
-Routes can be nested to create shared layouts:
+Use `id` instead of `path` for shared UI that doesn't add a URL segment:
 
 ```tsx
-const dashboardRoute = createRoute({
+export const dashboardLayout = createRoute({
   getParentRoute: () => rootRoute,
+  id: "dashboard-layout",
+  component: () => <div className="layout"><Outlet /></div>,
+});
+
+export const dashboardRoute = createRoute({
+  getParentRoute: () => dashboardLayout,
   path: "/dashboard",
-  component: () => (
-    <div className="dashboard-layout">
-      <aside>Sidebar</aside>
-      <main><Outlet /></main>
-    </div>
-  ),
+  component: Dashboard,
 });
 
-const dashboardHome = createRoute({
-  getParentRoute: () => dashboardRoute,
-  path: "/",
-  component: () => <h2>Dashboard Home</h2>,
-});
-
-const dashboardSettings = createRoute({
-  getParentRoute: () => dashboardRoute,
-  path: "/settings",
-  component: () => <h2>Settings</h2>,
-});
+// main.tsx: dashboardLayout.addChildren([dashboardRoute])
 ```
 
-## Data Loading
+## Search Parameters
 
-Use TanStack Query within route loaders for data fetching:
+Use `validateSearch` to define typed query string parameters:
 
 ```tsx
-import { query } from "@evjs/client";
-import { getUsers } from "./api/users.server";
+export const searchRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/search",
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: (search.q as string) || "",
+    page: Number(search.page) || 1,
+  }),
+  component: SearchPage,
+});
 
-const usersQuery = query(getUsers);
+function SearchPage() {
+  const { q, page } = searchRoute.useSearch(); // { q: string, page: number }
+}
+```
 
-const usersRoute = createRoute({
+Navigate with search params:
+
+```tsx
+<Link to="/search" search={{ q: "hello" }}>Search</Link>
+```
+
+## Route Loaders (Prefetching)
+
+Use `loader` to prefetch data before the route renders — eliminates loading spinners:
+
+```tsx
+export const usersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/users",
-  loader: ({ context: { queryClient } }) =>
-    queryClient.ensureQueryData(usersQuery.queryOptions()),
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData(serverFn(getUsers)),
   component: UsersPage,
 });
 ```
 
-## Dynamic Routes
+## Redirects
+
+Throw `redirect()` in `beforeLoad` to redirect before rendering:
 
 ```tsx
-const userRoute = createRoute({
+import { createRoute, redirect } from "@evjs/client";
+
+export const redirectRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/users/$userId",
-  component: () => {
-    const { userId } = userRoute.useParams();
-    return <h1>User {userId}</h1>;
+  path: "/old-blog",
+  beforeLoad: () => {
+    throw redirect({ to: "/posts" });
   },
 });
 ```
 
-## Route Handlers (REST API)
+## 404 Catch-All
 
-For public API endpoints, use route handlers:
+Use `path: "*"` to catch all unmatched URLs:
 
-```ts
-// src/api/health.ts
-import { route } from "@evjs/server";
-
-export default route({
-  GET: () => new Response("OK"),
+```tsx
+export const notFoundRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "*",
+  component: () => <h1>404 — Page not found</h1>,
 });
 ```
+
+## Navigation
+
+```tsx
+import { Link, useNavigate, Navigate } from "@evjs/client";
+
+// Declarative
+<Link to="/posts/$postId" params={{ postId: "1" }}>View</Link>
+
+// Imperative
+const navigate = useNavigate();
+navigate({ to: "/posts" });
+
+// Redirect component
+<Navigate to="/login" />
+```
+
+## Available Re-exports
+
+All imported from `@evjs/client`:
+
+| Category | APIs |
+|----------|------|
+| **Route creation** | `createAppRootRoute`, `createRoute`, `createRouter`, `createRootRouteWithContext`, `createRouteMask` |
+| **Components** | `Link`, `Outlet`, `Navigate`, `RouterProvider`, `ErrorComponent`, `CatchBoundary`, `CatchNotFound` |
+| **Hooks** | `useParams`, `useSearch`, `useNavigate`, `useLocation`, `useMatch`, `useMatchRoute`, `useRouter`, `useRouterState`, `useLoaderData`, `useLoaderDeps`, `useRouteContext`, `useBlocker`, `useCanGoBack` |
+| **Utilities** | `redirect`, `notFound`, `isRedirect`, `isNotFound`, `getRouteApi`, `linkOptions`, `lazyRouteComponent`, `createLink` |

@@ -1,0 +1,119 @@
+# Deployment
+
+Building and deploying an evjs application requires two parts: serving the static client assets and running the API server for server functions.
+
+## Build for Production
+
+```bash
+npm run build
+# Under the hood: npx ev build
+```
+
+This creates:
+- `dist/client/` — Static React SPA and assets
+- `dist/server/` — Backend server functions bundle
+- `dist/manifest.json` — Metadata linking client and server builds
+
+## Option 1: Node.js (Default)
+
+The default and simplest deployment option:
+
+```javascript
+// server.mjs
+import { serve } from "@evjs/server/node";
+import { serveStatic } from "@hono/node-server/serve-static";
+import * as serverBundle from "./dist/server/main.js";
+
+// 1. Initialize the Hono app with server functions
+const app = serverBundle.createApp();
+
+// 2. Serve the static client bundle
+app.use("/*", serveStatic({ root: "./dist/client" }));
+app.get("*", serveStatic({ path: "./dist/client/index.html" }));
+
+// 3. Start the server
+serve(app, { port: process.env.PORT || 3000 });
+```
+
+Run with: `node server.mjs`
+
+## Option 2: Docker
+
+Multi-stage Dockerfile for production deployment:
+
+```dockerfile
+# Stage 1: Build
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Stage 2: Production
+FROM node:22-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
+COPY server.mjs .
+
+EXPOSE 3000
+CMD ["node", "server.mjs"]
+```
+
+## Option 3: Deno
+
+Use the ECMA adapter for Deno deployment:
+
+```ts
+// ev.config.ts
+export default defineConfig({
+  server: {
+    backend: "deno run -A",  // During dev
+  },
+});
+```
+
+```ts
+// server.ts
+import { serveStatic } from "hono/deno";
+import * as serverBundle from "./dist/server/main.js";
+
+const app = serverBundle.createApp();
+
+app.use("/*", serveStatic({ root: "./dist/client" }));
+app.get("*", serveStatic({ path: "./dist/client/index.html" }));
+
+Deno.serve({ port: 3000 }, app.fetch);
+```
+
+Run with: `deno run --allow-net --allow-read server.ts`
+
+## Option 4: Bun
+
+Similar to Deno, using Bun's native serve:
+
+```ts
+// server.ts
+import * as serverBundle from "./dist/server/main.js";
+
+const app = serverBundle.createApp();
+
+export default {
+  port: 3000,
+  fetch: app.fetch,
+};
+```
+
+Run with: `bun server.ts`
+
+## Environment Variables
+
+Server secrets (e.g., `DATABASE_URL`, `API_KEY`) are safe — they only evaluate at runtime on the server. Ensure they are injected into your Node/Docker/Edge environment before starting the app.
+
+:::tip
+
+All server function code runs exclusively on the server. Client bundles only contain RPC stubs — your secrets and business logic are never exposed to the browser.
+
+:::

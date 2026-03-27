@@ -1,89 +1,188 @@
 # Server Functions
 
-Server functions let you call server-side logic from the browser as normal async functions — no manual API routes, no fetch boilerplate.
+Server functions let you write backend logic in `.server.ts` files and call them from React components as if they were local functions. The build system transforms them into RPC calls automatically.
 
-## How It Works
-
-1. Create a file with `"use server";` at the top
-2. Export named async functions
-3. Import and call them from client code — evjs handles the rest
+## Basic Usage
 
 ```ts
 // src/api/users.server.ts
 "use server";
 
 export async function getUsers() {
-  const db = await connectDB();
-  return db.query("SELECT * FROM users");
+  return await db.users.findMany();
 }
 
 export async function createUser(name: string, email: string) {
-  const db = await connectDB();
-  return db.insert("users", { name, email });
+  return await db.users.create({ data: { name, email } });
 }
 ```
 
-## Client Usage
+### Rules
 
-### With TanStack Query
+- File must start with `"use server";` directive
+- Only **named async function exports** are transformed
+- Use `.server.ts` extension or place in `src/api/` directory
+- No default exports — only named exports
+
+## Query Patterns
+
+evjs provides type-safe `useQuery` and `useSuspenseQuery` that accept server functions directly:
+
+### Direct Usage (Recommended)
 
 ```tsx
-import { query, mutation } from "@evjs/client";
-import { getUsers, createUser } from "./api/users.server";
+import {
+  useQuery,
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+  serverFn,
+} from "@evjs/client";
+import { getUsers, getUser, createUser } from "../api/users.server";
 
-// Query wrapper — auto-generates queryKey + queryFn
-const usersQuery = query(getUsers);
-const createUserMutation = mutation(createUser);
+// Queries — pass server functions directly, types are inferred
+const { data: users } = useQuery(getUsers);               // data: User[]
+const { data: user } = useQuery(getUser, userId);          // data: User
+const { data } = useSuspenseQuery(getUsers);               // data: User[] (guaranteed)
 
-function UserList() {
-  const { data: users } = usersQuery.useQuery();
-  const { mutate } = createUserMutation.useMutation();
+// Mutations — use raw TanStack useMutation
+const queryClient = useQueryClient();
+const { mutate } = useMutation({
+  mutationFn: createUser,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: serverFn(getUsers).queryKey });
+  },
+});
 
-  return (
-    <div>
-      <ul>
-        {users?.map((u) => <li key={u.id}>{u.name}</li>)}
-      </ul>
-      <button onClick={() => mutate("Alice", "alice@example.com")}>
-        Add User
-      </button>
-    </div>
-  );
+// Route loaders / prefetching — use serverFn()
+loader: ({ context }) =>
+  context.queryClient.ensureQueryData(serverFn(getUsers));
+```
+
+### Mutation Arguments
+
+```tsx
+// Single argument: pass object directly
+mutate({ name: "Alice", email: "alice@example.com" });
+
+// Multiple arguments: pass as array
+mutate(["Alice", "alice@example.com"]);
+```
+
+### Raw fetch / Non-Server Functions
+
+For non-server functions, use the standard TanStack Query API directly:
+
+```tsx
+const { data } = useQuery({
+  queryKey: ["github-user", username],
+  queryFn: () =>
+    fetch(`https://api.github.com/users/${username}`).then((r) => r.json()),
+});
+```
+
+## Transport Configuration
+
+### HTTP (Default)
+
+```tsx
+import { initTransport } from "@evjs/client";
+
+initTransport({ endpoint: "/api/fn" });
+```
+
+### WebSocket
+
+```tsx
+import { WebSocketTransport } from "@evjs/client";
+import { initTransport } from "@evjs/client";
+
+initTransport({
+  transport: new WebSocketTransport("ws://localhost:3001/ws"),
+});
+```
+
+### Server Config
+
+```ts
+// ev.config.ts
+import { defineConfig } from "@evjs/cli";
+
+export default defineConfig({
+  server: {
+    functions: {
+      endpoint: "/api/fn",  // default
+    },
+  },
+});
+```
+
+## Error Handling
+
+### Server Side
+
+Throw structured errors with status codes and data:
+
+```ts
+import { ServerError } from "@evjs/server";
+
+export async function getUser(id: string) {
+  const user = await db.users.findById(id);
+  if (!user) {
+    throw new ServerError("User not found", {
+      status: 404,
+      data: { id },
+    });
+  }
+  return user;
 }
 ```
 
-### Direct Call
+### Client Side
 
-```ts
-import { getUsers } from "./api/users.server";
+Catch typed errors:
 
-// Works just like a normal async function call
-const users = await getUsers();
+```tsx
+import { ServerFunctionError } from "@evjs/client";
+
+try {
+  const user = await getUser("123");
+} catch (e) {
+  if (e instanceof ServerFunctionError) {
+    console.log(e.message);  // "User not found"
+    console.log(e.status);   // 404
+    console.log(e.data);     // { id: "123" }
+  }
+}
 ```
 
 ## Build Pipeline
 
 At build time, the `"use server"` directive triggers two separate transforms:
 
-- **Client build**: function bodies are replaced with `__fn_call(fnId, args)` stubs
-- **Server build**: original bodies are preserved + `registerServerFn(fnId, fn)` is injected
+```mermaid
+flowchart TD
+    SRC[".server.ts file"] --> DETECT{"'use server' detected?"}
+    DETECT -->|Yes| CLIENT["Client Transform"]
+    DETECT -->|Yes| SERVER["Server Transform"]
+    DETECT -->|No| SKIP["Skip (normal module)"]
 
-Function IDs are stable SHA-256 hashes derived from file path + export name.
-
-## Transport
-
-By default, server functions use HTTP POST to `/api/fn`. You can customize the transport:
-
-```ts
-import { defineConfig } from "@evjs/cli";
-
-export default defineConfig({
-  server: {
-    functions: {
-      endpoint: "/api/fn", // default
-    },
-  },
-});
+    CLIENT --> STUBS["__fn_call(fnId, args) stubs"]
+    SERVER --> REGISTER["registerServerFn(fnId, fn)"]
+    SERVER --> MANIFEST["manifest.json entry"]
 ```
 
-The `ServerTransport` interface supports custom protocols (e.g., WebSocket, MessagePack).
+- **Client build**: function bodies → `__fn_call(fnId, args)` stubs
+- **Server build**: original bodies preserved + `registerServerFn(fnId, fn)` injected
+- Function IDs are stable SHA-256 hashes from `filePath + exportName`
+
+## Key Points
+
+| Pattern | Usage |
+|---------|-------|
+| Query | `useQuery(fn, ...args)` |
+| Suspense query | `useSuspenseQuery(fn, ...args)` |
+| Loader / prefetch | `serverFn(fn, ...args)` → `{ queryKey, queryFn }` |
+| Cache invalidation | `serverFn(fn).queryKey` |
+| Arguments | Spread: `useQuery(getUser, id)` not `useQuery(getUser, [id])` |
+| Server errors | `ServerError` on server → `ServerFunctionError` on client |

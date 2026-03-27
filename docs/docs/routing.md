@@ -1,4 +1,4 @@
-# Routing
+# Client Route
 
 evjs routing is built on [TanStack Router](https://tanstack.com/router). All routing APIs are re-exported from `@evjs/client` — never import from `@tanstack/react-router` directly.
 

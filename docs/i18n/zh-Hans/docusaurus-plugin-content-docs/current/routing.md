@@ -1,4 +1,4 @@
-# 路由
+# 客户端路由
 
 evjs 路由基于 [TanStack Router](https://tanstack.com/router) 构建。所有路由 API 从 `@evjs/client` 重新导出 —— 不要直接从 `@tanstack/react-router` 导入。
 

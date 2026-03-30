@@ -82,6 +82,16 @@ const config: Config = {
           items: [
             { label: "Quick Start", to: "/docs/quick-start" },
             { label: "Architecture", to: "/docs/architecture" },
+            { label: "Server Functions", to: "/docs/server-functions" },
+            { label: "Routing", to: "/docs/routing" },
+          ],
+        },
+        {
+          title: "Reference",
+          items: [
+            { label: "Configuration", to: "/docs/config" },
+            { label: "Build", to: "/docs/build" },
+            { label: "Deploy", to: "/docs/deploy" },
           ],
         },
         {
@@ -90,6 +100,10 @@ const config: Config = {
             {
               label: "GitHub",
               href: "https://github.com/evaijs/evjs",
+            },
+            {
+              label: "npm",
+              href: "https://www.npmjs.com/package/@evjs/cli",
             },
           ],
         },

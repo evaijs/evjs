@@ -38,12 +38,12 @@ import { getFnId } from "./transport";
 
 /**
  * Extracts the stable query key for a given server function and its arguments.
- * 
- * At runtime, server functions are augmented by the evjs compiler to carry internal metadata 
- * (like unique function IDs and query key generators). However, in plain TypeScript, importing 
+ *
+ * At runtime, server functions are augmented by the evjs compiler to carry internal metadata
+ * (like unique function IDs and query key generators). However, in plain TypeScript, importing
  * a raw function from a `.server.ts` file only gives you its standard `() => Promise<T>` type signature.
- * 
- * This helper bridges the type gap, providing a completely type-safe way to extract the 
+ *
+ * This helper bridges the type gap, providing a completely type-safe way to extract the
  * underlying TanStack Query key from the server function stub without triggering static TS errors.
  */
 export function getFnQueryKey<T extends (...args: any[]) => Promise<any>>(
@@ -52,28 +52,35 @@ export function getFnQueryKey<T extends (...args: any[]) => Promise<any>>(
 ): unknown[] {
   const fnId = getFnId(fn);
   if (!fnId) {
-    throw new Error(`getFnQueryKey() only accepts server functions. Got: ${fn.name || "anonymous"}`);
+    throw new Error(
+      `getFnQueryKey() only accepts server functions. Got: ${fn.name || "anonymous"}`,
+    );
   }
   return (fn as unknown as ServerFunction).queryKey(...args);
 }
 
 /**
  * Extracts the { queryKey, queryFn } object for TanStack Query options.
- * 
- * At runtime, server functions are augmented by the evjs compiler to carry internal metadata 
- * (like unique function IDs and query key generators). However, in plain TypeScript, importing 
+ *
+ * At runtime, server functions are augmented by the evjs compiler to carry internal metadata
+ * (like unique function IDs and query key generators). However, in plain TypeScript, importing
  * a raw function from a `.server.ts` file only gives you its standard `() => Promise<T>` type signature.
- * 
- * This helper bridges the type gap, providing a completely type-safe way to extract the 
+ *
+ * This helper bridges the type gap, providing a completely type-safe way to extract the
  * underlying TanStack Query Options from the server function stub without triggering static TS errors.
  */
 export function getFnQueryOptions<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   ...args: Parameters<T>
-): { queryKey: unknown[]; queryFn: (ctx: { signal: AbortSignal }) => ReturnType<T> } {
+): {
+  queryKey: unknown[];
+  queryFn: (ctx: { signal: AbortSignal }) => ReturnType<T>;
+} {
   const fnId = getFnId(fn);
   if (!fnId) {
-    throw new Error(`getFnQueryOptions() only accepts server functions. Got: ${fn.name || "anonymous"}`);
+    throw new Error(
+      `getFnQueryOptions() only accepts server functions. Got: ${fn.name || "anonymous"}`,
+    );
   }
   return (fn as unknown as ServerFunction).queryOptions(...args) as any;
 }
@@ -110,7 +117,9 @@ export function useQuery(
         `useQuery() only accepts server functions (with "use server" directive). Got: ${fnOrOptions.name || "anonymous"}`,
       );
     }
-    return _useQuery((fnOrOptions as unknown as ServerFunction).queryOptions(...args));
+    return _useQuery(
+      (fnOrOptions as unknown as ServerFunction).queryOptions(...args),
+    );
   }
   return _useQuery(fnOrOptions);
 }
@@ -145,7 +154,9 @@ export function useSuspenseQuery(
         `useSuspenseQuery() only accepts server functions (with "use server" directive). Got: ${fnOrOptions.name || "anonymous"}`,
       );
     }
-    return _useSuspenseQuery((fnOrOptions as unknown as ServerFunction).queryOptions(...args));
+    return _useSuspenseQuery(
+      (fnOrOptions as unknown as ServerFunction).queryOptions(...args),
+    );
   }
   return _useSuspenseQuery(fnOrOptions);
 }

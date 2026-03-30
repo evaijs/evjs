@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useQuery, useSuspenseQuery } from "../src/query.js";
-import { __fn_register, __resetForTesting } from "../src/transport.js";
 import {
   useQuery as _useQuery,
   useSuspenseQuery as _useSuspenseQuery,
 } from "@tanstack/react-query";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useQuery, useSuspenseQuery } from "../src/query.js";
+import { __fn_register, __resetForTesting } from "../src/transport.js";
 
 vi.mock("@tanstack/react-query", async () => ({
   useQuery: vi.fn(),

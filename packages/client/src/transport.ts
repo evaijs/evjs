@@ -253,7 +253,8 @@ export function __fn_register(
   sfn.queryKey = (...args: unknown[]) => [fnId, ...args];
   sfn.queryOptions = (...args: unknown[]) => ({
     queryKey: sfn.queryKey(...args),
-    queryFn: (ctx?: { signal?: AbortSignal }) => __fn_call(fnId, args, { signal: ctx?.signal }) as Promise<unknown>,
+    queryFn: (ctx?: { signal?: AbortSignal }) =>
+      __fn_call(fnId, args, { signal: ctx?.signal }) as Promise<unknown>,
   });
   Object.defineProperty(sfn, "fnId", { value: fnId, writable: false });
   Object.defineProperty(sfn, "fnName", {

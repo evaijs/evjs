@@ -1,9 +1,9 @@
 import {
   createAppRootRoute,
   createRoute,
+  getFnQueryKey,
   Link,
   Outlet,
-  getFnQueryKey,
   useMutation,
   useQuery,
   useQueryClient,

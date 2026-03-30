@@ -31,10 +31,10 @@ export { createApp } from "./app";
 export type { AppRouteContext } from "./context";
 export { createAppRootRoute } from "./context";
 export {
-  useQuery,
-  useSuspenseQuery,
   getFnQueryKey,
   getFnQueryOptions,
+  useQuery,
+  useSuspenseQuery,
 } from "./query";
 export type {
   AnyRootRoute,

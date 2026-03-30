@@ -95,7 +95,7 @@ const config: Config = {
         },
       ],
       copyright:
-        "Copyright (c) 2015-present Ant UED, https://xtech.antfin.com/",
+        'Copyright (c) 2015-present <a href="https://xtech.antfin.com/" target="_blank" rel="noopener noreferrer">Ant UED</a>',
     },
     prism: {
       theme: prismThemes.github,

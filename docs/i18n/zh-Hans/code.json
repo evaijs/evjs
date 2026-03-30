@@ -1,0 +1,58 @@
+{
+  "homepage.tagline": {
+    "message": "基于 TanStack + Hono 构建的 React 元框架",
+    "description": "The tagline on the homepage hero"
+  },
+  "homepage.getStarted": {
+    "message": "快速开始 →",
+    "description": "The Get Started button on the homepage"
+  },
+  "homepage.feature.zeroConfig.title": {
+    "message": "零配置",
+    "description": "Title for Zero Config feature"
+  },
+  "homepage.feature.zeroConfig.description": {
+    "message": "ev dev / ev build —— 无需 Webpack 或 Babel 配置。约定优于配置。",
+    "description": "Description for Zero Config feature"
+  },
+  "homepage.feature.typeSafe.title": {
+    "message": "类型安全路由",
+    "description": "Title for Type-Safe Routing feature"
+  },
+  "homepage.feature.typeSafe.description": {
+    "message": "从服务端到浏览器地址栏的全链路类型安全，由 TanStack Router 驱动。",
+    "description": "Description for Type-Safe Routing feature"
+  },
+  "homepage.feature.serverFn.title": {
+    "message": "服务端函数",
+    "description": "Title for Server Functions feature"
+  },
+  "homepage.feature.serverFn.description": {
+    "message": "\"use server\" 指令在构建时自动将异步函数转换为远程 API 调用。",
+    "description": "Description for Server Functions feature"
+  },
+  "homepage.feature.multiRuntime.title": {
+    "message": "多运行时",
+    "description": "Title for Multi-Runtime feature"
+  },
+  "homepage.feature.multiRuntime.description": {
+    "message": "基于 Hono 的服务端可运行在 Node.js、Deno、Bun 和边缘运行时上，开箱即用。",
+    "description": "Description for Multi-Runtime feature"
+  },
+  "homepage.feature.transport.title": {
+    "message": "可插拔传输层",
+    "description": "Title for Pluggable Transport feature"
+  },
+  "homepage.feature.transport.description": {
+    "message": "通过 ServerTransport 接口支持 HTTP、WebSocket 或自定义协议。",
+    "description": "Description for Pluggable Transport feature"
+  },
+  "homepage.feature.plugin.title": {
+    "message": "插件系统",
+    "description": "Title for Plugin System feature"
+  },
+  "homepage.feature.plugin.description": {
+    "message": "通过自定义模块规则扩展构建 —— Tailwind、SVG、PostCSS 等。",
+    "description": "Description for Plugin System feature"
+  }
+}

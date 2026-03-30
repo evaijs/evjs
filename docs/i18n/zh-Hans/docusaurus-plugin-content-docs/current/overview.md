@@ -1,6 +1,6 @@
 # 什么是 evjs？
 
-> **ev** = **Ev**aluation（评估）· **Ev**olution（进化）—— 跨运行时评估，借助 AI 工具演进。
+> **ev** = **Ev**aluation（执行）· **Ev**olution（演进）—— 跨运行时执行，借助 AI 工具演进。
 
 evjs 是一个零配置的 React 元框架，基于 [TanStack Router](https://tanstack.com/router)、[TanStack Query](https://tanstack.com/query) 和 [Hono](https://hono.dev) 构建。提供无缝的开发体验，用于构建类型安全的全栈 Web 应用。
 

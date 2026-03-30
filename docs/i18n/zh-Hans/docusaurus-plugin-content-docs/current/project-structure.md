@@ -19,8 +19,8 @@ my-evjs-app/
     │   └── posts.$id.tsx  # 动态路由匹配 (`/posts/:id`)
     │
     ├── api/               # (核心) 后端独占逻辑与服务端职能
-    │   ├── *.server.ts    # 纯服务端函数 (Server Functions，在构建时自动转换为 RPC)
-    │   └── handlers/      # [可选] 标准 REST 路由处理器 (由后端的 HTTP Server 接管，比如开放 API/Webhook)
+    │   ├── fns/               # 纯服务端函数 (Server Functions，在构建时自动转换为 RPC)
+    │   └── routes/            # [可选] 标准 REST 路由处理器 (由后端的 HTTP Server 接管，比如开放 API/Webhook)
     │
     ├── components/        # 全局可复用的基础 UI 组件 (如 Button, Modal, Layout)
     │

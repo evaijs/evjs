@@ -37,7 +37,7 @@ my-evjs-app/
 ### The `src/api/` directory (The Server Boundary)
 - `evjs` finds `*.server.ts` files automatically via a glob, but for maintainability, all server-side logic must be kept inside `src/api/`.
 - This enforces a clear physical boundary. Anything interacting with Node.js built-ins (`fs`, `crypto`), databases, or sensitive logic stays in `api/` and never accidentally imports into a client bundle.
-- **Example files:** `src/api/users.server.ts`, `src/api/db.server.ts`.
+- **Example files:** `src/api/fns/users.server.ts`, `src/api/fns/db.server.ts`.
 
 ### The `src/features/` directory (For Scalability)
 - To prevent `components/` and `hooks/` from becoming dumping grounds, logically group related UI parts, hooks, and types by their domain name inside `features/`.

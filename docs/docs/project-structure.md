@@ -19,8 +19,8 @@ my-evjs-app/
     │   └── posts.$id.tsx  # Matches `/posts/:id`
     │
     ├── api/               # (Core) Backend logic and server functions
-    │   ├── *.server.ts    # Pure Server Functions (transformed to RPC by the build system)
-    │   └── handlers/      # [Optional] Standard REST Route Handlers (e.g. for external Webhooks)
+    │   ├── fns/               # Pure Server Functions (transformed to RPC by the build system)
+    │   └── routes/            # [Optional] Standard REST Route Handlers (e.g. for external Webhooks)
     │
     ├── components/        # Global, reusable, "dumb" UI components (Button, Modal, Layout, etc.)
     │

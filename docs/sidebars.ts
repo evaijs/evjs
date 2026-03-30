@@ -10,7 +10,13 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Core Concepts",
-      items: ["architecture", "server-functions", "server-routes", "routing"],
+      items: [
+        "architecture",
+        "project-structure",
+        "server-functions",
+        "server-routes",
+        "routing",
+      ],
     },
     {
       type: "category",

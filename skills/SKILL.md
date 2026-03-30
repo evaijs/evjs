@@ -31,6 +31,7 @@ npm run dev
 For detailed guides on specific topics, see the `references/` directory:
 
 - [init.md](references/init.md) — Scaffolding projects with `npx @evjs/create-app`
+- [project-structure.md](references/project-structure.md) — Recommended directory structure and domain-driven design (features)
 - [dev.md](references/dev.md) — Development server and configuration
 - [build.md](references/build.md) — Production builds
 - [deploy.md](references/deploy.md) — Deploying to Node, Docker, Deno, and Edge environments

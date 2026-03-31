@@ -77,6 +77,16 @@ html {
   -webkit-backdrop-filter: saturate(180%) blur(16px);
   border-bottom: 1px solid var(--ev-border);
   box-shadow: none;
+  z-index: 200;
+}
+
+/* Mobile sidebar – fix stacking context caused by backdrop-filter */
+.navbar-sidebar {
+  z-index: 200;
+}
+
+.navbar-sidebar__backdrop {
+  z-index: 199;
 }
 
 .navbar__title {

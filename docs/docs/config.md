@@ -46,32 +46,6 @@ export default defineConfig({
       https: false,
     },
   },
-
-  // ── Plugins ──
-  plugins: [
-    {
-      name: "my-plugin",
-      config(config, ctx) {
-        // Framework-level config hook
-        if (ctx.mode === "development") {
-          config.dev ??= {};
-          config.dev.port = 8080;
-        }
-      },
-      bundler(bundlerConfig, ctx) {
-        // Bundler-level config hook (e.g. Webpack)
-        // bundlerConfig is the raw configuration object
-      }
-    },
-  ],
-
-  // ── Bundler Escape Hatch ──
-  bundler: {
-    name: "webpack", // "webpack" | "utoopack" (future)
-    config(bundlerConfig, ctx) {
-      // Direct access to the underlying bundler configuration
-    }
-  }
 });
 ```
 
@@ -172,35 +146,56 @@ evjs includes **built-in PostCSS/Tailwind support**. If a `postcss.config.js` fi
 
 A plugin can either mutate the config object directly or return a new one.
 
-## Examples
+### Meaningful Complete Example
 
-### Minimal (custom ports only)
+This example demonstrates a production-ready setup with custom loaders, environment variables, and specialized entry points.
 
 ```ts
 import { defineConfig } from "@evjs/cli";
 
 export default defineConfig({
+  // 1. Custom Entry Points
+  entry: "./src/entry-client.tsx",
+  server: {
+    entry: "./src/entry-server.ts",
+    endpoint: "/api/rpc",
+    dev: { port: 4001 },
+  },
+
   dev: { port: 4000 },
-  server: { dev: { port: 4001 } },
-});
-```
 
-### Plugin that adjusts config per mode
-
-```ts
-import { defineConfig } from "@evjs/cli";
-
-export default defineConfig({
+  // 2. Specialized Plugins
   plugins: [
     {
-      name: "env-config",
-      config(config, ctx) {
-        if (ctx.mode === "production") {
-          config.server ??= {};
-          config.server.endpoint = "/api/v2";
+      name: "mdx-support",
+      bundler(bundlerConfig, ctx) {
+        // Only add MDX support for Webpack
+        if (ctx.config.bundler.name === "webpack") {
+          const webpackConfig = bundlerConfig as any;
+          webpackConfig.module.rules.push({
+            test: /\.mdx$/,
+            use: ["mdx-loader"],
+          });
         }
       },
     },
   ],
+
+  // 3. Direct Bundler Escape Hatch
+  bundler: {
+    config(bundlerConfig, ctx) {
+      // Inject global environment variables via Webpack
+      if (ctx.config.bundler.name === "webpack") {
+        const webpack = require("webpack");
+        const webpackConfig = bundlerConfig as any;
+        webpackConfig.plugins.push(
+          new webpack.DefinePlugin({
+            __VERSION__: JSON.stringify("1.2.3"),
+          })
+        );
+      }
+    },
+  },
 });
 ```
+

@@ -7,7 +7,7 @@
 ```
 ┌─────────────────────────── Build Time ───────────────────────────┐
 │                                                                  │
-│  @evjs/cli ──► BundlerAdapter ──► @evjs/webpack-plugin        │
+│  @evjs/cli ──► BundlerAdapter ──► @evjs/bundler-webpack        │
 │                      │           (adapter logic)             │
 │                      ▼                                       │
 │  @evjs/build-tools ──┴──► @evjs/manifest (manifest.json)     │

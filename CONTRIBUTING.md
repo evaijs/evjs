@@ -21,13 +21,13 @@
 | `@evjs/server` | `packages/server` | Server (Hono) |
 | `@evjs/build-tools` | `packages/build-tools` | Bundler-agnostic server function transforms (SWC) |
 | `@evjs/manifest` | `packages/manifest` | Shared manifest schema types (`ManifestV1`) |
-| `@evjs/webpack-plugin` | `packages/webpack-plugin` | Webpack adapter wrapping build-tools |
+| `@evjs/bundler-webpack` | `packages/webpack-plugin` | Webpack adapter wrapping build-tools |
 
 ### Dependency Graph
 
 ```
 @evjs/cli
-  ├── @evjs/webpack-plugin
+  ├── @evjs/bundler-webpack
   │     ├── @evjs/build-tools
   │     └── @evjs/manifest
   └── webpack / webpack-dev-server / swc-loader / @swc/core
@@ -91,7 +91,7 @@ npx biome check --write    # Fix lint/format
 1. `loadConfig(cwd)` — loads `ev.config.ts` or returns undefined for convention-based defaults
 2. `createWebpackConfig(config, cwd)` — generates webpack config object (no temp files)
 3. Calls `webpack()` Node API directly
-4. `@evjs/webpack-plugin` runs as a webpack plugin:
+4. `@evjs/bundler-webpack` runs as a webpack plugin:
    - Discovers `*.server.ts` files via glob
    - Applies SWC transforms (client + server variants)
    - Runs child compiler for server bundle

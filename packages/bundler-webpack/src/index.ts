@@ -8,6 +8,9 @@ import {
 } from "@evjs/build-tools";
 import type { Manifest, RouteEntry, ServerFnEntry } from "@evjs/manifest";
 import type { Compiler } from "webpack";
+import { webpackAdapter } from "./adapter/index.js";
+
+export { webpackAdapter };
 
 class ManifestCollector {
   fns: Record<string, ServerFnEntry> = {};

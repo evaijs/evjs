@@ -45,7 +45,7 @@ config needed.
 | [`@evjs/client`](./packages/client) | Client runtime (React + TanStack) |
 | [`@evjs/server`](./packages/server) | Server runtime (Hono) |
 | [`@evjs/build-tools`](./packages/build-tools) | Server function transforms |
-| [`@evjs/webpack-plugin`](./packages/webpack-plugin) | Webpack adapter |
+| [`@evjs/bundler-webpack`](./packages/webpack-plugin) | Webpack adapter |
 | [`@evjs/manifest`](./packages/manifest) | Shared manifest schema types |
 | [`examples/`](./examples) | Starter templates |
 

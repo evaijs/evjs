@@ -89,4 +89,4 @@ my-app/
 Users do NOT need to install these — they're included in `@evjs/cli`:
 - `webpack`, `webpack-dev-server`
 - `html-webpack-plugin`, `swc-loader`, `@swc/core`
-- `@evjs/webpack-plugin`, `@evjs/build-tools`
+- `@evjs/bundler-webpack`, `@evjs/build-tools`

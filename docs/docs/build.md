@@ -39,7 +39,7 @@ Function IDs are stable SHA-256 hashes derived from `filePath + exportName`.
 1. `loadConfig(cwd)` — loads `ev.config.ts` or convention-based defaults
 2. `createWebpackConfig(config, cwd)` — generates webpack config (no temp files)
 3. Calls `webpack()` Node API directly
-4. `@evjs/webpack-plugin` runs during compilation:
+4. `@evjs/bundler-webpack` runs during compilation:
    - Discovers `*.server.ts` files via glob
    - Applies SWC transforms (client + server variants)
    - Runs child compiler for server bundle

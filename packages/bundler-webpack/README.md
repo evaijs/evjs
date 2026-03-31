@@ -1,11 +1,11 @@
-# @evjs/webpack-plugin
+# @evjs/bundler-webpack
 
 Webpack adapter for the **ev** framework. Thin wrapper over [`@evjs/build-tools`](../build-tools) that connects bundler-agnostic build logic to Webpack's plugin and loader APIs.
 
 ## Installation
 
 ```bash
-npm install @evjs/webpack-plugin
+npm install @evjs/bundler-webpack
 ```
 
 ## Exports
@@ -33,7 +33,7 @@ Auto-detects whether it's running in the client or server compiler and delegates
 ## Usage
 
 ```js
-const { EvWebpackPlugin } = require("@evjs/webpack-plugin");
+const { EvWebpackPlugin } = require("@evjs/bundler-webpack");
 
 module.exports = {
   plugins: [
@@ -57,7 +57,7 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           { loader: "swc-loader" },
-          { loader: "@evjs/webpack-plugin/server-fn-loader" },
+          { loader: "@evjs/bundler-webpack/server-fn-loader" },
         ],
       },
     ],

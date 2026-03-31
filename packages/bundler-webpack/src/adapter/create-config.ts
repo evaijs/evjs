@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import type { EvBundlerCtx, ResolvedEvConfig } from "../../config.js";
+import type { EvBundlerCtx, ResolvedEvConfig } from "@evjs/shared";
 
 const esmRequire = createRequire(import.meta.url);
 
@@ -22,7 +22,7 @@ export function createWebpackConfig(
   const isProduction = process.env.NODE_ENV === "production";
 
   const HtmlWebpackPlugin = esmRequire("html-webpack-plugin");
-  const { EvWebpackPlugin } = esmRequire("@evjs/webpack-plugin");
+  const { EvWebpackPlugin } = esmRequire("@evjs/bundler-webpack");
 
   const pluginOptions = { server: { entry: config.server.entry } };
 
@@ -76,7 +76,7 @@ export function createWebpackConfig(
               },
             },
             {
-              loader: resolveLoader("@evjs/webpack-plugin/server-fn-loader"),
+              loader: resolveLoader("@evjs/bundler-webpack/server-fn-loader"),
             },
           ],
         },

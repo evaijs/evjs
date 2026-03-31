@@ -12,7 +12,7 @@
 | `@evjs/client` | `packages/client` | `src/query.ts` (useQuery, getFnQueryOptions), `src/transport.ts` (__fn_call, initTransport), `src/route.ts`, `src/context.ts` |
 | `@evjs/server` | `packages/server` | `src/app.ts` (createApp), `src/functions/dispatch.ts`, `src/functions/register.ts`, `src/routes/route-handler.ts` |
 | `@evjs/build-tools` | `packages/build-tools` | `src/transforms/index.ts`, `src/entry.ts`, `src/codegen.ts`, `src/types.ts` (RUNTIME constants), `src/utils.ts` |
-| `@evjs/webpack-plugin` | `packages/webpack-plugin` | `src/index.ts` (EvWebpackPlugin + ManifestCollector), `src/server-fn-loader.ts` |
+| `@evjs/bundler-webpack` | `packages/webpack-plugin` | `src/index.ts` (EvWebpackPlugin + ManifestCollector), `src/server-fn-loader.ts` |
 | `@evjs/manifest` | `packages/manifest` | `src/index.ts` (ManifestV1 types) |
 
 ## Coding Rules

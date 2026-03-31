@@ -9,7 +9,7 @@ evjs is a React fullstack framework with type-safe routing (TanStack Router), da
 ```
 ┌─────────────────────────── Build Time ───────────────────────────┐
 │                                                                  │
-│  @evjs/cli ──► @evjs/webpack-plugin ──► @evjs/manifest           │
+│  @evjs/cli ──► @evjs/bundler-webpack ──► @evjs/manifest           │
 │                      ▲                    (manifest.json)        │
 │  @evjs/build-tools ──┘                                           │
 │  (bundler-agnostic)                                              │
@@ -31,7 +31,7 @@ evjs is a React fullstack framework with type-safe routing (TanStack Router), da
 ## Package Dependency Graph
 
 ```
-@evjs/cli ──► @evjs/webpack-plugin ──► @evjs/build-tools ──► @swc/core
+@evjs/cli ──► @evjs/bundler-webpack ──► @evjs/build-tools ──► @swc/core
     │
     └──► webpack (Node API)
 
@@ -96,7 +96,7 @@ Browser ──(:3000)──► WebpackDevServer ──► HMR (static assets)
 1. `loadConfig(cwd)` — loads `ev.config.ts` or returns defaults
 2. `createWebpackConfig(config, cwd)` — generates webpack config (no temp files)
 3. Calls `webpack()` Node API directly
-4. `@evjs/webpack-plugin` runs during compilation:
+4. `@evjs/bundler-webpack` runs during compilation:
    - Discovers `*.server.ts` via glob
    - Applies SWC transforms (client + server variants)
    - Runs child compiler for server bundle

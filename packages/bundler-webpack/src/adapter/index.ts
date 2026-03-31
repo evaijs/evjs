@@ -3,11 +3,10 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { getLogger } from "@logtape/logtape";
-import type { ResolvedEvConfig } from "../../config.js";
-import type { BundlerAdapter } from "../types.js";
+import type { BundlerAdapter, ResolvedEvConfig } from "@evjs/shared";
 
 const esmRequire = createRequire(import.meta.url);
-const logger = getLogger(["evjs", "cli"]);
+const logger = getLogger(["evjs", "bundler-webpack"]);
 
 export const webpackAdapter: BundlerAdapter = {
   async build(config: ResolvedEvConfig, cwd: string): Promise<void> {

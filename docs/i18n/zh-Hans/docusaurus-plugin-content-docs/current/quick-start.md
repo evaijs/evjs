@@ -81,7 +81,7 @@ declare module "@tanstack/react-router" {
 | [`@evjs/client`](https://github.com/evaijs/evjs/tree/main/packages/client) | 客户端运行时（React + TanStack） |
 | [`@evjs/server`](https://github.com/evaijs/evjs/tree/main/packages/server) | 服务端运行时（Hono） |
 | [`@evjs/build-tools`](https://github.com/evaijs/evjs/tree/main/packages/build-tools) | 服务端函数转换 |
-| [`@evjs/webpack-plugin`](https://github.com/evaijs/evjs/tree/main/packages/webpack-plugin) | Webpack 适配器 |
+| [`@evjs/bundler-webpack`](https://github.com/evaijs/evjs/tree/main/packages/webpack-plugin) | Webpack 适配器 |
 | [`@evjs/manifest`](https://github.com/evaijs/evjs/tree/main/packages/manifest) | 共享 Manifest Schema |
 
 ## 必需依赖

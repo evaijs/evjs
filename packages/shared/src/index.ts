@@ -9,3 +9,15 @@ export {
 export { ServerError, ServerFunctionError } from "./errors.js";
 export type { HttpMethod } from "./http.js";
 export { HTTP_METHODS, isHttpMethod } from "./http.js";
+
+export {
+  type EvConfig,
+  type ResolvedEvConfig,
+  type EvConfigCtx,
+  type EvBundlerCtx,
+  type EvPlugin,
+  CONFIG_DEFAULTS,
+  defineConfig,
+  resolveConfig,
+} from "./config.js";
+export { type BundlerAdapter } from "./bundler.js";

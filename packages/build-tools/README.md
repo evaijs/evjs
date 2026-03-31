@@ -22,7 +22,7 @@ npm install @evjs/build-tools
 
 ## Usage
 
-This package is consumed by bundler adapters (e.g., `@evjs/webpack-plugin`), not directly by application code.
+This package is consumed by bundler adapters (e.g., `@evjs/bundler-webpack`), not directly by application code.
 
 ```ts
 import {
@@ -80,7 +80,7 @@ RUNTIME.clientRegister        // "__fn_register"
 ```
 @evjs/build-tools (pure functions)     Bundler Adapters
 ────────────────────────────────       ─────────────────
-• generateServerEntry()                @evjs/webpack-plugin
+• generateServerEntry()                @evjs/bundler-webpack
 • transformServerFile()                  → EvWebpackPlugin
 • detectUseServer()                      → server-fn-loader
 • makeFnId()

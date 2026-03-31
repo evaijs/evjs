@@ -1,4 +1,4 @@
-import { DEFAULT_ERROR_STATUS } from "./constants";
+import { DEFAULT_ERROR_STATUS } from "./constants.js";
 
 /**
  * Error thrown when a server function call fails.

@@ -1,4 +1,4 @@
-import type { ResolvedEvConfig } from "../config.js";
+import type { ResolvedEvConfig } from "./config.js";
 
 /**
  * Interface that all bundler adapters must implement.

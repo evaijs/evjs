@@ -1,7 +1,7 @@
 {
-  "name": "@evjs/webpack-plugin",
+  "name": "@evjs/bundler-webpack",
   "version": "0.0.0",
-  "description": "Webpack plugin and loaders for the ev framework",
+  "description": "Webpack bundler adapter for the evjs framework",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -37,12 +37,18 @@
   "license": "MIT",
   "dependencies": {
     "@evjs/build-tools": "*",
-    "@evjs/manifest": "*"
+    "@evjs/manifest": "*",
+    "@evjs/shared": "*",
+    "@logtape/logtape": "^2.0.4",
+    "@swc/core": "^1.15.21",
+    "html-webpack-plugin": "^5.6.6",
+    "swc-loader": "^0.2.7",
+    "webpack": "^5.105.4",
+    "webpack-dev-server": "^5.2.3"
   },
   "devDependencies": {
     "@types/node": "^22.19.15",
-    "typescript": "^6.0.2",
-    "webpack": "^5.105.4"
+    "typescript": "^6.0.2"
   },
   "homepage": "https://github.com/evaijs/evjs#readme",
   "bugs": {

@@ -2,12 +2,18 @@ import fs from "node:fs";
 import path from "node:path";
 import { getLogger } from "@logtape/logtape";
 import { execa } from "execa";
+import type { BundlerAdapter } from "./bundler/types.js";
+import { webpackAdapter } from "./bundler/webpack/index.js";
 import type { EvConfig } from "./config.js";
 import { CONFIG_DEFAULTS, resolveConfig } from "./config.js";
-import { webpackAdapter } from "./bundler/webpack/index.js";
-import type { BundlerAdapter } from "./bundler/types.js";
 
-export type { EvConfig, EvConfigCtx, EvBundlerCtx, EvPlugin, ResolvedEvConfig } from "./config.js";
+export type {
+  EvBundlerCtx,
+  EvConfig,
+  EvConfigCtx,
+  EvPlugin,
+  ResolvedEvConfig,
+} from "./config.js";
 export { CONFIG_DEFAULTS, defineConfig, resolveConfig } from "./config.js";
 
 const logger = getLogger(["evjs", "cli"]);
@@ -49,13 +55,13 @@ export async function dev(
 
   // Background: start Node API when server bundle is ready
   let apiStarted = false;
-  
+
   const handleServerBundleReady = () => {
     if (apiStarted) return;
-    
+
     const manifestPath = path.resolve(cwd, "dist/manifest.json");
     if (!fs.existsSync(manifestPath)) return;
-    
+
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
     if (!manifest.server?.entry) return;
 

@@ -1,10 +1,10 @@
 import "node:module";
-import path from "node:path";
 import fs from "node:fs";
 import { createRequire } from "node:module";
+import path from "node:path";
 import { getLogger } from "@logtape/logtape";
-import type { BundlerAdapter } from "../types.js";
 import type { ResolvedEvConfig } from "../../config.js";
+import type { BundlerAdapter } from "../types.js";
 
 const esmRequire = createRequire(import.meta.url);
 const logger = getLogger(["evjs", "cli"]);
@@ -75,7 +75,7 @@ export const webpackAdapter: BundlerAdapter = {
       if (fs.existsSync(manifestPath)) {
         const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
         if (!manifest.server?.entry) return;
-        
+
         // Let the CLI framework know it's time to start the API backend
         apiReadyCalled = true;
         callbacks.onServerBundleReady();

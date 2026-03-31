@@ -1,9 +1,9 @@
 #!/usr/bin/env node
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { configure, getConsoleSink } from "@logtape/logtape";
 import { Command } from "commander";
-import fs from "node:fs";
 import { build, dev } from "./index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -16,7 +16,9 @@ await configure({
   ],
 });
 
-const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8"));
+const pkg = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "../package.json"), "utf-8"),
+);
 const program = new Command();
 
 program

@@ -1,6 +1,6 @@
+import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import fs from "node:fs";
 import type { EvBundlerCtx, ResolvedEvConfig } from "../../config.js";
 
 const esmRequire = createRequire(import.meta.url);
@@ -128,9 +128,9 @@ export function createWebpackConfig(
     },
   };
 
-  const ctx: EvBundlerCtx = { 
+  const ctx: EvBundlerCtx = {
     mode: isProduction ? "production" : "development",
-    config
+    config,
   };
 
   // 1. Run plugins' bundler escape hatches

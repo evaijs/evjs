@@ -13,7 +13,7 @@ export interface EvBundlerCtx {
   /** The current mode. */
   mode: "development" | "production";
   /** The fully resolved framework config. */
-  config: EvConfig;
+  config: ResolvedEvConfig;
 }
 
 /**

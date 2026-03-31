@@ -7,44 +7,24 @@ import { defineConfig } from "@evjs/cli";
  * All fields are optional — evjs works out of the box.
  */
 export default defineConfig({
-  client: {
-    // Client entry point (default: "./src/main.tsx")
-    entry: "./src/main.tsx",
+  // Client entry point (default: "./src/main.tsx")
+  entry: "./src/main.tsx",
 
-    // HTML template (default: "./index.html")
-    html: "./index.html",
+  // HTML template (default: "./index.html")
+  html: "./index.html",
 
-    // Build plugins
-    plugins: [
-      {
-        name: "example-txt-plugin",
-        module: {
-          rules: [
-            {
-              test: /\.txt$/,
-              use: "raw-loader",
-            },
-          ],
-        },
-      },
-    ],
+  // Dev server options (merged with built-in defaults)
+  dev: {
+    // Dev server port (default: 3000)
+    port: 4000,
 
-    // Dev server options (merged with built-in defaults)
-    dev: {
-      // Dev server port (default: 3000)
-      port: 4000,
-
-      // Any dev server options can be added here:
-      // https: true,
-    },
+    // Any dev server options can be added here:
+    // https: true,
   },
 
   server: {
-    // Server function configuration
-    functions: {
-      // Server function endpoint path (default: "/api/fn")
-      endpoint: "/api/fn",
-    },
+    // Server function endpoint path (default: "/api/fn")
+    endpoint: "/api/fn",
 
     // Server backend command (default: "node")
     // Supports: "node", "bun", "deno run --allow-net", etc.
@@ -56,4 +36,21 @@ export default defineConfig({
       port: 4001,
     },
   },
+
+  // Build-time plugins (can also use the `bundler` escape hatch directly)
+  plugins: [
+    {
+      name: "example-txt-plugin",
+      bundler(bundlerConfig, ctx) {
+        // Direct access to the bundler (e.g. Webpack) configuration
+        if (ctx.config.bundler.name === "webpack") {
+          const webpackConfig = bundlerConfig as any;
+          webpackConfig.module.rules.push({
+            test: /\.txt$/,
+            use: "raw-loader",
+          });
+        }
+      },
+    },
+  ],
 });

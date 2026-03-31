@@ -62,5 +62,5 @@ npm run test:e2e     # playwright
 
 ## 📄 License
 
-MIT © [xusd320](https://github.com/xusd320)
+MIT © [Ant UED](https://xtech.antfin.com/)
 

@@ -133,6 +133,16 @@ html {
   border-radius: 12px;
 }
 
+/* Dark code blocks in light mode for better contrast */
+html:not([data-theme="dark"]) div[class*="codeBlockContainer"] pre.prism-code {
+  background: #1e1e2e;
+  color: #cdd6f4;
+}
+
+html[data-theme="dark"] div[class*="codeBlockContainer"] pre.prism-code {
+  background: #0d1117;
+}
+
 /* Table of contents */
 .table-of-contents__link {
   font-size: 0.85rem;

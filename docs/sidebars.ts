@@ -13,9 +13,9 @@ const sidebars: SidebarsConfig = {
       items: [
         "architecture",
         "project-structure",
+        "routing",
         "server-functions",
         "server-routes",
-        "routing",
       ],
     },
     {

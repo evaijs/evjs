@@ -1,19 +1,19 @@
 import fs from "node:fs";
 import path from "node:path";
-import { getLogger } from "@logtape/logtape";
-import { execa } from "execa";
+import { webpackAdapter } from "@evjs/bundler-webpack";
 import {
+  type BundlerAdapter,
   CONFIG_DEFAULTS,
-  type EvConfig,
+  defineConfig,
   type EvBundlerCtx,
+  type EvConfig,
   type EvConfigCtx,
   type EvPlugin,
   type ResolvedEvConfig,
-  type BundlerAdapter,
   resolveConfig,
-  defineConfig,
 } from "@evjs/shared";
-import { webpackAdapter } from "@evjs/bundler-webpack";
+import { getLogger } from "@logtape/logtape";
+import { execa } from "execa";
 
 export {
   CONFIG_DEFAULTS,

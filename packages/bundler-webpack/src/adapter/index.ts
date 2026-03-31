@@ -2,8 +2,8 @@ import "node:module";
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { getLogger } from "@logtape/logtape";
 import type { BundlerAdapter, ResolvedEvConfig } from "@evjs/shared";
+import { getLogger } from "@logtape/logtape";
 
 const esmRequire = createRequire(import.meta.url);
 const logger = getLogger(["evjs", "bundler-webpack"]);

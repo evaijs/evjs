@@ -12,24 +12,32 @@
     "description": "Title for Zero Config feature"
   },
   "homepage.feature.zeroConfig.description": {
-    "message": "ev dev / ev build —— 无需 Webpack 或 Babel 配置。约定优于配置。",
+    "message": "ev dev / ev build —— 无需样板代码。约定优于配置，可选 ev.config.ts 自定义。",
     "description": "Description for Zero Config feature"
   },
-  "homepage.feature.typeSafe.title": {
-    "message": "类型安全路由",
-    "description": "Title for Type-Safe Routing feature"
+  "homepage.feature.clientRoutes.title": {
+    "message": "客户端路由",
+    "description": "Title for Client Routes feature"
   },
-  "homepage.feature.typeSafe.description": {
+  "homepage.feature.clientRoutes.description": {
     "message": "从服务端到浏览器地址栏的全链路类型安全，由 TanStack Router 驱动。",
-    "description": "Description for Type-Safe Routing feature"
+    "description": "Description for Client Routes feature"
   },
   "homepage.feature.serverFn.title": {
     "message": "服务端函数",
     "description": "Title for Server Functions feature"
   },
   "homepage.feature.serverFn.description": {
-    "message": "\"use server\" 指令在构建时自动将异步函数转换为远程 API 调用。",
+    "message": "\"use server\" 指令在构建时自动将异步函数转换为类型安全的远程 API 调用。",
     "description": "Description for Server Functions feature"
+  },
+  "homepage.feature.dataFetching.title": {
+    "message": "数据获取",
+    "description": "Title for Data Fetching feature"
+  },
+  "homepage.feature.dataFetching.description": {
+    "message": "内置 TanStack Query 代理 —— query(fn).useQuery() / mutation(fn).useMutation()，零样板代码。",
+    "description": "Description for Data Fetching feature"
   },
   "homepage.feature.multiRuntime.title": {
     "message": "多运行时",
@@ -39,21 +47,13 @@
     "message": "基于 Hono 的服务端可运行在 Node.js、Deno、Bun 和边缘运行时上，开箱即用。",
     "description": "Description for Multi-Runtime feature"
   },
-  "homepage.feature.transport.title": {
-    "message": "可插拔传输层",
-    "description": "Title for Pluggable Transport feature"
+  "homepage.feature.serverRoutes.title": {
+    "message": "服务端路由",
+    "description": "Title for Server Routes feature"
   },
-  "homepage.feature.transport.description": {
-    "message": "通过 ServerTransport 接口支持 HTTP、WebSocket 或自定义协议。",
-    "description": "Description for Pluggable Transport feature"
-  },
-  "homepage.feature.plugin.title": {
-    "message": "插件系统",
-    "description": "Title for Plugin System feature"
-  },
-  "homepage.feature.plugin.description": {
-    "message": "通过自定义模块规则扩展构建 —— Tailwind、SVG、PostCSS 等。",
-    "description": "Description for Plugin System feature"
+  "homepage.feature.serverRoutes.description": {
+    "message": "通过 route() 构建标准 Request/Response REST 端点 —— 在 React 应用旁构建 API。",
+    "description": "Description for Server Routes feature"
   },
   "homepage.features.label": {
     "message": "特性",
@@ -62,9 +62,5 @@
   "homepage.features.title": {
     "message": "构建全栈 React 应用所需的一切",
     "description": "Title of the features section"
-  },
-  "homepage.techStack.label": {
-    "message": "技术驱动",
-    "description": "Label for the tech stack section"
   }
 }

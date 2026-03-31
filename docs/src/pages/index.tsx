@@ -17,17 +17,17 @@ function useFeatures() {
       description: translate({
         id: "homepage.feature.zeroConfig.description",
         message:
-          "ev dev / ev build — no Webpack or Babel config needed. Convention over configuration.",
+          "ev dev / ev build — no boilerplate needed. Convention over configuration with optional ev.config.ts.",
       }),
     },
     {
       icon: "🔒",
       title: translate({
-        id: "homepage.feature.typeSafe.title",
-        message: "Type-Safe Routing",
+        id: "homepage.feature.clientRoutes.title",
+        message: "Client Routes",
       }),
       description: translate({
-        id: "homepage.feature.typeSafe.description",
+        id: "homepage.feature.clientRoutes.description",
         message:
           "Full end-to-end type safety from server to browser URL bar, powered by TanStack Router.",
       }),
@@ -45,6 +45,18 @@ function useFeatures() {
       }),
     },
     {
+      icon: "📡",
+      title: translate({
+        id: "homepage.feature.dataFetching.title",
+        message: "Data Fetching",
+      }),
+      description: translate({
+        id: "homepage.feature.dataFetching.description",
+        message:
+          "TanStack Query with built-in proxies — query(fn).useQuery() / mutation(fn).useMutation(), zero boilerplate.",
+      }),
+    },
+    {
       icon: "🌐",
       title: translate({
         id: "homepage.feature.multiRuntime.title",
@@ -57,27 +69,15 @@ function useFeatures() {
       }),
     },
     {
-      icon: "🔌",
+      icon: "🛣️",
       title: translate({
-        id: "homepage.feature.transport.title",
-        message: "Pluggable Transport",
+        id: "homepage.feature.serverRoutes.title",
+        message: "Server Routes",
       }),
       description: translate({
-        id: "homepage.feature.transport.description",
+        id: "homepage.feature.serverRoutes.description",
         message:
-          "HTTP, WebSocket, or custom protocols via the ServerTransport interface.",
-      }),
-    },
-    {
-      icon: "🧩",
-      title: translate({
-        id: "homepage.feature.plugin.title",
-        message: "Plugin System",
-      }),
-      description: translate({
-        id: "homepage.feature.plugin.description",
-        message:
-          "Extend builds with custom module rules — Tailwind, SVG, PostCSS, and more.",
+          "Standard Request/Response REST endpoints via route() — build APIs alongside your React app.",
       }),
     },
   ];

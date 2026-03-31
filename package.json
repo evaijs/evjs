@@ -37,8 +37,10 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
     "@playwright/test": "^1.58.2",
-    "husky": "^9.1.7",
     "@swc/core": "^1.15.21",
+    "@tailwindcss/postcss": "^4.1.10",
+    "husky": "^9.1.7",
+    "tailwindcss": "^4.1.10",
     "turbo": "^2.4.2",
     "vitest": "^4.0.18"
   }

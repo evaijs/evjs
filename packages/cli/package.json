@@ -15,7 +15,7 @@
     "access": "public"
   },
   "bin": {
-    "ev": "dist/cli.js"
+    "ev": "bin/ev.js"
   },
   "files": [
     "dist"

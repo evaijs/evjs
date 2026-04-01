@@ -5,7 +5,7 @@ const rootRoute = createAppRootRoute({
 });
 
 // ✅ Success: string literal path should compile
-const literalRoute = createRoute({
+export const literalRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/users",
   component: () => null,
@@ -13,7 +13,7 @@ const literalRoute = createRoute({
 
 // Test: Should fail if path is broad string
 const path: string = "/dynamic";
-const dynamicRoute = createRoute({
+export const dynamicRoute = createRoute({
   getParentRoute: () => rootRoute,
   // @ts-expect-error — broad `string` type is not allowed, must be a string literal
   path: path,

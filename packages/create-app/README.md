@@ -1,15 +1,15 @@
-# create-ev-app
+# @evjs/create-app
 
 > Scaffolding tool for the **evjs** fullstack framework.
 
 ## Commands
 
-### `create-ev-app`
+### `npx @evjs/create-app`
 
 The primary interactive CLI for creating new projects.
 
 ```bash
-npx create-ev-app [name] [options]
+npx @evjs/create-app [name] [options]
 ```
 
 ## Options
@@ -24,14 +24,14 @@ npx create-ev-app [name] [options]
 |------|-------------|
 | **`basic-csr`** | Client-side only (React + TanStack Router). |
 | **`basic-server-fns`** | Basic full-stack with server functions. |
-| **`configured-server-fns`** | Full-stack with `create-ev-app` + `ev.config.ts`. |
+| **`configured-server-fns`** | Full-stack with `@evjs/create-app` + `ev.config.ts`. |
 | **`complex-routing`** | Nested layouts, loaders, and search params. |
 | **`with-tailwind`** | Ready-to-go Tailwind CSS integration. |
 
 ## Quick Start via npx
 
 ```bash
-npx create-ev-app my-new-app
+npx @evjs/create-app my-new-app
 ```
 
 Follow the interactive prompts to select your features and get started in seconds.

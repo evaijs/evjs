@@ -119,7 +119,9 @@ test.describe("Scaffolding CLI E2E", () => {
     console.log("Starting dev server...");
 
     await new Promise<void>((resolve, reject) => {
-      const devProcess = spawn("npx", ["ev", "dev"], {
+      // Avoid 'npx' here because kill() on npx doesn't always forward to the child Node process,
+      // leaving 'ev dev' orphaned to race with our afterAll deletion hook.
+      const devProcess = spawn("node", ["./node_modules/@evjs/cli/bin/ev.js", "dev"], {
         cwd: targetDir,
         env: cleanEnv,
         stdio: "inherit",
@@ -134,7 +136,7 @@ test.describe("Scaffolding CLI E2E", () => {
       };
 
       const timeout = setTimeout(() => {
-        devProcess.kill();
+        devProcess.kill("SIGTERM");
       }, 30_000);
 
       const checkServer = async () => {
@@ -142,7 +144,7 @@ test.describe("Scaffolding CLI E2E", () => {
           const res = await fetch("http://127.0.0.1:39123/");
           if (res.ok) {
             clearTimeout(timeout);
-            devProcess.kill();
+            devProcess.kill("SIGTERM");
             return;
           }
         } catch {
@@ -155,9 +157,7 @@ test.describe("Scaffolding CLI E2E", () => {
       devProcess.on("close", (code: number | null) => {
         clearTimeout(timeout);
         if (code !== 0 && code !== null && !settled) {
-          settle(() =>
-            reject(new Error(`npx ev dev exited with code ${code}`)),
-          );
+          settle(() => reject(new Error(`node ev dev exited with code ${code}`)));
         } else {
           settle(() => resolve());
         }

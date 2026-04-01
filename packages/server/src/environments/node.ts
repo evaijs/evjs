@@ -32,18 +32,24 @@ export function serve(app: Hono, options?: NodeRunnerOptions) {
   if (options?.https) {
     try {
       const https = require("node:https");
-      
+
       let key: string;
       let cert: string;
-      
+
       if (typeof options.https === "object") {
         const fs = require("node:fs");
         const isPem = (str: string) => str.includes("-----BEGIN");
-        key = isPem(options.https.key) ? options.https.key : fs.readFileSync(options.https.key, "utf8");
-        cert = isPem(options.https.cert) ? options.https.cert : fs.readFileSync(options.https.cert, "utf8");
+        key = isPem(options.https.key)
+          ? options.https.key
+          : fs.readFileSync(options.https.key, "utf8");
+        cert = isPem(options.https.cert)
+          ? options.https.cert
+          : fs.readFileSync(options.https.cert, "utf8");
         logger.info`HTTPS enabled with user-provided certificate`;
       } else {
-        throw new Error("HTTPS requires an explicit { key, cert } object in @evjs/server.");
+        throw new Error(
+          "HTTPS requires an explicit { key, cert } object in @evjs/server.",
+        );
       }
 
       serverOptions.createServer = https.createServer;

@@ -3,7 +3,7 @@
 ## 创建新项目
 
 ```bash
-npx @evjs/create-app my-app
+npx create-evjs-app my-app
 cd my-app && npm install
 ```
 

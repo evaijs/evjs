@@ -1,4 +1,11 @@
+import { expect, test } from "vitest";
 import { createAppRootRoute, createRoute } from "../src/index";
+
+test("createRoute() rejects broad string type at compile time", () => {
+  // Real enforcement is via @ts-expect-error below — tsc --noEmit validates it.
+  // This test ensures the file is a valid vitest suite.
+  expect(typeof createRoute).toBe("function");
+});
 
 const rootRoute = createAppRootRoute({
   component: () => null,

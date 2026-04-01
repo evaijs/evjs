@@ -63,8 +63,8 @@ export interface EvConfig {
   dev?: {
     /** Client dev server port. Default: 3000. */
     port?: number;
-    /** Enable HTTPS for the client dev server. */
-    https?: boolean;
+    /** Enable HTTPS. If an object is provided, it can be explicit key/cert PEM strings or file paths. */
+    https?: boolean | { key: string; cert: string };
   };
 
   /** Optional server configuration. */
@@ -79,8 +79,8 @@ export interface EvConfig {
     dev?: {
       /** API server port (dev mode). Default: 3001. */
       port?: number;
-      /** Enable HTTPS for the API server. */
-      https?: boolean;
+      /** Enable HTTPS for the API server. Must provide explicit key/cert payloads or file paths. */
+      https?: { key: string; cert: string } | false;
     };
   };
 

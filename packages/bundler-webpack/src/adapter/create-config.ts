@@ -40,8 +40,8 @@ export function createWebpackConfig(
   // e.g. "/api/fn" → "/api", "/rpc/v1" → "/rpc"
   const proxyBase = `/${endpoint.split("/").filter(Boolean)[0] || "api"}`;
 
-  // Destructure port out of dev overrides to avoid passing it twice.
-  const { port: _p, ...devServerOverrides } = config.dev;
+  // Destructure port and https out of dev overrides to avoid passing them directly.
+  const { port: _p, https: isHttps, ...devServerOverrides } = config.dev;
 
   const webpackConfig: Record<string, unknown> = {
     name: "client",
@@ -116,12 +116,14 @@ export function createWebpackConfig(
       : undefined,
     devServer: {
       port: clientPort,
+      server: isHttps ? "https" : "http",
       hot: true,
       devMiddleware: { writeToDisk: true },
       proxy: [
         {
           context: [proxyBase],
-          target: `http://localhost:${serverPort}`,
+          target: `${config.server.dev.https ? "https" : "http"}://localhost:${serverPort}`,
+          secure: false,
         },
       ],
       ...devServerOverrides,

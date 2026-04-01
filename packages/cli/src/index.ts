@@ -98,7 +98,7 @@ export async function dev(
           `const bundle = require(${JSON.stringify(serverBundlePath)});`,
           `const app = bundle.app || bundle.createApp({ endpoint: ${JSON.stringify(config.server.endpoint)} });`,
           `const { serve } = require("@evjs/server/node");`,
-          `serve(app, { port: ${serverPort}, https: ${Boolean(config.server.dev.https)} });`,
+          `serve(app, { port: ${serverPort}, https: ${JSON.stringify(config.server.dev.https)} });`,
         ].join("\n"),
       );
 

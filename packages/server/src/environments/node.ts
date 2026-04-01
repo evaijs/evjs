@@ -7,8 +7,8 @@ const logger = getLogger(["evjs", "server"]);
 export interface NodeRunnerOptions {
   port?: number;
   host?: string;
-  /** Enable HTTPS with a self-signed certificate for local dev. */
-  https?: boolean;
+  /** Enable HTTPS. Must be an object with explicit key/cert payloads or file paths. */
+  https?: { key: string; cert: string };
 }
 
 /**
@@ -31,27 +31,23 @@ export function serve(app: Hono, options?: NodeRunnerOptions) {
 
   if (options?.https) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const https = require("node:https");
-      const crypto = require("node:crypto");
-
-      // Generate an RSA key pair
-      const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
-        modulusLength: 2048,
-        publicKeyEncoding: { type: "spki", format: "pem" },
-        privateKeyEncoding: { type: "pkcs8", format: "pem" },
-      });
-
-      // Create a minimal self-signed X.509 certificate
-      // Node 20+ has generateKeyPairSync but no built-in cert signer,
-      // so we create an unsigned cert-like PEM by wrapping the public key.
-      // For proper TLS, use `mkcert` or the `selfsigned` npm package.
-      // Here we use the key pair directly which works with most dev tools.
-      const cert = publicKey;
+      
+      let key: string;
+      let cert: string;
+      
+      if (typeof options.https === "object") {
+        const fs = require("node:fs");
+        const isPem = (str: string) => str.includes("-----BEGIN");
+        key = isPem(options.https.key) ? options.https.key : fs.readFileSync(options.https.key, "utf8");
+        cert = isPem(options.https.cert) ? options.https.cert : fs.readFileSync(options.https.cert, "utf8");
+        logger.info`HTTPS enabled with user-provided certificate`;
+      } else {
+        throw new Error("HTTPS requires an explicit { key, cert } object in @evjs/server.");
+      }
 
       serverOptions.createServer = https.createServer;
-      serverOptions.serverOptions = { key: privateKey, cert };
-      logger.info`HTTPS enabled with self-signed certificate`;
+      serverOptions.serverOptions = { key, cert };
     } catch (err) {
       logger.warn`HTTPS requested but failed to set up TLS; falling back to HTTP: ${err}`;
     }

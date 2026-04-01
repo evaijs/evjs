@@ -92,8 +92,8 @@ export interface RouteHandler {
  * });
  * ```
  */
-export function route(
-  path: string,
+export function route<const T extends string>(
+  path: T & (string extends T ? never : T),
   definition: RouteHandlerDefinition,
 ): RouteHandler {
   const app = new Hono();

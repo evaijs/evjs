@@ -26,13 +26,24 @@ export type {
   RouterState,
   SearchSchemaInput,
 } from "@tanstack/react-router";
+
+import {
+  createRoute as _createRoute,
+  type AnyContext,
+  type AnyRoute,
+  type ResolveFullPath,
+  type ResolveId,
+  type ResolveParams,
+  type Route,
+  type RouteOptions,
+} from "@tanstack/react-router";
+
 export {
   CatchBoundary,
   CatchNotFound,
   createLink,
   createRootRoute,
   createRootRouteWithContext,
-  createRoute,
   createRouteMask,
   createRouter,
   DefaultGlobalNotFound,
@@ -62,3 +73,62 @@ export {
   useRouterState,
   useSearch,
 } from "@tanstack/react-router";
+
+/**
+ * Restricted version of createRoute that only accepts string literals for the 'path' property.
+ * This ensures that routes are statically analyzable by the ev build system.
+ */
+export function createRoute<
+  TRegister = unknown,
+  TParentRoute extends AnyRoute = AnyRoute,
+  const TPath extends string = string,
+  TFullPath extends string = ResolveFullPath<TParentRoute, TPath>,
+  TCustomId extends string = string,
+  TId extends string = ResolveId<TParentRoute, TCustomId, TPath>,
+  TSearchValidator = undefined,
+  TParams = ResolveParams<TPath>,
+  TRouteContextFn = AnyContext,
+  TBeforeLoadFn = AnyContext,
+  TLoaderDeps extends Record<string, any> = {},
+  TLoaderFn = undefined,
+  TChildren = unknown,
+  TSSR = unknown,
+  const TServerMiddlewares = unknown,
+>(
+  options: RouteOptions<
+    TRegister,
+    TParentRoute,
+    TId,
+    TCustomId,
+    TFullPath,
+    string extends TPath ? never : TPath,
+    TSearchValidator,
+    TParams,
+    TLoaderDeps,
+    TLoaderFn,
+    AnyContext,
+    TRouteContextFn,
+    TBeforeLoadFn,
+    TSSR,
+    TServerMiddlewares
+  >,
+): Route<
+  TRegister,
+  TParentRoute,
+  TPath,
+  TFullPath,
+  TCustomId,
+  TId,
+  TSearchValidator,
+  TParams,
+  AnyContext,
+  TRouteContextFn,
+  TBeforeLoadFn,
+  TLoaderDeps,
+  TLoaderFn,
+  TChildren,
+  TSSR,
+  TServerMiddlewares
+> {
+  return _createRoute(options as any);
+}

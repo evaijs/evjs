@@ -118,16 +118,23 @@ test.describe("Scaffolding CLI E2E", () => {
     // 5. Test dev server
     console.log("Starting dev server...");
 
-    return new Promise<void>((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const devProcess = spawn("npx", ["ev", "dev"], {
         cwd: targetDir,
         env: cleanEnv,
         stdio: "inherit",
       });
 
+      let settled = false;
+      const settle = (fn: () => void) => {
+        if (!settled) {
+          settled = true;
+          fn();
+        }
+      };
+
       const timeout = setTimeout(() => {
         devProcess.kill();
-        reject(new Error("Dev server did not start within 30s"));
       }, 30_000);
 
       const checkServer = async () => {
@@ -136,20 +143,23 @@ test.describe("Scaffolding CLI E2E", () => {
           if (res.ok) {
             clearTimeout(timeout);
             devProcess.kill();
-            resolve();
-          } else {
-            setTimeout(checkServer, 1000);
+            return;
           }
         } catch {
-          setTimeout(checkServer, 1000);
+          // Connection refused — server not ready yet
         }
+        if (!settled) setTimeout(checkServer, 1000);
       };
       checkServer();
 
       devProcess.on("close", (code: number | null) => {
-        if (code !== 0 && code !== null) {
-          clearTimeout(timeout);
-          reject(new Error(`npx ev dev exited early with code ${code}`));
+        clearTimeout(timeout);
+        if (code !== 0 && code !== null && !settled) {
+          settle(() =>
+            reject(new Error(`npx ev dev exited with code ${code}`)),
+          );
+        } else {
+          settle(() => resolve());
         }
       });
     });

@@ -12,6 +12,7 @@ const templatesDir = path.resolve(__dirname, "../templates");
 const symlinkTargets = {
   "basic-csr": "../../../examples/basic-csr",
   "basic-server-fns": "../../../examples/basic-server-fns",
+  "basic-server-routes": "../../../examples/basic-server-routes",
   "configured-server-fns": "../../../examples/configured-server-fns",
   "complex-routing": "../../../examples/complex-routing",
   "with-tailwind": "../../../examples/with-tailwind",

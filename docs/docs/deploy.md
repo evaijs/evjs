@@ -70,7 +70,7 @@ Use the ECMA adapter for Deno deployment:
 // ev.config.ts
 export default defineConfig({
   server: {
-    backend: "deno run -A",  // During dev
+    runtime: "deno run -A",  // During dev
   },
 });
 ```

@@ -25,7 +25,7 @@ describe("defineConfig", () => {
         https: true,
       },
       server: {
-        backend: "./custom-backend.ts",
+        runtime: "./custom-runtime.ts",
         endpoint: "/api/v2",
         dev: { port: 4000 },
       },

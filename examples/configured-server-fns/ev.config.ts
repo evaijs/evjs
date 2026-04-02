@@ -26,9 +26,9 @@ export default defineConfig({
     // Server function endpoint path (default: "/api/fn")
     endpoint: "/api/fn",
 
-    // Server backend command (default: "node")
+    // Server runtime command (default: "node")
     // Supports: "node", "bun", "deno run --allow-net", etc.
-    backend: "node",
+    runtime: "node",
 
     // Dev server options
     dev: {

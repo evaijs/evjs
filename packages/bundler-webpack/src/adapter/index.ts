@@ -75,7 +75,7 @@ export const webpackAdapter: BundlerAdapter = {
         const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
         if (!manifest.server?.entry) return;
 
-        // Let the CLI framework know it's time to start the API backend
+        // Let the CLI framework know it's time to start the API runtime
         apiReadyCalled = true;
         callbacks.onServerBundleReady();
       }

@@ -13,7 +13,7 @@ export interface BundlerAdapter {
    * Start a development server.
    *
    * @param callbacks.onServerBundleReady - Called when the server bundle is compiled.
-   * The CLI uses this to launch the API server backend.
+   * The CLI uses this to launch the API server runtime.
    */
   dev(
     config: ResolvedEvConfig,

@@ -16,6 +16,7 @@ All fields are optional. These are the built-in defaults:
 | `entry` | `./src/main.tsx` |
 | `html` | `./index.html` |
 | `dev.port` | `3000` |
+| `server.runtime` | `"node"` |
 | `server.dev.port` | `3001` |
 | `server.endpoint` | `/api/fn` |
 
@@ -38,7 +39,7 @@ export default defineConfig({
   // ── Server (optional) ──
   server: {
     entry: "./src/server.ts",        // Explicit server entry (optional)
-    backend: "node",                 // "node" | "bun" | "deno run --allow-net"
+    runtime: "node",                 // "node" | "bun" | "deno run --allow-net"
     endpoint: "/api/fn",             // Server function RPC endpoint
 
     dev: {
@@ -64,7 +65,7 @@ Path to the HTML template. Must contain a mount element (e.g. `<div id="app">`).
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `port` | `number` | `3000` | Webpack Dev Server port |
-| `https` | `boolean` | `false` | Enable HTTPS |
+| `https` | `boolean \| { key: string; cert: string }` | `false` | Enable HTTPS. Pass `true` for auto-certs or an object with explicit key/cert. |
 
 ## Server Options
 
@@ -72,7 +73,7 @@ Path to the HTML template. Must contain a mount element (e.g. `<div id="app">`).
 
 Explicit server entry file. If provided, overrides the auto-generated entry. Use this when you need to mount custom route handlers.
 
-### `server.backend`
+### `server.runtime`
 
 The runtime command used to start the server:
 
@@ -84,7 +85,7 @@ The runtime command used to start the server:
 
 :::warning
 
-The ECMA adapter (`@evjs/server/ecma`) only exports a `{ fetch }` handler — it does **not** start a listening server. For `ev dev`, always use `"node"` as the backend. Use ECMA adapters only for production targets like Deno or Bun.
+The ECMA adapter (`@evjs/server/ecma`) only exports a `{ fetch }` handler — it does **not** start a listening server. For `ev dev`, always use `"node"` as the runtime. Use ECMA adapters only for production targets like Deno or Bun.
 
 :::
 
@@ -99,7 +100,7 @@ The ECMA adapter (`@evjs/server/ecma`) only exports a `{ fetch }` handler — it
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `port` | `number` | `3001` | API server port in dev mode |
-| `https` | `boolean` | `false` | Enable HTTPS for the API server |
+| `https` | `{ key: string; cert: string } \| false` | `false` | Enable HTTPS for the API server. Must provide explicit key/cert. |
 
 Plugins offer two hooks to extend the framework:
 
@@ -130,7 +131,7 @@ bundler(bundlerConfig, ctx) {
 
 Context types:
 - `EvConfigCtx`: `{ mode: "development" | "production" }`
-- `EvBundlerCtx`: `{ mode: "development" | "production", config: EvConfig }`
+- `EvBundlerCtx`: `{ mode: "development" | "production", config: ResolvedEvConfig }`
 
 ## Bundler Options
 

@@ -71,8 +71,8 @@ export interface EvConfig {
   server?: {
     /** Explicit server entry file. If provided, overrides auto-generated entry. */
     entry?: string;
-    /** Server backend command. Default: "node". */
-    backend?: string;
+    /** Server runtime command. Default: "node". */
+    runtime?: string;
     /** Server function endpoint path. Default: "/api/fn". */
     endpoint?: string;
     /** Server dev options. */
@@ -132,7 +132,7 @@ export function resolveConfig(userConfig?: EvConfig): ResolvedEvConfig {
     },
     server: {
       entry: config.server?.entry,
-      backend: config.server?.backend ?? "node",
+      runtime: config.server?.runtime ?? "node",
       endpoint: config.server?.endpoint ?? CONFIG_DEFAULTS.endpoint,
       dev: {
         port: config.server?.dev?.port ?? CONFIG_DEFAULTS.serverPort,

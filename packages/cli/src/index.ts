@@ -77,9 +77,9 @@ export async function dev(
 
     apiStarted = true;
     const serverPort = config?.server?.dev?.port ?? CONFIG_DEFAULTS.serverPort;
-    const backendConfig = config?.server?.backend ?? "node";
-    const [backend, ...backendExtraArgs] = backendConfig.split(/\s+/);
-    logger.info`Server bundle detected, starting ${backend} API...`;
+    const runtimeConfig = config?.server?.runtime ?? "node";
+    const [runtime, ...runtimeExtraArgs] = runtimeConfig.split(/\s+/);
+    logger.info`Server bundle detected, starting ${runtime} API...`;
 
     const bootstrapPath = path.resolve(cwd, "dist/server/_dev_start.cjs");
     try {
@@ -103,25 +103,25 @@ export async function dev(
       );
 
       // node gets --watch flags; other runtimes use their own args as-is
-      const backendArgs =
-        backend === "node"
+      const runtimeArgs =
+        runtime === "node"
           ? [
               "--watch",
               "--watch-preserve-output",
-              ...backendExtraArgs,
+              ...runtimeExtraArgs,
               bootstrapPath,
             ]
-          : [...backendExtraArgs, bootstrapPath];
+          : [...runtimeExtraArgs, bootstrapPath];
 
       // Don't await execa here since it's a long-running watch process
-      execa(backend, backendArgs, {
+      execa(runtime, runtimeArgs, {
         stdio: "inherit",
         env: { ...process.env, NODE_ENV: "development" },
       }).catch(() => {
         apiStarted = false;
       });
     } catch (err) {
-      logger.error`Server backend failed: ${err}`;
+      logger.error`Server runtime failed: ${err}`;
       apiStarted = false;
     }
   };

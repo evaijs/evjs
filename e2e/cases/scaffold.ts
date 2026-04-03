@@ -1,4 +1,5 @@
 import { execSync, spawn } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -7,18 +8,15 @@ import { expect, test } from "@playwright/test";
 test.describe("Scaffolding CLI E2E", () => {
   test.setTimeout(180_000);
 
-  const appName = "e2e-scaffold-test";
-  const targetDir = path.join(os.tmpdir(), appName);
+  // Generate unique directory name without pre-creating it
+  const targetDir = path.join(
+    os.tmpdir(),
+    `e2e-scaffold-${crypto.randomUUID().slice(0, 8)}`,
+  );
   const cliPath = path.resolve(
     import.meta.dirname,
     "../../packages/create-app/dist/index.js",
   );
-
-  test.beforeAll(() => {
-    if (fs.existsSync(targetDir)) {
-      fs.rmSync(targetDir, { recursive: true, force: true });
-    }
-  });
 
   test.afterAll(() => {
     if (fs.existsSync(targetDir)) {
@@ -33,10 +31,11 @@ test.describe("Scaffolding CLI E2E", () => {
       if (key === "INIT_CWD") delete cleanEnv[key];
     }
 
-    // 1. Scaffold the app
+    // 1. Scaffold the app (scaffold into the pre-created unique temp dir)
+    const appName = path.basename(targetDir);
     console.log(`Scaffolding into ${targetDir}...`);
     execSync(`node ${cliPath} ${appName} -t basic-server-fns`, {
-      cwd: os.tmpdir(),
+      cwd: path.dirname(targetDir),
       stdio: "inherit",
       env: cleanEnv,
     });

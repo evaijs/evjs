@@ -1,9 +1,21 @@
 import { execSync, spawn } from "node:child_process";
 import fs from "node:fs";
+import { createServer } from "node:net";
 import path from "node:path";
 import { test as base, expect } from "@playwright/test";
 
 export { expect };
+
+/** Get an available port by binding to port 0 and releasing. */
+async function getAvailablePort(): Promise<number> {
+  return new Promise((resolve) => {
+    const server = createServer();
+    server.listen(0, () => {
+      const { port } = server.address() as { port: number };
+      server.close(() => resolve(port));
+    });
+  });
+}
 
 interface ExampleFixture {
   baseURL: string;
@@ -30,9 +42,9 @@ export function createWebSocketExampleTest() {
   return base.extend<ExampleFixture, WorkerFixture>({
     _wsApp: [
       // biome-ignore lint/correctness/noEmptyPattern: Playwright fixture API requires object destructuring
-      async ({}, use, workerInfo) => {
-        const basePort = 31000 + workerInfo.workerIndex * 100;
-        const webPort = basePort;
+      async ({}, use) => {
+        // Use dynamic port allocation to avoid conflicts
+        const webPort = await getAvailablePort();
 
         // 1. Build with webpack
         execSync("npx ev build", {

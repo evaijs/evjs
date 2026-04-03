@@ -24,8 +24,8 @@ const bundle = require(`./server/${manifest.server.entry}`);
 const app = bundle.createApp();
 
 // Export via ECMA adapter — compatible with Deno, Bun, Workers
-const { createHandler } = require("@evjs/server/ecma");
-const handler = createHandler(app);
+const { createFetchHandler } = require("@evjs/server/ecma");
+const handler = createFetchHandler(app);
 export default handler;
 
 // For Node.js, start the server:

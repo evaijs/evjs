@@ -21,7 +21,7 @@
 │                                  │ │                                   │
 │  TanStack Router                 │ │  Hono App (createApp)             │
 │  TanStack Query                  │ │  registerServerFn() + route()     │
-│  __fn_call() stubs               │ │  createHandler()                  │
+│  __fn_call() stubs               │ │  createFetchHandler()             │
 │  ServerTransport ────────────────┼─┼──► POST /api/fn ──► registry     │
 │                                  │ │                                   │
 └──────────────────────────────────┘ └───────────────────────────────────┘

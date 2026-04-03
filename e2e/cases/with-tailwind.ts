@@ -82,15 +82,10 @@ test.describe("with-tailwind", () => {
   });
 
   test("manifest contains routes and assets", async () => {
-    const manifestPath = path.join(
-      exampleDir,
-      "dist",
-      "client",
-      "manifest.json",
-    );
+    const manifestPath = path.join(exampleDir, "dist", "manifest.json");
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
 
-    expect(manifest.assets.js.length).toBeGreaterThan(0);
-    expect(manifest.routes).toEqual([{ path: "/" }]);
+    expect(manifest.client.assets.js.length).toBeGreaterThan(0);
+    expect(manifest.client.routes).toEqual([{ path: "/" }]);
   });
 });

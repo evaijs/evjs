@@ -63,19 +63,30 @@ export async function dev(
 
   const bundler = await getBundlerAdapter(config);
 
-  // Background: start Node API when server bundle is ready
-  let apiStarted = false;
+  // Track the running API server process for lifecycle management.
+  // Using a reference instead of a boolean allows proper restart on crash.
+  let apiProcess: ReturnType<typeof execa> | null = null;
 
   const handleServerBundleReady = () => {
-    if (apiStarted || !config.serverEnabled) return;
+    if (!config.serverEnabled) return;
 
     const manifestPath = path.resolve(cwd, "dist/server/manifest.json");
     if (!fs.existsSync(manifestPath)) return;
 
     const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+    if (manifest.version !== 1) {
+      logger.warn`Unexpected server manifest version: ${manifest.version}. Expected 1.`;
+      return;
+    }
     if (!manifest.entry) return;
 
-    apiStarted = true;
+    // Kill previous process before restarting (handles both first start and restarts)
+    if (apiProcess) {
+      logger.info`Restarting API server...`;
+      apiProcess.kill();
+      apiProcess = null;
+    }
+
     const serverPort = config?.server?.dev?.port ?? CONFIG_DEFAULTS.serverPort;
     const runtimeConfig = config?.server?.runtime ?? "node";
     const [runtime, ...runtimeExtraArgs] = runtimeConfig.split(/\s+/);
@@ -110,15 +121,21 @@ export async function dev(
           : [...runtimeExtraArgs, bootstrapPath];
 
       // Don't await execa here since it's a long-running watch process
-      execa(runtime, runtimeArgs, {
+      const child = execa(runtime, runtimeArgs, {
         stdio: "inherit",
         env: { ...process.env, NODE_ENV: "development" },
-      }).catch(() => {
-        apiStarted = false;
+      });
+      apiProcess = child;
+
+      child.catch(() => {
+        // Clear reference so the next compilation can restart
+        if (apiProcess === child) {
+          apiProcess = null;
+        }
       });
     } catch (err) {
       logger.error`Server runtime failed: ${err}`;
-      apiStarted = false;
+      apiProcess = null;
     }
   };
 

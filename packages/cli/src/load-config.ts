@@ -1,14 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { EvConfig, EvConfigCtx } from "./config.js";
+import type { EvConfig, EvConfigCtx } from "@evjs/shared";
 
 const CONFIG_FILES = ["ev.config.ts", "ev.config.js", "ev.config.mjs"];
-
-/**
- * Historically used @swc-node/register, but it causes ERR_REQUIRE_CYCLE_MODULE inside Node 22.
- * Modern evjs relies on Node's native typescript handling or built-in --loader arguments.
- */
-async function ensureTsLoader(): Promise<void> {}
 
 /**
  * Load evjs config from the project root.
@@ -26,10 +20,6 @@ export async function loadConfig(
   for (const filename of CONFIG_FILES) {
     const configPath = path.resolve(cwd, filename);
     if (fs.existsSync(configPath)) {
-      // Register TS loader for .ts config files
-      if (filename.endsWith(".ts")) {
-        await ensureTsLoader();
-      }
       const mod = await import(configPath);
       let config: EvConfig = mod.default ?? mod;
 

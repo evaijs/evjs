@@ -96,9 +96,11 @@ export class EvWebpackPlugin {
         async (compilation, callback) => {
           compilation.hooks.finishModules.tapAsync(
             "EvWebpackPlugin",
-            (modules, finishCallback) => {
+            async (modules, finishCallback) => {
               const serverModulePaths: string[] = [];
 
+              // Collect candidate file paths
+              const candidates: string[] = [];
               for (const module of modules) {
                 const resource =
                   "resource" in module ? (module.resource as string) : null;
@@ -110,20 +112,37 @@ export class EvWebpackPlugin {
                 ) {
                   continue;
                 }
+                candidates.push(resource);
+              }
 
-                try {
-                  const content = fs.readFileSync(resource, "utf-8");
-                  if (detectUseServer(content)) {
-                    serverModulePaths.push(resource);
+              // Read all files in parallel
+              const fileContents = await Promise.all(
+                candidates.map(async (resource) => {
+                  try {
+                    const content = await fs.promises.readFile(
+                      resource,
+                      "utf-8",
+                    );
+                    return { resource, content };
+                  } catch {
+                    // Ignore read errors for dynamically generated Webpack modules
+                    return null;
                   }
+                }),
+              );
 
-                  // Extract route metadata from createRoute() calls
-                  const routes = extractRoutes(content);
-                  if (routes.length > 0) {
-                    collector.addRoutes(routes);
-                  }
-                } catch (_err) {
-                  // Ignore read errors for dynamically generated Webpack modules
+              for (const result of fileContents) {
+                if (!result) continue;
+                const { resource, content } = result;
+
+                if (detectUseServer(content)) {
+                  serverModulePaths.push(resource);
+                }
+
+                // Extract route metadata from createRoute() calls
+                const routes = extractRoutes(content);
+                if (routes.length > 0) {
+                  collector.addRoutes(routes);
                 }
               }
 
@@ -271,10 +290,8 @@ export class EvWebpackPlugin {
           const serverManifest = collector.getServerManifest();
           const clientManifest = collector.getClientManifest();
 
-          const hasContent =
-            Object.keys(serverManifest.fns).length > 0 ||
-            (clientManifest.routes?.length ?? 0) > 0;
-          if (!hasContent) return;
+          // Always emit client manifest — it contains asset paths
+          // needed by deployment tools even when there are no routes.
 
           // Emit dist/client/manifest.json (relative to client output dir)
           // When server is disabled, output goes to dist/ so this becomes dist/manifest.json

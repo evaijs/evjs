@@ -30,13 +30,12 @@ export const webpackAdapter: BundlerAdapter = {
             reject(err);
             return;
           }
-          console.log(
-            stats.toString({
-              colors: true,
-              modules: false,
-              children: true,
-            }),
-          );
+          const output = stats.toString({
+            colors: true,
+            modules: false,
+            children: true,
+          });
+          logger.info`Build stats:\n${output}`;
           if (stats.hasErrors()) {
             reject(new Error("Webpack build failed with errors"));
             return;
@@ -66,17 +65,17 @@ export const webpackAdapter: BundlerAdapter = {
     const server = new WebpackDevServer(devServerOptions, compiler);
     await server.start();
 
-    let apiReadyCalled = false;
     compiler.hooks.done.tap("EvDevServer", async () => {
-      if (apiReadyCalled || !config.serverEnabled) return;
+      if (!config.serverEnabled) return;
       const manifestPath = path.resolve(cwd, "dist/server/manifest.json");
 
       if (fs.existsSync(manifestPath)) {
         const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-        if (!manifest.entry) return;
+        if (manifest.version !== 1 || !manifest.entry) return;
 
-        // Let the CLI framework know it's time to start the API runtime
-        apiReadyCalled = true;
+        // Let the CLI framework know it's time to start the API runtime.
+        // The CLI manages the child process lifecycle (killing old
+        // processes before restart), so this can be called on every build.
         callbacks.onServerBundleReady();
       }
     });

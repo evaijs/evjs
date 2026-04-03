@@ -7,6 +7,7 @@
 
 import { DEFAULT_ENDPOINT } from "@evjs/shared";
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { dispatch } from "./functions/dispatch.js";
 import type { RouteHandler } from "./routes";
@@ -41,8 +42,8 @@ export function createApp(options?: CreateAppOptions): Hono {
     app.route("/", handler.app);
   }
 
-  // Mount server function endpoint
-  app.post(endpoint, async (c) => {
+  // Mount server function endpoint with 1MB body size limit
+  app.post(endpoint, bodyLimit({ maxSize: 1024 * 1024 }), async (c) => {
     let body: { fnId: string; args: unknown[] };
 
     try {

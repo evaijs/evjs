@@ -1,6 +1,8 @@
 /**
  * Context passed to plugin config hooks.
  */
+import { DEFAULT_ENDPOINT } from "./constants.js";
+
 export interface EvConfigCtx {
   /** The current mode. */
   mode: "development" | "production";
@@ -16,22 +18,61 @@ export interface EvBundlerCtx {
   config: ResolvedEvConfig;
 }
 
+/** Resolved dev server configuration (all defaults applied). */
+export interface ResolvedDevConfig {
+  /** Client dev server port. */
+  port: number;
+  /** HTTPS configuration. */
+  https: boolean | { key: string; cert: string };
+}
+
+/** Resolved server dev configuration (all defaults applied). */
+export interface ResolvedServerDevConfig {
+  /** API server port (dev mode). */
+  port: number;
+  /** HTTPS for the API server. */
+  https: { key: string; cert: string } | false;
+}
+
+/** Resolved server configuration (all defaults applied). */
+export interface ResolvedServerConfig {
+  /** Explicit server entry file. Omitted when auto-generated. */
+  entry?: string;
+  /** Server runtime command. */
+  runtime: string;
+  /** Server function endpoint path. */
+  endpoint: string;
+  /** Server dev options. */
+  dev: ResolvedServerDevConfig;
+}
+
+/** Resolved bundler configuration (all defaults applied). */
+export interface ResolvedBundlerConfig {
+  /** The active bundler. */
+  name: "webpack" | "utoopack";
+  /** Escape hatch to modify the underlying bundler config. */
+  config: (bundlerConfig: unknown, ctx: EvBundlerCtx) => unknown;
+}
+
 /**
  * A version of EvConfig where all fields with defaults are guaranteed.
  */
-export type ResolvedEvConfig = Required<
-  Omit<EvConfig, "dev" | "server" | "bundler" | "plugins">
-> & {
-  dev: Required<NonNullable<EvConfig["dev"]>>;
+export interface ResolvedEvConfig {
+  /** Client entry point. */
+  entry: string;
+  /** HTML template path. */
+  html: string;
+  /** Client dev server options. */
+  dev: ResolvedDevConfig;
   /** Whether the server is enabled (true unless `server: false`). */
   serverEnabled: boolean;
-  server: Required<Omit<NonNullable<Exclude<EvConfig["server"], false>>, "entry" | "dev">> & {
-    entry?: string;
-    dev: Required<NonNullable<NonNullable<Exclude<EvConfig["server"], false>>["dev"]>>;
-  };
-  bundler: Required<NonNullable<EvConfig["bundler"]>>;
+  /** Server configuration. */
+  server: ResolvedServerConfig;
+  /** Bundler adapter configuration. */
+  bundler: ResolvedBundlerConfig;
+  /** Active plugins. */
   plugins: EvPlugin[];
-};
+}
 
 /**
  * An evjs plugin.
@@ -117,7 +158,7 @@ export const CONFIG_DEFAULTS = {
   html: "./index.html",
   port: 3000,
   serverPort: 3001,
-  endpoint: "/api/fn",
+  endpoint: DEFAULT_ENDPOINT,
 } as const;
 
 /**

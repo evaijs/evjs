@@ -110,7 +110,7 @@ program
       updateDeps(projPkg.dependencies);
       updateDeps(projPkg.devDependencies);
 
-      await fs.writeFileSync(pkgPath, JSON.stringify(projPkg, null, 2));
+      fs.writeFileSync(pkgPath, JSON.stringify(projPkg, null, 2));
     }
 
     console.log(pc.green("✔ Done! Now run:"));

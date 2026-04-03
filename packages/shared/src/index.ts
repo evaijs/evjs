@@ -10,7 +10,11 @@ export {
   type EvConfig,
   type EvConfigCtx,
   type EvPlugin,
+  type ResolvedBundlerConfig,
+  type ResolvedDevConfig,
   type ResolvedEvConfig,
+  type ResolvedServerConfig,
+  type ResolvedServerDevConfig,
   resolveConfig,
 } from "./config.js";
 export {

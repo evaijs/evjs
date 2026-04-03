@@ -41,6 +41,12 @@ export function makeFnId(
 
 /** Check whether the source starts with the "use server" directive. */
 export function detectUseServer(source: string): boolean {
+  // Fast path: skip expensive SWC parse if the file clearly doesn't
+  // start with a "use server" string literal in the first 200 chars.
+  if (!/^\s*["']use server["']/m.test(source.slice(0, 200))) {
+    return false;
+  }
+
   try {
     const ast = parseSync(source, {
       syntax: "typescript",

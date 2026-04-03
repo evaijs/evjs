@@ -26,6 +26,76 @@ interface WorkerFixture {
 }
 
 /**
+ * Content-type mapping for static file serving.
+ */
+function getContentType(ext: string): string {
+  switch (ext) {
+    case ".js":
+      return "application/javascript";
+    case ".css":
+      return "text/css";
+    case ".map":
+      return "application/json";
+    default:
+      return "text/plain";
+  }
+}
+
+/**
+ * Create a static file server with SPA fallback.
+ *
+ * Optionally proxies requests matching `proxyPrefix` to a backend API server.
+ */
+function createStaticServer(
+  distDir: string,
+  options?: { apiPort?: number },
+): http.Server {
+  const indexHtml = fs.readFileSync(path.join(distDir, "index.html"), "utf-8");
+
+  return http.createServer((req, res) => {
+    const url = req.url || "/";
+
+    // Proxy /api requests to the API server (fullstack only)
+    if (options?.apiPort && url.startsWith("/api/")) {
+      const proxyReq = http.request(
+        `http://localhost:${options.apiPort}${url}`,
+        { method: req.method, headers: req.headers },
+        (proxyRes) => {
+          res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
+          proxyRes.pipe(res);
+        },
+      );
+      proxyReq.on("error", (err) => {
+        console.error(`[E2E proxy] ${req.method} ${url} failed:`, err.message);
+        res.writeHead(502);
+        res.end("Bad Gateway");
+      });
+      req.pipe(proxyReq);
+      return;
+    }
+
+    // Serve index.html
+    if (url === "/" || url === "/index.html") {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(indexHtml);
+      return;
+    }
+
+    // Serve static files
+    const filePath = path.join(distDir, url);
+    if (fs.existsSync(filePath)) {
+      const ext = path.extname(filePath);
+      res.writeHead(200, { "Content-Type": getContentType(ext) });
+      fs.createReadStream(filePath).pipe(res);
+    } else {
+      // SPA fallback
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(indexHtml);
+    }
+  });
+}
+
+/**
  * Create a test fixture for a specific example directory.
  *
  * Builds with webpack, starts the server bundle via a CJS bootstrap
@@ -109,64 +179,9 @@ export function createExampleTest(exampleName: string) {
           });
         });
 
-        // 4. Serve the client bundle on port 3000
+        // 4. Serve the client bundle with API proxy
         const distDir = path.join(exampleDir, "dist", "client");
-        const indexHtml = fs.readFileSync(
-          path.join(distDir, "index.html"),
-          "utf-8",
-        );
-
-        const staticServer = http.createServer((req, res) => {
-          const url = req.url || "/";
-
-          // Proxy /api requests to the API server
-          if (url.startsWith("/api/")) {
-            const proxyReq = http.request(
-              `http://localhost:${apiPort}${url}`,
-              { method: req.method, headers: req.headers },
-              (proxyRes) => {
-                res.writeHead(proxyRes.statusCode || 500, proxyRes.headers);
-                proxyRes.pipe(res);
-              },
-            );
-            proxyReq.on("error", (err) => {
-              console.error(
-                `[E2E proxy] ${req.method} ${url} failed:`,
-                err.message,
-              );
-              res.writeHead(502);
-              res.end("Bad Gateway");
-            });
-            req.pipe(proxyReq);
-            return;
-          }
-
-          // Serve static files
-          if (url === "/" || url === "/index.html") {
-            res.writeHead(200, { "Content-Type": "text/html" });
-            res.end(indexHtml);
-            return;
-          }
-
-          const filePath = path.join(distDir, url);
-          if (fs.existsSync(filePath)) {
-            const ext = path.extname(filePath);
-            const contentType =
-              ext === ".js"
-                ? "application/javascript"
-                : ext === ".css"
-                  ? "text/css"
-                  : ext === ".map"
-                    ? "application/json"
-                    : "text/plain";
-            res.writeHead(200, { "Content-Type": contentType });
-            fs.createReadStream(filePath).pipe(res);
-          } else {
-            // SPA fallback
-            res.writeHead(200, { "Content-Type": "text/html" });
-            res.end(indexHtml);
-          }
-        });
+        const staticServer = createStaticServer(distDir, { apiPort });
 
         await new Promise<void>((resolve) => {
           staticServer.listen(webPort, resolve);
@@ -215,39 +230,7 @@ export function createCsrExampleTest(exampleName: string) {
         const webPort = 30000 + workerInfo.workerIndex * 100 + (hash % 100) + 1;
 
         const distDir = path.join(exampleDir, "dist");
-        const indexHtml = fs.readFileSync(
-          path.join(distDir, "index.html"),
-          "utf-8",
-        );
-
-        const staticServer = http.createServer((req, res) => {
-          const url = req.url || "/";
-
-          if (url === "/" || url === "/index.html") {
-            res.writeHead(200, { "Content-Type": "text/html" });
-            res.end(indexHtml);
-            return;
-          }
-
-          const filePath = path.join(distDir, url);
-          if (fs.existsSync(filePath)) {
-            const ext = path.extname(filePath);
-            const contentType =
-              ext === ".js"
-                ? "application/javascript"
-                : ext === ".css"
-                  ? "text/css"
-                  : ext === ".map"
-                    ? "application/json"
-                    : "text/plain";
-            res.writeHead(200, { "Content-Type": contentType });
-            fs.createReadStream(filePath).pipe(res);
-          } else {
-            // SPA fallback
-            res.writeHead(200, { "Content-Type": "text/html" });
-            res.end(indexHtml);
-          }
-        });
+        const staticServer = createStaticServer(distDir);
 
         await new Promise<void>((resolve) => {
           staticServer.listen(webPort, resolve);

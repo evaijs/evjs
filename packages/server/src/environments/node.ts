@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import https from "node:https";
 import { serve as honoServe } from "@hono/node-server";
 import { getLogger } from "@logtape/logtape";
 import type { Hono } from "hono";
@@ -31,13 +33,10 @@ export function serve(app: Hono, options?: NodeRunnerOptions) {
 
   if (options?.https) {
     try {
-      const https = require("node:https");
-
       let key: string;
       let cert: string;
 
       if (typeof options.https === "object") {
-        const fs = require("node:fs");
         const isPem = (str: string) => str.includes("-----BEGIN");
         key = isPem(options.https.key)
           ? options.https.key

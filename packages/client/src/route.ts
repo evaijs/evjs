@@ -89,6 +89,8 @@ export function createRoute<
   TParams = ResolveParams<TPath>,
   TRouteContextFn = AnyContext,
   TBeforeLoadFn = AnyContext,
+  // biome-ignore lint/suspicious/noExplicitAny: TanStack Router's TLoaderDeps constraint requires `any`
+  // biome-ignore lint/complexity/noBannedTypes: TanStack Router's default type requires `{}`
   TLoaderDeps extends Record<string, any> = {},
   TLoaderFn = undefined,
   TChildren = unknown,
@@ -130,5 +132,6 @@ export function createRoute<
   TSSR,
   TServerMiddlewares
 > {
+  // biome-ignore lint/suspicious/noExplicitAny: Bridge our restricted wrapper to upstream's broader type
   return _createRoute(options as any);
 }

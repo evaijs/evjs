@@ -56,6 +56,14 @@ export async function dispatch(
     };
   }
 
+  if (!Array.isArray(args)) {
+    return {
+      error: "'args' must be an array",
+      fnId,
+      status: 400,
+    };
+  }
+
   const fn = registry.get(fnId);
   if (!fn) {
     return {

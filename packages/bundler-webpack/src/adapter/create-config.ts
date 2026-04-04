@@ -117,9 +117,6 @@ export function createWebpackConfig(
     plugins: [
       new HtmlWebpackPlugin({ template: html }),
       new EvWebpackPlugin(pluginOptions),
-      ...(!isProduction
-        ? [new (esmRequire("webpack").HotModuleReplacementPlugin)()]
-        : []),
     ],
     optimization: isProduction
       ? { splitChunks: { chunks: "all" as const } }

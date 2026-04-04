@@ -102,6 +102,29 @@ function createFetchTransport(
       });
 
       if (!res.ok) {
+        // Try to parse structured error body first
+        let errorPayload: {
+          error?: string;
+          fnId?: string;
+          status?: number;
+          data?: unknown;
+        } | null = null;
+        try {
+          errorPayload = await res.json();
+        } catch {
+          // Not JSON — fall back to text
+        }
+
+        if (errorPayload?.error) {
+          const name = getFnName(errorPayload.fnId ?? fnId);
+          throw new ServerFunctionError(
+            `Server function "${name}" threw: ${errorPayload.error}`,
+            errorPayload.fnId ?? fnId,
+            errorPayload.status ?? res.status,
+            { data: errorPayload.data },
+          );
+        }
+
         const text = await res.text().catch(() => res.statusText);
         const name = getFnName(fnId);
         throw new ServerFunctionError(

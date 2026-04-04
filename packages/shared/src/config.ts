@@ -80,7 +80,7 @@ export interface EvPlugin {
    */
   setup?: (
     ctx: EvPluginContext,
-  ) => EvPluginHooks | void | Promise<EvPluginHooks | void>;
+  ) => EvPluginHooks | undefined | Promise<EvPluginHooks | undefined>;
 }
 
 /**

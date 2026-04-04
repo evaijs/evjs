@@ -64,6 +64,17 @@ export function createApp(options?: CreateAppOptions): Hono {
       );
     }
 
+    if (!body || typeof body.fnId !== "string") {
+      return c.json(
+        {
+          error: "Missing or invalid 'fnId' in request body",
+          fnId: "",
+          status: 400,
+        },
+        400,
+      );
+    }
+
     const response = await dispatch(body.fnId, body.args ?? []);
 
     const status = "error" in response ? response.status : 200;

@@ -54,6 +54,11 @@ export function serve(app: Hono, options?: NodeRunnerOptions) {
       serverOptions.createServer = https.createServer;
       serverOptions.serverOptions = { key, cert };
     } catch (err) {
+      if (process.env.NODE_ENV === "production") {
+        throw new Error(
+          `HTTPS requested but TLS setup failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
       logger.warn`HTTPS requested but failed to set up TLS; falling back to HTTP: ${err}`;
     }
   }

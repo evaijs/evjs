@@ -16,7 +16,18 @@ export const HTTP_METHODS = [
 /** Union type of supported HTTP methods. */
 export type HttpMethod = (typeof HTTP_METHODS)[number];
 
-/** Type guard: returns true if value is a valid HTTP method. */
+/** Type guard: returns true if value is a valid HTTP method (case-insensitive). */
 export function isHttpMethod(value: string): value is HttpMethod {
   return (HTTP_METHODS as readonly string[]).includes(value.toUpperCase());
+}
+
+/**
+ * Normalize a string to a valid HttpMethod.
+ * Returns undefined if the value is not a recognized HTTP method.
+ */
+export function toHttpMethod(value: string): HttpMethod | undefined {
+  const upper = value.toUpperCase();
+  return (HTTP_METHODS as readonly string[]).includes(upper)
+    ? (upper as HttpMethod)
+    : undefined;
 }

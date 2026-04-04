@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { webpack } from "@evjs/bundler-webpack";
 import { build } from "@evjs/cli";
-import type { EvBuildResult, EvPlugin } from "@evjs/shared";
+import type { EvPlugin } from "@evjs/shared";
 import { configure, getConsoleSink } from "@logtape/logtape";
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
@@ -57,7 +57,7 @@ describe("build notifier plugin", () => {
 
     const buildNotifier: EvPlugin = {
       name: "build-notifier",
-      setup(ctx) {
+      setup(_ctx) {
         let t0: number;
         return {
           buildStart() {

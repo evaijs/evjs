@@ -31,6 +31,9 @@
   },
   "license": "MIT",
   "author": "xusd320",
+  "dependencies": {
+    "@evjs/manifest": "*"
+  },
   "devDependencies": {
     "typescript": "^6.0.2"
   },

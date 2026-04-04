@@ -25,4 +25,4 @@ export {
 } from "./constants.js";
 export { ServerError, ServerFunctionError } from "./errors.js";
 export type { HttpMethod } from "./http.js";
-export { HTTP_METHODS, isHttpMethod } from "./http.js";
+export { HTTP_METHODS, isHttpMethod, toHttpMethod } from "./http.js";

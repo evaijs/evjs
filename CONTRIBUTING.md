@@ -21,7 +21,7 @@
 | `@evjs/server` | `packages/server` | Server (Hono) |
 | `@evjs/build-tools` | `packages/build-tools` | Bundler-agnostic server function transforms (SWC) |
 | `@evjs/manifest` | `packages/manifest` | Shared manifest schema types (`ManifestV1`) |
-| `@evjs/bundler-webpack` | `packages/webpack-plugin` | Webpack adapter wrapping build-tools |
+| `@evjs/bundler-webpack` | `packages/bundler-webpack` | Webpack adapter wrapping build-tools |
 
 ### Dependency Graph
 
@@ -32,7 +32,7 @@
   │     └── @evjs/manifest
   └── webpack / webpack-dev-server / swc-loader / @swc/core
 
-@evjs/shared (standalone, no internal deps)
+@evjs/shared (standalone — depends only on @evjs/manifest for types)
 @evjs/client ──► @evjs/shared, @tanstack/react-router, @tanstack/react-query
 @evjs/server ──► @evjs/shared, hono, @hono/node-server
 ```
@@ -65,8 +65,8 @@
 1. Create directory under `examples/`
 2. Add `package.json` with `"@evjs/cli": "*"` as devDep, `"private": true`
 3. Add `src/main.tsx` + `index.html`
-4. Create symlink in `packages/cli/templates/` → `../../../examples/[name]`
-5. Add to `packages/cli/scripts/restore-templates.js` symlink map
+4. Create symlink in `packages/create-app/templates/` → `../../../examples/[name]`
+5. Add to `packages/create-app/scripts/restore-templates.js` symlink map
 6. Add an e2e test in `e2e/cases/[name].ts`
 
 ### Release a new version

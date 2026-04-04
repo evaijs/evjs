@@ -51,19 +51,19 @@ export async function getPosts() {
 ### Node.js
 
 ```ts
-import { createNodeServer } from "@evjs/server/node";
+import { serve } from "@evjs/server/node";
 import { app } from "./app";
 
-createNodeServer(app, { port: 3001 });
+serve(app, { port: 3001 });
 ```
 
 ### ECMA (Deno/Bun/Edge)
 
 ```ts
-import { createServer } from "@evjs/server/ecma";
+import { createFetchHandler } from "@evjs/server/ecma";
 import { app } from "./app";
 
-Deno.serve({ port: 3001 }, createServer(app).fetch);
+Deno.serve({ port: 3001 }, createFetchHandler(app).fetch);
 ```
 
 ## Core APIs
@@ -71,11 +71,6 @@ Deno.serve({ port: 3001 }, createServer(app).fetch);
 ### Routing
 - `route(path, handler)`: Create a REST endpoint.
 - `createApp(options)`: Main application factory.
-- `handleServerFunctions(options)`: Middleware to handle `"use server"` calls.
-
-### Middleware
-- `setContext(key, value)`: Set request-scoped context (available to server functions).
-- `getContext(key)`: Retrieve request-scoped context.
 
 ## License
 

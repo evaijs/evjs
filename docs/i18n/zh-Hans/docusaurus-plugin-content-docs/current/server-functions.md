@@ -85,13 +85,21 @@ import { initTransport } from "@evjs/client";
 initTransport({ endpoint: "/api/fn" });
 ```
 
-### WebSocket
+### 自定义传输（如 WebSocket）
+
+实现 `ServerTransport` 接口以使用自定义协议：
 
 ```tsx
-import { WebSocketTransport, initTransport } from "@evjs/client";
-initTransport({
-  transport: new WebSocketTransport("ws://localhost:3001/ws"),
-});
+import { initTransport } from "@evjs/client";
+import type { ServerTransport } from "@evjs/client";
+
+const wsTransport: ServerTransport = {
+  call: async (fnId, args) => {
+    // 在这里实现你的 WebSocket 或自定义协议
+  },
+};
+
+initTransport({ transport: wsTransport });
 ```
 
 ## 错误处理

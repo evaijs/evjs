@@ -77,7 +77,7 @@ function Posts() {
 ### Query
 - `useQuery(fn, args?)`: Wrapper around `useSuspenseQuery`.
 - `useMutation(fn)`: Wrapper around `useMutation`.
-- `getFnQueryKey(fn, args?)`: Generate 1stable query keys for server functions.
+- `getFnQueryKey(fn, args?)`: Generate stable query keys for server functions.
 - `getFnQueryOptions(fn, args?)`: Generate options for manual `queryClient` usage.
 
 ### Transport

@@ -108,5 +108,5 @@ declare module "@tanstack/react-router" {
 - Config file: `ev.config.ts` (not `evjs.config.ts`)
 - Import `defineConfig` from `@evjs/cli`, not from `@evjs/server`
 - HTML must have `<div id="app">` for the render target
-- Do NOT add `"type": "module"` to `package.json` — server bundle uses CJS
+- Do NOT add `"type": "module"` to your **project's** `package.json` — the server bundle uses CJS format
 - `src/main.tsx` should be minimal — define routes in `routes.tsx`

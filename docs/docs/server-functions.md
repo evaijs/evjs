@@ -108,15 +108,21 @@ import { initTransport } from "@evjs/client";
 initTransport({ endpoint: "/api/fn" });
 ```
 
-### WebSocket
+### Custom Transport (e.g., WebSocket)
+
+Implement the `ServerTransport` interface for custom protocols:
 
 ```tsx
-import { WebSocketTransport } from "@evjs/client";
 import { initTransport } from "@evjs/client";
+import type { ServerTransport } from "@evjs/client";
 
-initTransport({
-  transport: new WebSocketTransport("ws://localhost:3001/ws"),
-});
+const wsTransport: ServerTransport = {
+  call: async (fnId, args) => {
+    // Implement your WebSocket or custom protocol here
+  },
+};
+
+initTransport({ transport: wsTransport });
 ```
 
 ### Server Config
@@ -127,9 +133,7 @@ import { defineConfig } from "@evjs/cli";
 
 export default defineConfig({
   server: {
-    functions: {
-      endpoint: "/api/fn",  // default
-    },
+    endpoint: "/api/fn",  // default
   },
 });
 ```

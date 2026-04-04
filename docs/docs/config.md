@@ -178,7 +178,7 @@ The `bundler` field selects the compilation engine.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `name` | `"webpack" \| "utoopack"` | `"webpack"` | The active bundler adapter |
+| `name` | `"webpack"` | `"webpack"` | The active bundler adapter. Future: `"utoopack"` (planned) |
 
 ### Built-in Support: CSS & Tailwind
 evjs includes **built-in PostCSS/Tailwind support**. If a `postcss.config.js` file is detected in the project root, the internal Webpack adapter automatically enables `postcss-loader`. No plugin or custom hook is required for standard Tailwind setups.

@@ -19,8 +19,7 @@ npm install @evjs/shared
 
 - **Config**: `EvConfig`, `ResolvedEvConfig`, and `defineConfig()`.
 - **Errors**: `ServerError`, `ServerFunctionError`.
-- **Constants**: `CONFIG_DEFAULTS`, `PROTOCOL_VERSION`.
-- **Discovery**: `resolveProjectRoot()`, `loadManifest()`.
+- **Constants**: `CONFIG_DEFAULTS`.
 
 ## Core Logic
 
@@ -30,8 +29,9 @@ This package contains shared logic and types used by both the client-side (`@evj
 import { ServerError } from "@evjs/shared";
 
 // Throwing structured errors
-throw new ServerError("USER_NOT_FOUND", "The requested user does not exist", {
-  userId: "123",
+throw new ServerError("The requested user does not exist", {
+  status: 404,
+  data: { userId: "123" },
 });
 ```
 

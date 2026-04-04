@@ -108,7 +108,7 @@ import { webpack } from "@evjs/bundler-webpack";
 
 | 选项 | 类型 | 默认值 | 描述 |
 |------|------|--------|------|
-| `name` | `"webpack" \| "utoopack"` | `"webpack"` | 激活的构建器适配器 |
+| `name` | `"webpack"` | `"webpack"` | 激活的构建器适配器。未来计划：`"utoopack"` |
 
 ### 内置支持：CSS 和 Tailwind
 evjs 包含**内置的 PostCSS/Tailwind 支持**。如果项目根目录检测到 `postcss.config.js` 文件，内部 Webpack 适配器将自动启用 `postcss-loader`。标准 Tailwind 设置无需插件或自定义钩子。

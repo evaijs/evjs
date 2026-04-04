@@ -35,7 +35,7 @@ evjs is a React fullstack framework with type-safe routing (TanStack Router), da
     │
     └──► webpack (Node API)
 
-@evjs/shared (standalone, no deps)
+@evjs/shared ──► @evjs/manifest
 
 @evjs/server ──► @evjs/shared, hono, @hono/node-server
 @evjs/client ──► @evjs/shared, @tanstack/react-router, @tanstack/react-query

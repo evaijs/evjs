@@ -48,7 +48,7 @@ ev.config.ts ──► defineConfig({ entry, html, dev, server, plugins })
                     ├── entry, html ──► webpack entry + HtmlPlugin
                     ├── dev.port ──► WebpackDevServer port
                     ├── server.endpoint ──► EvWebpackPlugin + proxy path
-                    └── plugins ──► EvPlugin[] (setup → buildStart/bundler/buildEnd)
+                    └── plugins ──► EvPlugin[] (setup → buildStart/bundler/transformHtml/buildEnd)
                     │
                     ▼
             plugin.setup(ctx) → collect hooks
@@ -57,7 +57,7 @@ ev.config.ts ──► defineConfig({ entry, html, dev, server, plugins })
             hooks.buildStart() → hooks.bundler(config) → BundlerAdapter.dev/build()
                     │
                     ▼
-              webpack Node API → hooks.buildEnd(result)
+              webpack Node API → generateHtml() → hooks.transformHtml(doc) → hooks.buildEnd(result)
 ```
 
 ## Server Function Pipeline
@@ -80,6 +80,8 @@ packages/build-tools/src/
 ├── index.ts          barrel exports
 ├── codegen.ts        SWC parseSync → printSync code emitter
 ├── entry.ts          server entry generation
+├── html.ts           HTML template parsing + asset injection (domparser-rs)
+├── routes.ts         route metadata extraction from createRoute() calls
 ├── types.ts          shared types + RUNTIME identifier constants
 ├── utils.ts          detectUseServer, makeFnId, parseModuleRef
 └── transforms/

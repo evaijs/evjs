@@ -4,6 +4,30 @@ All notable changes to evjs are documented here. Releases follow [Semantic Versi
 
 ---
 
+## [0.0.18] — 2026-04-06
+
+### ✨ Features
+
+- **`transformHtml` plugin hook** — New lifecycle hook receives a parsed DOM document (`EvDocument`) instead of a raw HTML string, enabling robust, structured HTML manipulation via standard DOM methods
+- **`EvDocument` interface** — Bundler-agnostic DOM subset in `@evjs/ev` covering querying, attributes, tree mutation, content insertion, traversal, and document-level accessors
+- **Custom HTML generation** — New `generateHtml()` utility in `@evjs/build-tools` using `domparser-rs` for template parsing and asset injection (replaces `HtmlWebpackPlugin` for asset injection)
+- **`basic-plugins` example** — New example demonstrating all four plugin hooks (`buildStart`, `bundler`, `transformHtml`, `buildEnd`)
+
+### 🧪 Testing
+
+- Added Playwright e2e tests for `basic-plugins` (4 browser tests)
+- Added `transformHtml` DOM manipulation e2e scenarios to `plugin-hooks.test.ts` (3 tests: meta injection, comment injection, multi-plugin composition)
+- Added 13 unit tests for `generateHtml` in `@evjs/build-tools`
+
+### 📝 Documentation
+
+- New dedicated **Plugins** guide (`docs/docs/plugins.md`) with lifecycle diagram, `EvDocument` API reference, type-safe bundler helpers, and practical recipes (CSP nonce, analytics, deploy manifest)
+- Chinese (zh-Hans) translation of the Plugins guide
+- Added Plugins page to sidebar under Core Concepts
+- Updated architecture diagrams and roadmap to include `transformHtml` in the hook lifecycle
+
+---
+
 ## [0.0.17] — 2026-04-05
 
 ### ✨ Features

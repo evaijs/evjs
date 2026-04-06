@@ -44,7 +44,7 @@ Runs webpack via Node API with `NODE_ENV=production`:
 Create `ev.config.ts` in the project root (optional):
 
 ```ts
-import { defineConfig } from "@evjs/cli";
+import { defineConfig } from "@evjs/ev";
 
 export default defineConfig({
   entry: "./src/main.tsx",
@@ -82,7 +82,7 @@ my-app/
 1. **Don't create `webpack.config.cjs`** — use `ev.config.ts` instead
 2. **Don't install webpack manually** — it's a dependency of `@evjs/cli`
 3. **Config file must be `ev.config.ts`** — not `evjs.config.ts`
-4. **Import `defineConfig` from `@evjs/cli`** — not from `@evjs/server`
+4. **Import `defineConfig` from `@evjs/ev`** — not from `@evjs/server`
 
 ## Bundled Dependencies
 

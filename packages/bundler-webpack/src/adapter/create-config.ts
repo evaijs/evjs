@@ -24,6 +24,7 @@ export function createWebpackConfig(
   const serverEnabled = config.serverEnabled;
 
   const { EvWebpackPlugin } = esmRequire("@evjs/bundler-webpack");
+  const MiniCssExtractPlugin = esmRequire("mini-css-extract-plugin");
 
   const pluginOptions = {
     server: { entry: config.server.entry },
@@ -101,7 +102,9 @@ export function createWebpackConfig(
             fs.existsSync(path.resolve(cwd, f)),
           );
           const cssLoaders = [
-            { loader: resolveLoader("style-loader") },
+            isProduction
+              ? { loader: MiniCssExtractPlugin.loader }
+              : { loader: resolveLoader("style-loader") },
             { loader: resolveLoader("css-loader") },
             ...(hasPostCSS
               ? [{ loader: resolveLoader("postcss-loader") }]
@@ -111,7 +114,12 @@ export function createWebpackConfig(
         })(),
       ],
     },
-    plugins: [new EvWebpackPlugin(pluginOptions)],
+    plugins: [
+      new EvWebpackPlugin(pluginOptions),
+      ...(isProduction
+        ? [new MiniCssExtractPlugin({ filename: "[name].[contenthash:8].css" })]
+        : []),
+    ],
     optimization: isProduction
       ? { splitChunks: { chunks: "all" as const } }
       : undefined,

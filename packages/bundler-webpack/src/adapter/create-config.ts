@@ -101,9 +101,7 @@ export function createWebpackConfig(
           const hasPostCSS = postcssConfigs.some((f) =>
             fs.existsSync(path.resolve(cwd, f)),
           );
-          const baseCssLoader = isProduction
-            ? { loader: MiniCssExtractPlugin.loader }
-            : { loader: resolveLoader("style-loader") };
+          const baseCssLoader = { loader: MiniCssExtractPlugin.loader };
           const postcssLoader = hasPostCSS
             ? [{ loader: resolveLoader("postcss-loader") }]
             : [];
@@ -146,9 +144,9 @@ export function createWebpackConfig(
     },
     plugins: [
       new EvWebpackPlugin(pluginOptions),
-      ...(isProduction
-        ? [new MiniCssExtractPlugin({ filename: "[name].[contenthash:8].css" })]
-        : []),
+      new MiniCssExtractPlugin({
+        filename: isProduction ? "[name].[contenthash:8].css" : "[name].css",
+      }),
     ],
     optimization: isProduction
       ? { splitChunks: { chunks: "all" as const } }

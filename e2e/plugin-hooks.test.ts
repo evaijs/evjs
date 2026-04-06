@@ -238,3 +238,111 @@ describe("plugin composition", () => {
     expect(ruleCountSeenBySecondPlugin).toBe(1);
   }, 60_000);
 });
+
+// ─── Scenario 6: Transform HTML via DOM Manipulation ────────────────────
+// A plugin that uses the EvDocument DOM API to inject a <meta> tag.
+// Verifies that transformHtml receives a live DOM document that plugins
+// can mutate with standard DOM methods.
+
+describe("transformHtml DOM manipulation", () => {
+  it("injects a meta tag into the document via DOM API", async () => {
+    process.chdir(CSR_APP);
+
+    const htmlPlugin: EvPlugin = {
+      name: "meta-injector",
+      setup() {
+        return {
+          transformHtml(doc) {
+            const meta = doc.createElement("meta");
+            meta.setAttribute("name", "generator");
+            meta.setAttribute("content", "evjs");
+            doc.head!.appendChild(meta);
+          },
+        };
+      },
+    };
+
+    await build({ server: false, plugins: [htmlPlugin] });
+
+    // Read the emitted index.html and verify the meta tag
+    const html = fs.readFileSync(
+      path.join(CSR_APP, "dist", "index.html"),
+      "utf-8",
+    );
+    expect(html).toContain('<meta name="generator" content="evjs">');
+  }, 60_000);
+
+  it("injects a comment node via DOM API", async () => {
+    process.chdir(CSR_APP);
+
+    const commentPlugin: EvPlugin = {
+      name: "comment-injector",
+      setup() {
+        return {
+          transformHtml(doc, result) {
+            const count = result.clientManifest.assets.js.length;
+            const comment = doc.createComment(` ${count} JS asset(s) `);
+            doc.body!.insertBefore(comment, doc.body!.firstChild);
+          },
+        };
+      },
+    };
+
+    await build({ server: false, plugins: [commentPlugin] });
+
+    const html = fs.readFileSync(
+      path.join(CSR_APP, "dist", "index.html"),
+      "utf-8",
+    );
+    expect(html).toMatch(/<!--\s+\d+ JS asset\(s\)\s+-->/);
+  }, 60_000);
+});
+
+// ─── Scenario 7: Multiple transformHtml Plugins Compose ─────────────────
+// Multiple plugins should all get the same document reference and their
+// mutations should accumulate in order.
+
+describe("transformHtml composition", () => {
+  it("multiple plugins accumulate DOM mutations", async () => {
+    process.chdir(CSR_APP);
+
+    const plugin1: EvPlugin = {
+      name: "meta-1",
+      setup: () => ({
+        transformHtml(doc) {
+          const meta = doc.createElement("meta");
+          meta.setAttribute("name", "plugin-1");
+          meta.setAttribute("content", "first");
+          doc.head!.appendChild(meta);
+        },
+      }),
+    };
+
+    const plugin2: EvPlugin = {
+      name: "meta-2",
+      setup: () => ({
+        transformHtml(doc) {
+          const meta = doc.createElement("meta");
+          meta.setAttribute("name", "plugin-2");
+          meta.setAttribute("content", "second");
+          doc.head!.appendChild(meta);
+        },
+      }),
+    };
+
+    await build({ server: false, plugins: [plugin1, plugin2] });
+
+    const html = fs.readFileSync(
+      path.join(CSR_APP, "dist", "index.html"),
+      "utf-8",
+    );
+    // Both plugins should have mutated the same document
+    expect(html).toContain('<meta name="plugin-1" content="first">');
+    expect(html).toContain('<meta name="plugin-2" content="second">');
+
+    // Plugin 1's meta should appear before plugin 2's meta
+    const idx1 = html.indexOf("plugin-1");
+    const idx2 = html.indexOf("plugin-2");
+    expect(idx1).toBeLessThan(idx2);
+  }, 60_000);
+});

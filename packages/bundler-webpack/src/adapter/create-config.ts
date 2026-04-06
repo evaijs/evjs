@@ -23,12 +23,13 @@ export function createWebpackConfig(
   const isProduction = process.env.NODE_ENV === "production";
   const serverEnabled = config.serverEnabled;
 
-  const HtmlWebpackPlugin = esmRequire("html-webpack-plugin");
   const { EvWebpackPlugin } = esmRequire("@evjs/bundler-webpack");
 
   const pluginOptions = {
     server: { entry: config.server.entry },
     serverEnabled,
+    html: path.resolve(cwd, html),
+    hooks,
   };
 
   // Resolve loader paths from evjs's dependency tree so they work
@@ -110,10 +111,7 @@ export function createWebpackConfig(
         })(),
       ],
     },
-    plugins: [
-      new HtmlWebpackPlugin({ template: html }),
-      new EvWebpackPlugin(pluginOptions),
-    ],
+    plugins: [new EvWebpackPlugin(pluginOptions)],
     optimization: isProduction
       ? { splitChunks: { chunks: "all" as const } }
       : undefined,

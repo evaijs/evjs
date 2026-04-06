@@ -3,9 +3,11 @@ import { builtinModules } from "node:module";
 import {
   detectUseServer,
   extractRoutes,
+  generateHtml,
   generateServerEntry,
   type ServerEntryConfig,
 } from "@evjs/build-tools";
+import type { EvPluginHooks } from "@evjs/ev";
 import type {
   ClientManifest,
   RouteEntry,
@@ -38,6 +40,14 @@ class ManifestCollector {
     this.cssAssets = css;
   }
 
+  getJsAssets(): string[] {
+    return this.jsAssets;
+  }
+
+  getCssAssets(): string[] {
+    return this.cssAssets;
+  }
+
   getServerManifest(): ServerManifest {
     return {
       version: 1,
@@ -63,6 +73,10 @@ export interface EvWebpackPluginOptions {
   server?: ServerEntryConfig;
   /** Whether server features are enabled. Default: true. */
   serverEnabled?: boolean;
+  /** Absolute path to the user's HTML template file. */
+  html: string;
+  /** Plugin hooks for transformHtml. */
+  hooks?: EvPluginHooks[];
 }
 
 /**
@@ -70,13 +84,14 @@ export interface EvWebpackPluginOptions {
  *
  * Automatically discovers files with the "use server" directive based on the client dependencies
  * and manages the server-side build via a child compiler.
+ * Generates the output HTML by parsing the user's template and injecting bundled assets.
  */
 export class EvWebpackPlugin {
   private options: EvWebpackPluginOptions;
   private serverEnabled: boolean;
 
-  constructor(options?: EvWebpackPluginOptions) {
-    this.options = options ?? {};
+  constructor(options: EvWebpackPluginOptions) {
+    this.options = options;
     this.serverEnabled = options?.serverEnabled ?? true;
   }
   apply(compiler: Compiler) {
@@ -267,14 +282,14 @@ export class EvWebpackPlugin {
       );
     }
 
-    // Emit manifests using modern processAssets hook
+    // Emit manifests and generated HTML using modern processAssets hook
     compiler.hooks.thisCompilation.tap("EvWebpackPlugin", (compilation) => {
-      compilation.hooks.processAssets.tap(
+      compilation.hooks.processAssets.tapPromise(
         {
           name: "EvWebpackPlugin",
           stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
         },
-        () => {
+        async () => {
           // Collect client assets from entrypoints
           const jsFiles: string[] = [];
           const cssFiles: string[] = [];
@@ -312,6 +327,32 @@ export class EvWebpackPlugin {
               ),
             );
           }
+
+          // Generate HTML document from the user's template + collected assets
+          const doc = generateHtml({
+            template: this.options.html,
+            js: jsFiles,
+            css: cssFiles,
+          });
+
+          // Run transformHtml plugin hooks in sequence (mutate doc in place)
+          const hooks = this.options.hooks ?? [];
+          const buildResult = {
+            clientManifest,
+            serverManifest: this.serverEnabled ? serverManifest : undefined,
+            isRebuild: false,
+          };
+          for (const h of hooks) {
+            if (h.transformHtml) {
+              await h.transformHtml(doc, buildResult);
+            }
+          }
+
+          // Serialize and emit index.html
+          compilation.emitAsset(
+            "index.html",
+            new compiler.webpack.sources.RawSource(doc.outerHTML),
+          );
         },
       );
     });

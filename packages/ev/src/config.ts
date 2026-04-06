@@ -4,6 +4,7 @@ import type { EvPlugin } from "./plugin.js";
 export type {
   EvBuildResult,
   EvBundlerCtx,
+  EvDocument,
   EvPlugin,
   EvPluginContext,
   EvPluginHooks,

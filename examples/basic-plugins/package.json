@@ -1,5 +1,5 @@
 {
-  "name": "example-configured-server-fns",
+  "name": "example-basic-plugins",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -16,8 +16,10 @@
     "@evjs/cli": "*",
     "@evjs/client": "*",
     "@evjs/server": "*",
+    "@evjs/bundler-webpack": "*",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.8",
+    "raw-loader": "^4.0.2",
     "typescript": "^6.0.2"
   }
 }

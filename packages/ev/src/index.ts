@@ -9,6 +9,7 @@ export {
   type EvBuildResult,
   type EvBundlerCtx,
   type EvConfig,
+  type EvDocument,
   type EvPlugin,
   type EvPluginContext,
   type EvPluginHooks,

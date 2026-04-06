@@ -3,6 +3,8 @@
  */
 
 export { generateServerEntry } from "./entry.js";
+export type { GenerateHtmlOptions, HtmlAsset } from "./html.js";
+export { generateHtml } from "./html.js";
 export type { ExtractedRoute } from "./routes.js";
 export { extractRoutes } from "./routes.js";
 export type { TransformResult } from "./transforms/index.js";

@@ -1,10 +1,9 @@
-import { webpack } from "@evjs/bundler-webpack";
 import { defineConfig } from "@evjs/ev";
 
 /**
  * Advanced ev.config.ts example.
  *
- * This file demonstrates all available configuration options.
+ * This file demonstrates the available configuration options.
  * All fields are optional — evjs works out of the box.
  */
 export default defineConfig({
@@ -37,22 +36,4 @@ export default defineConfig({
       port: 4001,
     },
   },
-
-  // Build-time plugins
-  plugins: [
-    {
-      name: "example-txt-plugin",
-      setup() {
-        return {
-          // Type-safe webpack config via helper
-          bundler: webpack((config) => {
-            config.module?.rules?.push({
-              test: /\.txt$/,
-              use: "raw-loader",
-            });
-          }),
-        };
-      },
-    },
-  ],
 });

@@ -4,6 +4,29 @@ All notable changes to evjs are documented here. Releases follow [Semantic Versi
 
 ---
 
+## [0.0.19] — 2026-04-07
+
+### 🐛 Bug Fixes
+
+- **Resolved manifest route paths** — Route extraction now parses `getParentRoute` hierarchy and produces fully resolved URL paths (e.g. `/posts/$postId` instead of bare `$postId`), eliminating duplicate `"/"` entries in `manifest.json`
+- **Removed duplicate index routes** — Index routes under non-root parents are excluded from the manifest since they resolve to the same URL as their parent
+- **Fixed ANSI escape codes in build output** — Webpack stats no longer emit raw `\x1B[...` sequences in the logger
+
+### ✨ Features
+
+- **`extractRoutes()` / `resolveRoutes()`** — New build-tools APIs for extracting route metadata from `createRoute()` calls and resolving full URL paths from the parent-child hierarchy
+
+### 📦 Dependencies
+
+- Upgraded `domparser-rs` from `^0.0.7` to `^0.1.0` — migrated from `NodeRepr` to standard DOM type hierarchy (`Document`, `Element`, `Node`)
+
+### 🧪 Testing
+
+- Added 21 unit tests for route extraction and resolution in `@evjs/build-tools`
+- Updated `ManifestCollector` tests for resolved route output
+
+---
+
 ## [0.0.18] — 2026-04-06
 
 ### ✨ Features

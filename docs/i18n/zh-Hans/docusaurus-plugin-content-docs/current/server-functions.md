@@ -46,10 +46,9 @@ const { data: users } = useQuery(getUsers);               // data: User[]
 const { data: user } = useQuery(getUser, userId);          // data: User
 const { data } = useSuspenseQuery(getUsers);               // data: User[]（保证有值）
 
-// 变更 —— 使用原始 TanStack useMutation
+// 变更 —— 直接传入服务端函数，与 useQuery 用法一致
 const queryClient = useQueryClient();
-const { mutate } = useMutation({
-  mutationFn: createUser,
+const { mutate } = useMutation(createUser, {
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: getFnQueryKey(getUsers) });
   },
@@ -163,6 +162,7 @@ flowchart TD
 |------|------|
 | 查询 | `useQuery(fn, ...args)` |
 | Suspense 查询 | `useSuspenseQuery(fn, ...args)` |
+| 变更 | `useMutation(fn)` 或 `useMutation(fn, { onSuccess })` |
 | 缓存失效 | `getFnQueryKey(fn, ...args)` |
 | 加载器 / 预取 | `getFnQueryOptions(fn, ...args)` → `{ queryKey, queryFn }` |
 | 函数元信息 | `fn.fnId`、`fn.fnName` |

@@ -42,7 +42,9 @@ my-app/
 ├── src/
 │   ├── main.tsx            # 应用启动
 │   ├── global.ts           # 全局类型声明和传输初始化
-│   ├── routes.tsx          # 路由树 + 组件
+│   ├── pages/              # 路由页面（基于文件的路由）
+│   │   ├── __root.tsx      # 根布局
+│   │   └── home.tsx        # 首页（索引路由）
 │   └── api/                # 服务端函数文件
 │       └── *.server.ts
 ├── package.json
@@ -54,9 +56,11 @@ my-app/
 ```tsx
 // src/main.tsx
 import { createApp } from "@evjs/client";
-import { routeTree } from "./routes";
+import { rootRoute } from "./pages/__root";
+import { homeRoute } from "./pages/home";
 import "./global";
 
+const routeTree = rootRoute.addChildren([homeRoute]);
 const app = createApp({ routeTree });
 app.render("#app");
 ```
@@ -110,4 +114,4 @@ declare module "@tanstack/react-router" {
 - 从 `@evjs/ev` 导入 `defineConfig`，不是从 `@evjs/server`
 - HTML 必须包含 `<div id="app">` 作为渲染目标
 - 不要在你的**项目** `package.json` 中添加 `"type": "module"` —— 服务端 bundle 使用 CJS 格式
-- `src/main.tsx` 应保持精简 —— 在 `routes.tsx` 中定义路由
+- `src/main.tsx` 应保持精简 —— 在 `pages/` 中定义路由

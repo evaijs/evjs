@@ -42,7 +42,9 @@ my-app/
 ├── src/
 │   ├── main.tsx            # App bootstrap
 │   ├── global.ts           # Global typings & transport init
-│   ├── routes.tsx          # Route tree + components
+│   ├── pages/              # Route pages (file-based routing)
+│   │   ├── __root.tsx      # Root layout
+│   │   └── home.tsx        # Home page (index route)
 │   └── api/                # Server function files
 │       └── *.server.ts
 ├── package.json
@@ -54,9 +56,11 @@ my-app/
 ```tsx
 // src/main.tsx
 import { createApp } from "@evjs/client";
-import { routeTree } from "./routes";
+import { rootRoute } from "./pages/__root";
+import { homeRoute } from "./pages/home";
 import "./global";
 
+const routeTree = rootRoute.addChildren([homeRoute]);
 const app = createApp({ routeTree });
 app.render("#app");
 ```
@@ -110,4 +114,4 @@ declare module "@tanstack/react-router" {
 - Import `defineConfig` from `@evjs/ev`, not from `@evjs/server`
 - HTML must have `<div id="app">` for the render target
 - Do NOT add `"type": "module"` to your **project's** `package.json` — the server bundle uses CJS format
-- `src/main.tsx` should be minimal — define routes in `routes.tsx`
+- `src/main.tsx` should be minimal — define routes in `pages/`

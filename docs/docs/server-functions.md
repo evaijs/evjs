@@ -46,10 +46,9 @@ const { data: users } = useQuery(getUsers);               // data: User[]
 const { data: user } = useQuery(getUser, userId);          // data: User
 const { data } = useSuspenseQuery(getUsers);               // data: User[] (guaranteed)
 
-// Mutations — use raw TanStack useMutation
+// Mutations — pass server functions directly, just like useQuery
 const queryClient = useQueryClient();
-const { mutate } = useMutation({
-  mutationFn: createUser,
+const { mutate } = useMutation(createUser, {
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: getFnQueryKey(getUsers) });
   },
@@ -203,6 +202,7 @@ flowchart TD
 |---------|-------|
 | Query | `useQuery(fn, ...args)` |
 | Suspense query | `useSuspenseQuery(fn, ...args)` |
+| Mutation | `useMutation(fn)` or `useMutation(fn, { onSuccess })` |
 | Cache invalidation | `getFnQueryKey(...args)` |
 | Loader / prefetch | `getFnQueryOptions(...args)` → `{ queryKey, queryFn }` |
 | Function metadata | `fn.fnId`, `fn.fnName` |

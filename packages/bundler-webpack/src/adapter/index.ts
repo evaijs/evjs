@@ -34,7 +34,7 @@ export const webpackAdapter: BundlerAdapter = {
             return;
           }
           const output = stats.toString({
-            colors: true,
+            colors: false,
             modules: false,
             children: true,
           });

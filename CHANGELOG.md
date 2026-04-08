@@ -4,6 +4,28 @@ All notable changes to evjs are documented here. Releases follow [Semantic Versi
 
 ---
 
+## [0.0.20] — 2026-04-08
+
+### ✨ Features
+
+- **`assetPrefix` config option** — New top-level config field for deploying static assets to a CDN. Set `assetPrefix: "https://cdn.example.com/"` in `ev.config.ts` to prefix all JS/CSS asset URLs in the production build output
+- **Runtime `window.assetPrefix`** — The configured prefix is injected as a `<script>window.assetPrefix="..."</script>` tag in the `<head>` of `index.html`, enabling deployment-time rewriting and dynamic asset URL construction in React components
+- **Webpack `publicPath: "auto"`** — Production builds now use Webpack's automatic public path resolution, allowing lazily loaded chunks to correctly resolve relative to their CDN location without manual configuration
+- **`assetPrefix` ignored in dev** — During `ev dev`, the prefix is always forced to `"/"` to preserve local HMR and dev server stability
+
+### 📝 Documentation
+
+- Added CDN deployment section to `deploy.md` (EN + zh-Hans)
+- Added `assetPrefix` reference to `config.md` (EN + zh-Hans) with defaults table, client options description, and full reference example
+- Updated `evjs-dev` AI skill with CDN deployment gotcha
+
+### 🧹 Code Quality
+
+- Renamed internal `publicPath` to `assetPrefix` across `@evjs/build-tools`, `@evjs/bundler-webpack`, `@evjs/manifest`, and `@evjs/ev` for naming consistency with Next.js conventions
+- Added `Window.assetPrefix` global type augmentation in `@evjs/client` for type-safe access
+
+---
+
 ## [0.0.19] — 2026-04-07
 
 ### 🐛 Bug Fixes

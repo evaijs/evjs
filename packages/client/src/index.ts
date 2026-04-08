@@ -99,3 +99,20 @@ export type {
   TransportOptions,
 } from "./transport";
 export { getFnName, initTransport } from "./transport";
+
+declare global {
+  interface Window {
+    /**
+     * URL prefix for all client assets, injected by evjs at build time.
+     *
+     * Use this in React components to construct dynamic asset URLs:
+     * ```tsx
+     * <img src={`${window.assetPrefix || "/"}images/logo.png`} />
+     * ```
+     *
+     * This value can be safely mutated by your deployment server before
+     * serving the index.html payload.
+     */
+    assetPrefix?: string;
+  }
+}

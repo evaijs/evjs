@@ -15,6 +15,21 @@ This creates:
 - `dist/client/manifest.json` — Client asset map and route metadata
 - `dist/server/manifest.json` — Server function registry
 
+## CDN Deployment (`assetPrefix`)
+
+If you host your static assets on a CDN rather than the application server, configure `ev.config.ts`:
+
+```ts
+export default defineConfig({
+  assetPrefix: "https://cdn.example.com/assets/"
+});
+```
+
+During `ev build`, this prefix will be:
+1. Applied to dynamically loaded JS chunks automatically using Webpack's `auto` publicPath strategy.
+2. Written into `<script>` and `<link>` tags in `dist/index.html`.
+3. Exposed as a global `window.assetPrefix` runtime variable on the client, which can be safely mutated by your deployment tools before serving `index.html`.
+
 ## Option 1: Node.js (Default)
 
 The default and simplest deployment option:

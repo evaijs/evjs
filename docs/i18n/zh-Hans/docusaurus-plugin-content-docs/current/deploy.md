@@ -14,6 +14,21 @@ npm run build
 - `dist/client/manifest.json` —— 客户端资源映射和路由元数据
 - `dist/server/manifest.json` —— 服务端函数注册表
 
+## CDN 部署 (`assetPrefix`)
+
+如果你在单独的 CDN 而不是应用服务器上托管静态资源，请配置 `ev.config.ts`：
+
+```ts
+export default defineConfig({
+  assetPrefix: "https://my-cdn.com/assets/"
+});
+```
+
+在 `ev build` 时，该前缀会被：
+1. 自动注入以加载异步 JS Chunk（通过 Webpack 自动机制）。
+2. 直接写入 `dist/index.html` 的资源标签中。
+3. 作为客户端全局 `window.assetPrefix` 运行时变量暴露。你的部署服务器可以在分发 `index.html` 之前安全地动态替换它。
+
 ## 方案一：Node.js（默认）
 
 ```javascript

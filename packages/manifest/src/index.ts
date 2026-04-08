@@ -58,6 +58,8 @@ export interface RouteEntry {
 export interface ClientManifest {
   /** Schema version — bump on breaking changes. */
   version: 1;
+  /** URL prefix for all assets when deployed to CDN. Default: "/". */
+  assetPrefix?: string;
   /** Bundle asset paths for HTML injection. */
   assets: {
     /** JavaScript bundle paths. */

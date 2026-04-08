@@ -48,6 +48,8 @@ export interface ResolvedBundlerConfig {
  * A version of EvConfig where all fields with defaults are guaranteed.
  */
 export interface ResolvedEvConfig {
+  /** Resolved asset prefix for CDN deployment, always ends with "/". */
+  assetPrefix: string;
   /** Client entry point. */
   entry: string;
   /** HTML template path. */
@@ -68,6 +70,18 @@ export interface ResolvedEvConfig {
  * evjs framework configuration.
  */
 export interface EvConfig {
+  /**
+   * URL prefix for all client assets (JS, CSS, images, fonts).
+   * Use this when deploying static assets to a CDN on a different domain.
+   *
+   * At build time, this prefix is applied to all `<script>` and `<link>` tags
+   * in the generated HTML. A `<script>window.assetPrefix = "..."`</script>` tag
+   * is also injected so the value is available at runtime.
+   *
+   * @example "https://cdn.example.com/assets/"
+   * @default "/"
+   */
+  assetPrefix?: string;
   /** Client entry point. Default: "./src/main.tsx". */
   entry?: string;
   /** HTML template path. Default: "./index.html". */
@@ -120,6 +134,7 @@ export interface EvConfig {
  * Default configuration values.
  */
 export const CONFIG_DEFAULTS = {
+  assetPrefix: "/",
   entry: "./src/main.tsx",
   html: "./index.html",
   port: 3000,
@@ -142,7 +157,13 @@ export function resolveConfig(userConfig?: EvConfig): ResolvedEvConfig {
   const serverEnabled = config.server !== false;
   const serverConfig = config.server === false ? {} : (config.server ?? {});
 
+  const rawPrefix = config.assetPrefix ?? CONFIG_DEFAULTS.assetPrefix;
+  const assetPrefix = rawPrefix.endsWith("/")
+    ? rawPrefix
+    : `${rawPrefix}/`;
+
   return {
+    assetPrefix,
     entry: config.entry ?? CONFIG_DEFAULTS.entry,
     html: config.html ?? CONFIG_DEFAULTS.html,
     dev: {

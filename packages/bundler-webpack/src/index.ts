@@ -57,9 +57,10 @@ class ManifestCollector {
     };
   }
 
-  getClientManifest(): ClientManifest {
+  getClientManifest(assetPrefix?: string): ClientManifest {
     return {
       version: 1,
+      assetPrefix: assetPrefix && assetPrefix !== "/" ? assetPrefix : undefined,
       assets: { js: this.jsAssets, css: this.cssAssets },
       routes: resolveRoutes(this.routes),
     };
@@ -78,6 +79,8 @@ export interface EvWebpackPluginOptions {
   html: string;
   /** Plugin hooks for transformHtml. */
   hooks?: EvPluginHooks[];
+  /** Asset prefix for CDN deployment. Injected into HTML as window.assetPrefix. */
+  assetPrefix?: string;
 }
 
 /**
@@ -305,7 +308,7 @@ export class EvWebpackPlugin {
           collector.setAssets(jsFiles, cssFiles);
 
           const serverManifest = collector.getServerManifest();
-          const clientManifest = collector.getClientManifest();
+          const clientManifest = collector.getClientManifest(this.options.assetPrefix);
 
           // Always emit client manifest — it contains asset paths
           // needed by deployment tools even when there are no routes.
@@ -330,11 +333,25 @@ export class EvWebpackPlugin {
           }
 
           // Generate HTML document from the user's template + collected assets
+          const assetPrefix = this.options.assetPrefix;
           const doc = generateHtml({
             template: this.options.html,
             js: jsFiles,
             css: cssFiles,
+            assetPrefix: assetPrefix,
           });
+
+          // Inject <script>window.assetPrefix = "..."</script> into <head>
+          // so the value is available at runtime for dynamic asset references.
+          if (assetPrefix && assetPrefix !== "/") {
+            const head = doc.querySelector("head");
+            if (head) {
+              head.insertAdjacentHTML(
+                "afterbegin",
+                `<script>window.assetPrefix=${JSON.stringify(assetPrefix)};</script>`,
+              );
+            }
+          }
 
           // Run transformHtml plugin hooks in sequence (mutate doc in place)
           const hooks = this.options.hooks ?? [];

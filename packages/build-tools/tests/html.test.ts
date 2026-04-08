@@ -96,12 +96,12 @@ describe("generateHtml", () => {
     expect(result).toContain('<div id="app">');
   });
 
-  it("respects custom publicPath", () => {
+  it("respects custom assetPrefix", () => {
     const doc = generateHtml({
       template: TEMPLATE_PATH,
       js: ["main.js"],
       css: ["main.css"],
-      publicPath: "/static/",
+      assetPrefix: "/static/",
     });
     const result = doc.toString();
 

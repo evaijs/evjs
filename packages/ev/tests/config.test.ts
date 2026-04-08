@@ -16,6 +16,7 @@ describe("defineConfig", () => {
 describe("resolveConfig", () => {
   it("applies all defaults when called with no arguments", () => {
     const resolved = resolveConfig();
+    expect(resolved.assetPrefix).toBe(CONFIG_DEFAULTS.assetPrefix);
     expect(resolved.entry).toBe(CONFIG_DEFAULTS.entry);
     expect(resolved.html).toBe(CONFIG_DEFAULTS.html);
     expect(resolved.dev.port).toBe(CONFIG_DEFAULTS.port);
@@ -31,6 +32,7 @@ describe("resolveConfig", () => {
 
   it("applies all defaults when called with empty config", () => {
     const resolved = resolveConfig({});
+    expect(resolved.assetPrefix).toBe("/");
     expect(resolved.entry).toBe("./src/main.tsx");
     expect(resolved.html).toBe("./index.html");
     expect(resolved.server.endpoint).toBe("/api/fn");
@@ -43,6 +45,14 @@ describe("resolveConfig", () => {
     });
     expect(resolved.entry).toBe("./src/custom.tsx");
     expect(resolved.html).toBe("./public/index.html");
+  });
+
+  it("normalizes assetPrefix by adding a trailing slash if missing", () => {
+    const resolved = resolveConfig({ assetPrefix: "https://cdn.example.com/assets" });
+    expect(resolved.assetPrefix).toBe("https://cdn.example.com/assets/");
+    
+    const resolvedWithSlash = resolveConfig({ assetPrefix: "https://cdn.example.com/assets/" });
+    expect(resolvedWithSlash.assetPrefix).toBe("https://cdn.example.com/assets/");
   });
 
   it("respects dev port and https overrides", () => {

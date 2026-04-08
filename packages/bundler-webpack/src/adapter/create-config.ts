@@ -31,6 +31,7 @@ export function createWebpackConfig(
     serverEnabled,
     html: path.resolve(cwd, html),
     hooks,
+    assetPrefix: isProduction ? config.assetPrefix : "/",
   };
 
   // Resolve loader paths from evjs's dependency tree so they work
@@ -59,6 +60,7 @@ export function createWebpackConfig(
     output: {
       path: path.resolve(cwd, serverEnabled ? "dist/client" : "dist"),
       filename: isProduction ? "[name].[contenthash:8].js" : "index.js",
+      publicPath: "auto",
       clean: true,
     },
     resolve: {

@@ -4,13 +4,25 @@ All notable changes to evjs are documented here. Releases follow [Semantic Versi
 
 ---
 
+## [0.0.21] — 2026-04-10
+
+### ✨ Features
+
+- **Runtime `publicPath` via `window.assetPrefix`** — Webpack's chunk loader now reads `window.assetPrefix` at runtime, so dynamically loaded chunks resolve against the deploy-time CDN URL without requiring a rebuild. The prefix can be injected into `index.html` at deploy time by rewriting the `<script>window.assetPrefix="..."</script>` tag.
+
+### 📝 Documentation
+
+- Updated `assetPrefix` docs in `deploy.md` (EN + zh-Hans) to reflect runtime publicPath behavior
+- Updated `config.ts` docstring to mention runtime chunk loading and deploy-time rewriting
+
+---
+
 ## [0.0.20] — 2026-04-08
 
 ### ✨ Features
 
 - **`assetPrefix` config option** — New top-level config field for deploying static assets to a CDN. Set `assetPrefix: "https://cdn.example.com/"` in `ev.config.ts` to prefix all JS/CSS asset URLs in the production build output
 - **Runtime `window.assetPrefix`** — The configured prefix is injected as a `<script>window.assetPrefix="..."</script>` tag in the `<head>` of `index.html`, enabling deployment-time rewriting and dynamic asset URL construction in React components
-- **Runtime `publicPath` via `window.assetPrefix`** — Webpack's chunk loader reads `window.assetPrefix` at runtime, so dynamically loaded chunks resolve against the deploy-time CDN URL without requiring a rebuild
 - **`assetPrefix` ignored in dev** — During `ev dev`, the prefix is always forced to `"/"` to preserve local HMR and dev server stability
 
 ### 📝 Documentation

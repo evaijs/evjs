@@ -6,7 +6,7 @@
 
 - **Hono-based** — Build RESTful APIs alongside your React application.
 - **Server Function Support** — Seamlessly handle `"use server"` function calls with type safety.
-- **Standard Request/Response** — `route()` factory for simplified API endpoint creation.
+- **Standard Request/Response** — `createRoute()` factory for simplified API endpoint creation.
 - **Multi-Runtime** — First-class support for **Node.js** and ECMA runtimes (**Deno**, **Bun**, **Cloudflare Workers**).
 
 ## Install
@@ -19,13 +19,13 @@ npm install @evjs/server hono
 
 ### 1. Server Routes
 
-Create standard REST endpoints using the `route()` factory:
+Create standard REST endpoints using the `createRoute()` factory:
 
 ```ts
 // src/api/users.ts
-import { route } from "@evjs/server";
+import { createRoute } from "@evjs/server";
 
-export const GET = route("/api/users", {
+export const GET = createRoute("/api/users", {
   GET: async (c) => Response.json([{ id: 1, name: "Alice" }]),
 });
 ```
@@ -69,7 +69,7 @@ Deno.serve({ port: 3001 }, createFetchHandler(app).fetch);
 ## Core APIs
 
 ### Routing
-- `route(path, handler)`: Create a REST endpoint.
+- `createRoute(path, handler)`: Create a REST endpoint.
 - `createApp(options)`: Main application factory.
 
 ## License

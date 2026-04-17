@@ -23,7 +23,7 @@ export interface CreateAppOptions {
   bodyLimit?: number;
   /**
    * Route handlers to mount on the app.
-   * Created via `route()`.
+   * Created via `createRoute()`.
    */
   routeHandlers?: RouteHandler[];
 }

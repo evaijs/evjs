@@ -25,4 +25,4 @@ export type {
   RouteHandlerFn,
   RouteMiddleware,
 } from "./routes";
-export { route } from "./routes";
+export { createRoute } from "./routes";

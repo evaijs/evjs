@@ -4,7 +4,7 @@
 
 ## 基本用法
 
-使用 `@evjs/server` 的 `route(path, definition)` 定义路由：
+使用 `@evjs/server` 的 `createRoute(path, definition)` 定义路由：
 
 :::important
 **路由路径必须是字符串字面量。** `path` 参数只接受字符串字面量类型——传入 `string` 类型的变量或模板字符串会产生 TypeScript 编译错误。这是通过类型系统强制执行的，以确保路由可被静态分析。
@@ -21,9 +21,9 @@ route(p, { ... });
 
 ```ts
 // src/api/posts.routes.ts
-import { route } from "@evjs/server";
+import { createRoute } from "@evjs/server";
 
-export const postsRoute = route("/api/posts", {
+export const postsRoute = createRoute("/api/posts", {
   GET: async (req) => {
     const url = new URL(req.url);
     const limit = Number(url.searchParams.get("limit")) || 10;
@@ -57,7 +57,7 @@ export const postsRoute = route("/api/posts", {
 使用 Hono 的 `:param` 语法定义路径参数：
 
 ```ts
-export const postDetailsRoute = route("/api/posts/:id", {
+export const postDetailsRoute = createRoute("/api/posts/:id", {
   GET: async (_req, ctx) => {
     const id = ctx.req.param("id");
     return Response.json({ id, title: "文章详情" });
@@ -75,7 +75,7 @@ export const postDetailsRoute = route("/api/posts/:id", {
 使用 `middleware` 选项在处理器之前运行逻辑。调用 `next()` 继续或返回 `Response` 短路：
 
 ```ts
-import { route } from "@evjs/server";
+import { createRoute } from "@evjs/server";
 
 const requireAuth = async (req, next) => {
   const auth = req.headers.get("Authorization");
@@ -83,7 +83,7 @@ const requireAuth = async (req, next) => {
   return next();
 };
 
-export const protectedRoute = route("/api/protected", {
+export const protectedRoute = createRoute("/api/protected", {
   middleware: [requireAuth],
   GET: async () => Response.json({ secret: "data" }),
 });

@@ -4,7 +4,7 @@ Server routes give you full control over HTTP methods, headers, and standard Web
 
 ## Basic Usage
 
-Define routes using `route(path, definition)` from `@evjs/server`:
+Define routes using `createRoute(path, definition)` from `@evjs/server`:
 
 :::important
 **Route paths must be string literals.** The `path` argument only accepts string literal types — passing a `string` variable or template string will produce a TypeScript compile error. This is enforced by the type system to ensure routes are statically analyzable.
@@ -21,9 +21,9 @@ route(p, { ... });
 
 ```ts
 // src/api/posts.routes.ts
-import { route } from "@evjs/server";
+import { createRoute } from "@evjs/server";
 
-export const postsRoute = route("/api/posts", {
+export const postsRoute = createRoute("/api/posts", {
   GET: async (req) => {
     const url = new URL(req.url);
     const limit = Number(url.searchParams.get("limit")) || 10;
@@ -59,7 +59,7 @@ The Hono `Context` (`ctx`) provides:
 Use Hono's `:param` syntax for path parameters:
 
 ```ts
-export const postDetailsRoute = route("/api/posts/:id", {
+export const postDetailsRoute = createRoute("/api/posts/:id", {
   GET: async (_req, ctx) => {
     const id = ctx.req.param("id");
     return Response.json({ id, title: "Post Details" });
@@ -77,7 +77,7 @@ export const postDetailsRoute = route("/api/posts/:id", {
 Use the `middleware` option to run logic before handlers. Call `next()` to proceed or return a `Response` to short-circuit:
 
 ```ts
-import { route } from "@evjs/server";
+import { createRoute } from "@evjs/server";
 
 const requireAuth = async (req, next) => {
   const auth = req.headers.get("Authorization");
@@ -85,7 +85,7 @@ const requireAuth = async (req, next) => {
   return next();
 };
 
-export const protectedRoute = route("/api/protected", {
+export const protectedRoute = createRoute("/api/protected", {
   middleware: [requireAuth],
   GET: async () => Response.json({ secret: "data" }),
 });

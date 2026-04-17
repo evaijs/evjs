@@ -4,9 +4,9 @@
  * Demonstrates a minimal single-method route handler.
  */
 
-import { route } from "@evjs/server";
+import { createRoute } from "@evjs/server";
 
-export const healthHandler = route("/api/health", {
+export const healthHandler = createRoute("/api/health", {
   GET: async () => {
     return Response.json({
       status: "ok",

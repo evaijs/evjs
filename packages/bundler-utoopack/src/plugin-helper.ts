@@ -1,4 +1,5 @@
 import type { EvBundlerCtx } from "@evjs/ev";
+import type { ConfigComplete } from "@utoo/pack";
 
 /**
  * Typed wrapper for utoopack configuration in plugin bundler hooks.
@@ -15,7 +16,7 @@ import type { EvBundlerCtx } from "@evjs/ev";
  *   setup(ctx) {
  *     return {
  *       bundler: utoopack((config) => {
- *         config.define = { ...config.define, MY_VAR: '"hello"' };
+ *         // config is typed as ConfigComplete from @utoo/pack
  *       }),
  *     };
  *   },
@@ -23,7 +24,11 @@ import type { EvBundlerCtx } from "@evjs/ev";
  * ```
  */
 export function utoopack(
-  fn: (config: Record<string, unknown>, ctx: EvBundlerCtx) => void,
+  fn: (config: ConfigComplete, ctx: EvBundlerCtx) => void,
 ): (config: unknown, ctx: EvBundlerCtx) => void {
-  return fn as (config: unknown, ctx: EvBundlerCtx) => void;
+  return (config, ctx) => {
+    if (ctx.config.bundler.name === "utoopack") {
+      fn(config as ConfigComplete, ctx);
+    }
+  };
 }

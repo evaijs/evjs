@@ -6,7 +6,6 @@
  * `server.functions.callServerModule` config field.
  */
 
-import fs from "node:fs";
 import path from "node:path";
 import type { EvBundlerCtx, EvPluginHooks, ResolvedEvConfig } from "@evjs/ev";
 import type { ConfigComplete } from "@utoo/pack";
@@ -26,18 +25,6 @@ export function createUtoopackConfig(
 ): ConfigComplete {
   const isProduction = process.env.NODE_ENV === "production";
   const serverEnabled = config.serverEnabled;
-
-  // Auto-detect PostCSS config
-  const postcssConfigs = [
-    "postcss.config.js",
-    "postcss.config.cjs",
-    "postcss.config.mjs",
-    ".postcssrc",
-    ".postcssrc.js",
-  ];
-  const hasPostCSS = postcssConfigs.some((f) =>
-    fs.existsSync(path.resolve(cwd, f)),
-  );
 
   const utoopackConfig: ConfigComplete = {
     mode: isProduction ? "production" : "development",
@@ -64,10 +51,6 @@ export function createUtoopackConfig(
     react: {
       runtime: "automatic",
     },
-    styles: {
-      postcss: hasPostCSS ? true : undefined,
-    },
-
     // Server functions config — utoopack handles "use server" natively
     ...(serverEnabled
       ? {

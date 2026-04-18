@@ -59,7 +59,7 @@ describe("plugin setup edge cases", () => {
   it("plugins without setup or returning void are silently skipped", async () => {
     const plugins: EvPlugin[] = [
       { name: "no-setup" },
-      { name: "void-setup", setup: () => {} },
+      { name: "void-setup", setup: () => undefined },
       { name: "real", setup: () => ({ buildStart: () => {} }) },
     ];
     const hooks = await collectPluginHooks(plugins, CTX);
